@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
+import { parseJsonResponse } from "@/lib/ai-context";
 
 const SYSTEM_PROMPT = `You are extracting a recipe from a photo of a handwritten or printed recipe card.
 Respond with only a JSON object, no other text, in this exact shape:
@@ -55,7 +56,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Could not read a recipe from that photo" }, { status: 422 });
     }
 
-    const parsed = JSON.parse(textBlock.text);
+    const parsed = parseJsonResponse(textBlock.text);
     return NextResponse.json(parsed);
   } catch {
     return NextResponse.json({ error: "Could not read a recipe from that photo" }, { status: 422 });

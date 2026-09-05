@@ -16,6 +16,8 @@ export default function NewRecipePage() {
   const [source, setSource] = useState<RecipeSource>("manual");
   const [sourceUrl, setSourceUrl] = useState<string | null>(null);
   const [linkInput, setLinkInput] = useState("");
+  const [aiPrompt, setAiPrompt] = useState("");
+  const [respectDietary, setRespectDietary] = useState(true);
   const [importing, setImporting] = useState(false);
   const [importError, setImportError] = useState<string | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -106,6 +108,31 @@ export default function NewRecipePage() {
     setSourceUrl(linkInput.trim());
   }
 
+  async function handleAiGenerate() {
+    if (!aiPrompt.trim()) return;
+    setImporting(true);
+    setImportError(null);
+
+    const res = await fetch("/api/recipes/generate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prompt: aiPrompt.trim(), respectDietary }),
+    });
+
+    setImporting(false);
+
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      setImportError(data.error ?? "Could not generate a recipe");
+      return;
+    }
+
+    const parsed = await res.json();
+    applyParsed(parsed);
+    setSource("ai");
+    setSourceUrl(null);
+  }
+
   async function handleSave() {
     setSaving(true);
     setSaveError(null);
@@ -193,6 +220,31 @@ export default function NewRecipePage() {
             className="rounded-md border border-cocoa/40 px-3 py-2 text-sm disabled:opacity-50"
           >
             Import
+          </button>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2 border-t border-cocoa/20 pt-3">
+          <input
+            value={aiPrompt}
+            onChange={(e) => setAiPrompt(e.target.value)}
+            placeholder="✨ Generate with AI — e.g. quick vegetarian pasta"
+            className="flex-1 rounded-md border border-cocoa/40 bg-white px-3 py-2 text-sm text-ink"
+          />
+          <label className="flex items-center gap-1 text-xs text-cocoa">
+            <input
+              type="checkbox"
+              checked={respectDietary}
+              onChange={(e) => setRespectDietary(e.target.checked)}
+            />
+            Respect household restrictions
+          </label>
+          <button
+            type="button"
+            onClick={handleAiGenerate}
+            disabled={importing || !aiPrompt.trim()}
+            className="rounded-md border border-cocoa/40 px-3 py-2 text-sm disabled:opacity-50"
+          >
+            Generate
           </button>
         </div>
 

@@ -35,16 +35,24 @@ const WEEKLY_MEAL_LABELS: Record<WeeklyMealType, string> = {
 
 export function WeekPlanClient({ initialPlan, recipes }: { initialPlan: Plan; recipes: Recipe[] }) {
   const [plan, setPlan] = useState<Plan>(initialPlan);
+  const [savedPlan, setSavedPlan] = useState<Plan>(initialPlan);
+  const [isDraft, setIsDraft] = useState(false);
+  const [recipeOptions, setRecipeOptions] = useState(recipes);
   const [saving, setSaving] = useState(false);
+  const [generating, setGenerating] = useState(false);
+  const [generateError, setGenerateError] = useState<string | null>(null);
+  const [respectDietary, setRespectDietary] = useState(true);
 
   async function persist(next: Plan) {
     setPlan(next);
+    if (isDraft) return; // draft edits stay local until explicitly saved
     setSaving(true);
     await fetch("/api/weekplan", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(next),
     });
+    setSavedPlan(next);
     setSaving(false);
   }
 
@@ -71,6 +79,49 @@ export function WeekPlanClient({ initialPlan, recipes }: { initialPlan: Plan; re
     });
   }
 
+  async function handleGenerate() {
+    setGenerating(true);
+    setGenerateError(null);
+
+    const res = await fetch("/api/weekplan/generate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ dayTags: plan.dayTags, respectDietary }),
+    });
+
+    setGenerating(false);
+
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      setGenerateError(data.error ?? "Could not generate a weekly plan");
+      return;
+    }
+
+    const { dinners } = await res.json();
+    setPlan({ ...plan, dinners });
+    setIsDraft(true);
+
+    const recipesRes = await fetch("/api/recipes");
+    if (recipesRes.ok) setRecipeOptions(await recipesRes.json());
+  }
+
+  async function handleSaveDraft() {
+    setSaving(true);
+    await fetch("/api/weekplan", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(plan),
+    });
+    setSavedPlan(plan);
+    setIsDraft(false);
+    setSaving(false);
+  }
+
+  function handleDiscardDraft() {
+    setPlan(savedPlan);
+    setIsDraft(false);
+  }
+
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 p-4 pb-24">
       <div className="flex items-center justify-between">
@@ -86,7 +137,51 @@ export function WeekPlanClient({ initialPlan, recipes }: { initialPlan: Plan; re
         </div>
       </div>
 
-      {saving && <p className="text-xs text-cocoa">Saving…</p>}
+      {!isDraft && (
+        <div className="card flex flex-wrap items-center gap-3 p-3">
+          <button
+            type="button"
+            onClick={handleGenerate}
+            disabled={generating}
+            className="rounded-md bg-brick px-3 py-1.5 text-sm font-medium text-white disabled:opacity-50"
+          >
+            {generating ? "Planning…" : "✨ Plan my week (AI)"}
+          </button>
+          <label className="flex items-center gap-1 text-xs text-cocoa">
+            <input
+              type="checkbox"
+              checked={respectDietary}
+              onChange={(e) => setRespectDietary(e.target.checked)}
+            />
+            Respect household restrictions
+          </label>
+          <span className="text-xs text-cocoa">Uses each day&apos;s tag below to plan dinners.</span>
+        </div>
+      )}
+      {generateError && <p className="text-sm text-brick">{generateError}</p>}
+
+      {isDraft && (
+        <div className="card flex flex-wrap items-center gap-3 border-2 border-brick p-3">
+          <span className="text-sm font-medium text-brick">AI draft — review and edit before saving</span>
+          <button
+            type="button"
+            onClick={handleSaveDraft}
+            disabled={saving}
+            className="rounded-md bg-sage px-3 py-1.5 text-sm font-medium text-white disabled:opacity-50"
+          >
+            Save week plan
+          </button>
+          <button
+            type="button"
+            onClick={handleDiscardDraft}
+            className="rounded-md border border-cocoa/40 px-3 py-1.5 text-sm"
+          >
+            Discard draft
+          </button>
+        </div>
+      )}
+
+      {saving && !isDraft && <p className="text-xs text-cocoa">Saving…</p>}
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
         {DAYS.map((day) => (
@@ -120,7 +215,7 @@ export function WeekPlanClient({ initialPlan, recipes }: { initialPlan: Plan; re
               ))}
             </ul>
 
-            <MealEntryAdder recipes={recipes} onAdd={(entry) => addDinner(day, entry)} />
+            <MealEntryAdder recipes={recipeOptions} onAdd={(entry) => addDinner(day, entry)} />
           </div>
         ))}
       </div>
@@ -143,7 +238,7 @@ export function WeekPlanClient({ initialPlan, recipes }: { initialPlan: Plan; re
                 </li>
               ))}
             </ul>
-            <MealEntryAdder recipes={recipes} onAdd={(entry) => addWeekly(mealType, entry)} />
+            <MealEntryAdder recipes={recipeOptions} onAdd={(entry) => addWeekly(mealType, entry)} />
           </div>
         ))}
       </div>

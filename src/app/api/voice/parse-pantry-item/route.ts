@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
+import { parseJsonResponse } from "@/lib/ai-context";
 
 type ParsedItem = {
   name: string;
@@ -42,7 +43,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(naiveParse(transcript));
     }
 
-    const parsed = JSON.parse(textBlock.text);
+    const parsed = parseJsonResponse(textBlock.text) as { name?: unknown; quantity?: unknown };
     if (typeof parsed.name === "string") {
       return NextResponse.json({
         name: parsed.name,

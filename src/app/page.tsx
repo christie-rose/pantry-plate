@@ -27,6 +27,9 @@ export default function HomePage() {
           Go to Plan
         </Link>
       </div>
+      <Link href="/dietary" className="text-xs text-cocoa underline">
+        ⚙ Household dietary profile
+      </Link>
     </main>
   );
 }
