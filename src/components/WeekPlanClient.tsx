@@ -124,14 +124,14 @@ export function WeekPlanClient({ initialPlan, recipes }: { initialPlan: Plan; re
 
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 p-4 pb-24">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <h1 className="text-3xl text-brick">Plan</h1>
         <div className="flex items-center gap-3 text-sm">
-          <Link href={`/plan?week=${addDaysToKey(plan.weekKey, -7)}`} className="rounded-md border border-cocoa/40 px-2 py-1">
+          <Link href={`/plan?week=${addDaysToKey(plan.weekKey, -7)}`} className="flex min-h-[44px] items-center rounded-md border border-cocoa/40 px-2">
             ← Prev
           </Link>
           <span className="font-medium text-ink">{formatWeekLabel(plan.weekKey)}</span>
-          <Link href={`/plan?week=${addDaysToKey(plan.weekKey, 7)}`} className="rounded-md border border-cocoa/40 px-2 py-1">
+          <Link href={`/plan?week=${addDaysToKey(plan.weekKey, 7)}`} className="flex min-h-[44px] items-center rounded-md border border-cocoa/40 px-2">
             Next →
           </Link>
         </div>

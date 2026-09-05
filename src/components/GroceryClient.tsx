@@ -71,14 +71,14 @@ export function GroceryClient({ weekKey, initialItems }: { weekKey: string; init
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 p-4 pb-24">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <h1 className="text-3xl text-brick">Grocery</h1>
         <div className="flex items-center gap-3 text-sm">
-          <Link href={`/grocery?week=${addDaysToKey(weekKey, -7)}`} className="rounded-md border border-cocoa/40 px-2 py-1">
+          <Link href={`/grocery?week=${addDaysToKey(weekKey, -7)}`} className="flex min-h-[44px] items-center rounded-md border border-cocoa/40 px-2">
             ← Prev
           </Link>
           <span className="font-medium text-ink">{formatWeekLabel(weekKey)}</span>
-          <Link href={`/grocery?week=${addDaysToKey(weekKey, 7)}`} className="rounded-md border border-cocoa/40 px-2 py-1">
+          <Link href={`/grocery?week=${addDaysToKey(weekKey, 7)}`} className="flex min-h-[44px] items-center rounded-md border border-cocoa/40 px-2">
             Next →
           </Link>
         </div>
@@ -89,7 +89,7 @@ export function GroceryClient({ weekKey, initialItems }: { weekKey: string; init
           type="button"
           onClick={handleGenerate}
           disabled={generating}
-          className="rounded-md bg-brick px-3 py-1.5 text-sm font-medium text-white disabled:opacity-50"
+          className="min-h-[44px] rounded-md bg-brick px-3 text-sm font-medium text-white disabled:opacity-50"
         >
           {generating ? "Generating…" : "Generate from this week's plan"}
         </button>
@@ -97,7 +97,7 @@ export function GroceryClient({ weekKey, initialItems }: { weekKey: string; init
           <button
             type="button"
             onClick={markAllShopped}
-            className="rounded-md border border-cocoa/40 px-3 py-1.5 text-sm"
+            className="min-h-[44px] rounded-md border border-cocoa/40 px-3 text-sm"
           >
             Mark all shopped
           </button>
@@ -109,12 +109,12 @@ export function GroceryClient({ weekKey, initialItems }: { weekKey: string; init
           value={newName}
           onChange={(e) => setNewName(e.target.value)}
           placeholder="Add an item…"
-          className="flex-1 rounded-md border border-cocoa/40 bg-white px-2 py-1.5 text-sm"
+          className="min-h-[44px] flex-1 rounded-md border border-cocoa/40 bg-white px-2 text-sm"
         />
         <select
           value={newStore}
           onChange={(e) => setNewStore(e.target.value as Store)}
-          className="rounded-md border border-cocoa/40 bg-white px-2 py-1.5 text-sm"
+          className="min-h-[44px] rounded-md border border-cocoa/40 bg-white px-2 text-sm"
         >
           {STORES.map((s) => (
             <option key={s} value={s}>
@@ -126,7 +126,7 @@ export function GroceryClient({ weekKey, initialItems }: { weekKey: string; init
           type="button"
           onClick={handleAdd}
           disabled={!newName.trim()}
-          className="rounded-md bg-sage px-3 py-1.5 text-sm font-medium text-white disabled:opacity-50"
+          className="min-h-[44px] rounded-md bg-sage px-3 text-sm font-medium text-white disabled:opacity-50"
         >
           Add
         </button>
@@ -145,7 +145,7 @@ export function GroceryClient({ weekKey, initialItems }: { weekKey: string; init
                   <select
                     value={item.store}
                     onChange={(e) => updateStore(item.id, e.target.value)}
-                    className="rounded-md border border-cocoa/40 bg-white px-2 py-1 text-xs"
+                    className="min-h-[44px] rounded-md border border-cocoa/40 bg-white px-2 text-xs"
                   >
                     {STORES.map((s) => (
                       <option key={s} value={s}>
@@ -156,14 +156,14 @@ export function GroceryClient({ weekKey, initialItems }: { weekKey: string; init
                   <button
                     type="button"
                     onClick={() => markShopped(item.id)}
-                    className="rounded-md bg-sage px-2 py-1 text-xs text-white"
+                    className="min-h-[44px] rounded-md bg-sage px-2 text-xs text-white"
                   >
                     Shopped
                   </button>
                   <button
                     type="button"
                     onClick={() => deleteItem(item.id)}
-                    className="rounded-md border border-brick/50 px-2 py-1 text-xs text-brick"
+                    className="min-h-[44px] rounded-md border border-brick/50 px-2 text-xs text-brick"
                   >
                     Delete
                   </button>

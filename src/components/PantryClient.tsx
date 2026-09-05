@@ -168,7 +168,7 @@ export function PantryClient({ initialItems }: { initialItems: PantryItem[] }) {
             value={form.name}
             onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
             placeholder="Add an item…"
-            className="flex-1 rounded-md border border-cocoa/40 bg-white px-3 py-2 text-ink outline-none focus:border-brick"
+            className="min-h-[44px] flex-1 rounded-md border border-cocoa/40 bg-white px-3 py-2 text-ink outline-none focus:border-brick"
           />
           <VoiceButton onTranscript={handleVoiceTranscript} />
         </div>
@@ -177,7 +177,7 @@ export function PantryClient({ initialItems }: { initialItems: PantryItem[] }) {
           <select
             value={form.location}
             onChange={(e) => setForm((f) => ({ ...f, location: e.target.value as Location }))}
-            className="rounded-md border border-cocoa/40 bg-white px-2 py-2 text-sm text-ink"
+            className="min-h-[44px] rounded-md border border-cocoa/40 bg-white px-2 py-2 text-sm text-ink"
           >
             {LOCATIONS.map((l) => (
               <option key={l} value={l}>
@@ -189,7 +189,7 @@ export function PantryClient({ initialItems }: { initialItems: PantryItem[] }) {
           <select
             value={form.preferredStore}
             onChange={(e) => setForm((f) => ({ ...f, preferredStore: e.target.value as Store }))}
-            className="rounded-md border border-cocoa/40 bg-white px-2 py-2 text-sm text-ink"
+            className="min-h-[44px] rounded-md border border-cocoa/40 bg-white px-2 py-2 text-sm text-ink"
           >
             {STORES.map((s) => (
               <option key={s} value={s}>
@@ -198,7 +198,7 @@ export function PantryClient({ initialItems }: { initialItems: PantryItem[] }) {
             ))}
           </select>
 
-          <label className="flex items-center gap-2 rounded-md border border-cocoa/40 bg-white px-2 py-2 text-sm text-ink">
+          <label className="min-h-[44px] flex items-center gap-2 rounded-md border border-cocoa/40 bg-white px-2 py-2 text-sm text-ink">
             <input
               type="checkbox"
               checked={form.isStaple}
@@ -211,7 +211,7 @@ export function PantryClient({ initialItems }: { initialItems: PantryItem[] }) {
             <select
               value={form.stapleStatus}
               onChange={(e) => setForm((f) => ({ ...f, stapleStatus: e.target.value as StapleStatus }))}
-              className="rounded-md border border-cocoa/40 bg-white px-2 py-2 text-sm text-ink"
+              className="min-h-[44px] rounded-md border border-cocoa/40 bg-white px-2 py-2 text-sm text-ink"
             >
               {STAPLE_STATUSES.map((s) => (
                 <option key={s} value={s}>
@@ -224,7 +224,7 @@ export function PantryClient({ initialItems }: { initialItems: PantryItem[] }) {
               value={form.quantity}
               onChange={(e) => setForm((f) => ({ ...f, quantity: e.target.value }))}
               placeholder="Quantity (e.g. 2 lb)"
-              className="rounded-md border border-cocoa/40 bg-white px-2 py-2 text-sm text-ink"
+              className="min-h-[44px] rounded-md border border-cocoa/40 bg-white px-2 py-2 text-sm text-ink"
             />
           )}
         </div>
@@ -234,7 +234,7 @@ export function PantryClient({ initialItems }: { initialItems: PantryItem[] }) {
         <button
           type="submit"
           disabled={loading || !form.name.trim()}
-          className="self-start rounded-md bg-brick px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+          className="min-h-[44px] self-start rounded-md bg-brick px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
         >
           Add item
         </button>
@@ -245,12 +245,12 @@ export function PantryClient({ initialItems }: { initialItems: PantryItem[] }) {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search pantry…"
-          className="flex-1 min-w-[140px] rounded-md border border-cocoa/40 bg-white px-3 py-2 text-sm text-ink"
+          className="min-h-[44px] flex-1 min-w-[140px] rounded-md border border-cocoa/40 bg-white px-3 py-2 text-sm text-ink"
         />
         <select
           value={locationFilter}
           onChange={(e) => setLocationFilter(e.target.value)}
-          className="rounded-md border border-cocoa/40 bg-white px-2 py-2 text-sm text-ink"
+          className="min-h-[44px] rounded-md border border-cocoa/40 bg-white px-2 py-2 text-sm text-ink"
         >
           <option value="">All locations</option>
           {LOCATIONS.map((l) => (
@@ -262,7 +262,7 @@ export function PantryClient({ initialItems }: { initialItems: PantryItem[] }) {
         <select
           value={storeFilter}
           onChange={(e) => setStoreFilter(e.target.value)}
-          className="rounded-md border border-cocoa/40 bg-white px-2 py-2 text-sm text-ink"
+          className="min-h-[44px] rounded-md border border-cocoa/40 bg-white px-2 py-2 text-sm text-ink"
         >
           <option value="">All stores</option>
           {STORES.map((s) => (
@@ -274,7 +274,7 @@ export function PantryClient({ initialItems }: { initialItems: PantryItem[] }) {
         <select
           value={stapleFilter}
           onChange={(e) => setStapleFilter(e.target.value)}
-          className="rounded-md border border-cocoa/40 bg-white px-2 py-2 text-sm text-ink"
+          className="min-h-[44px] rounded-md border border-cocoa/40 bg-white px-2 py-2 text-sm text-ink"
         >
           <option value="">Any staple status</option>
           {STAPLE_STATUSES.map((s) => (
@@ -286,7 +286,7 @@ export function PantryClient({ initialItems }: { initialItems: PantryItem[] }) {
         <select
           value={sort}
           onChange={(e) => setSort(e.target.value as "name" | "updatedAt")}
-          className="rounded-md border border-cocoa/40 bg-white px-2 py-2 text-sm text-ink"
+          className="min-h-[44px] rounded-md border border-cocoa/40 bg-white px-2 py-2 text-sm text-ink"
         >
           <option value="name">Sort: A–Z</option>
           <option value="updatedAt">Sort: Recently updated</option>
@@ -390,13 +390,13 @@ export function PantryClient({ initialItems }: { initialItems: PantryItem[] }) {
                 <div className="flex shrink-0 gap-2">
                   <button
                     onClick={() => startEdit(item)}
-                    className="rounded-md border border-cocoa/40 px-3 py-1 text-xs"
+                    className="min-h-[44px] rounded-md border border-cocoa/40 px-3 text-xs"
                   >
                     Edit
                   </button>
                   <button
                     onClick={() => handleDelete(item.id)}
-                    className="rounded-md border border-brick/50 px-3 py-1 text-xs text-brick"
+                    className="min-h-[44px] rounded-md border border-brick/50 px-3 text-xs text-brick"
                   >
                     Delete
                   </button>

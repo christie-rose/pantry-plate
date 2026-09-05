@@ -60,7 +60,7 @@ export function RecipeForm({
         <input
           value={value.title}
           onChange={(e) => onChange({ ...value, title: e.target.value })}
-          className="rounded-md border border-cocoa/40 bg-white px-3 py-2 text-ink"
+          className="min-h-[44px] rounded-md border border-cocoa/40 bg-white px-3 py-2 text-ink"
         />
       </div>
 
@@ -72,7 +72,7 @@ export function RecipeForm({
             min={1}
             value={value.servings}
             onChange={(e) => onChange({ ...value, servings: e.target.value })}
-            className="rounded-md border border-cocoa/40 bg-white px-3 py-2 text-ink"
+            className="min-h-[44px] rounded-md border border-cocoa/40 bg-white px-3 py-2 text-ink"
           />
         </div>
         <div className="flex flex-[2] flex-col gap-1">
@@ -81,7 +81,7 @@ export function RecipeForm({
             value={value.tags}
             onChange={(e) => onChange({ ...value, tags: e.target.value })}
             placeholder="weeknight, chicken, quick"
-            className="rounded-md border border-cocoa/40 bg-white px-3 py-2 text-ink"
+            className="min-h-[44px] rounded-md border border-cocoa/40 bg-white px-3 py-2 text-ink"
           />
         </div>
       </div>
@@ -161,7 +161,7 @@ export function RecipeForm({
           value={value.notes}
           onChange={(e) => onChange({ ...value, notes: e.target.value })}
           rows={2}
-          className="rounded-md border border-cocoa/40 bg-white px-3 py-2 text-ink"
+          className="min-h-[44px] rounded-md border border-cocoa/40 bg-white px-3 py-2 text-ink"
         />
       </div>
     </div>

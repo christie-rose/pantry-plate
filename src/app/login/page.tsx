@@ -47,7 +47,7 @@ export default function LoginPage() {
           value={password}
           onChange={(event) => setPassword(event.target.value)}
           placeholder="Password"
-          className="rounded-md border border-cocoa/40 bg-white px-3 py-2 text-ink outline-none focus:border-brick"
+          className="min-h-[44px] rounded-md border border-cocoa/40 bg-white px-3 py-2 text-ink outline-none focus:border-brick"
         />
 
         {error && <p className="text-sm text-brick">{error}</p>}
@@ -55,7 +55,7 @@ export default function LoginPage() {
         <button
           type="submit"
           disabled={submitting || password.length === 0}
-          className="rounded-md bg-brick px-4 py-2 text-white font-medium disabled:opacity-50"
+          className="min-h-[44px] rounded-md bg-brick px-4 py-2 text-white font-medium disabled:opacity-50"
         >
           {submitting ? "Checking…" : "Enter"}
         </button>

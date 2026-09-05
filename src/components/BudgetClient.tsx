@@ -127,13 +127,13 @@ export function BudgetClient({ budget, initialExpenses }: { budget: Budget; init
             min={0}
             value={budgetInput}
             onChange={(e) => setBudgetInput(e.target.value)}
-            className="w-28 rounded-md border border-cocoa/40 bg-white px-2 py-1 text-sm"
+            className="min-h-[44px] w-28 rounded-md border border-cocoa/40 bg-white px-2 py-1 text-sm"
           />
           <button
             type="button"
             onClick={saveBudgetTarget}
             disabled={savingBudget}
-            className="rounded-md bg-sage px-3 py-1 text-sm text-white disabled:opacity-50"
+            className="min-h-[44px] rounded-md bg-sage px-3 py-1 text-sm text-white disabled:opacity-50"
           >
             Save
           </button>
@@ -163,7 +163,7 @@ export function BudgetClient({ budget, initialExpenses }: { budget: Budget; init
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            className="rounded-md border border-cocoa/40 px-3 py-2 text-sm"
+            className="min-h-[44px] rounded-md border border-cocoa/40 px-3 py-2 text-sm"
           >
             📷 Snap a receipt
           </button>
@@ -191,12 +191,12 @@ export function BudgetClient({ budget, initialExpenses }: { budget: Budget; init
             value={draftTotal}
             onChange={(e) => setDraftTotal(e.target.value)}
             placeholder="Total"
-            className="w-28 rounded-md border border-cocoa/40 bg-white px-2 py-1.5 text-sm"
+            className="min-h-[44px] w-28 rounded-md border border-cocoa/40 bg-white px-2 py-1.5 text-sm"
           />
           <select
             value={draftStore}
             onChange={(e) => setDraftStore(e.target.value as Store)}
-            className="rounded-md border border-cocoa/40 bg-white px-2 py-1.5 text-sm"
+            className="min-h-[44px] rounded-md border border-cocoa/40 bg-white px-2 py-1.5 text-sm"
           >
             {STORES.map((s) => (
               <option key={s} value={s}>
@@ -208,19 +208,19 @@ export function BudgetClient({ budget, initialExpenses }: { budget: Budget; init
             type="date"
             value={draftDate}
             onChange={(e) => setDraftDate(e.target.value)}
-            className="rounded-md border border-cocoa/40 bg-white px-2 py-1.5 text-sm"
+            className="min-h-[44px] rounded-md border border-cocoa/40 bg-white px-2 py-1.5 text-sm"
           />
           <input
             value={draftNote}
             onChange={(e) => setDraftNote(e.target.value)}
             placeholder="Note (optional)"
-            className="flex-1 min-w-[120px] rounded-md border border-cocoa/40 bg-white px-2 py-1.5 text-sm"
+            className="min-h-[44px] flex-1 min-w-[120px] rounded-md border border-cocoa/40 bg-white px-2 py-1.5 text-sm"
           />
           <button
             type="button"
             onClick={handleLogExpense}
             disabled={logging || !draftTotal || Number(draftTotal) <= 0}
-            className="rounded-md bg-brick px-3 py-1.5 text-sm font-medium text-white disabled:opacity-50"
+            className="min-h-[44px] rounded-md bg-brick px-3 py-1.5 text-sm font-medium text-white disabled:opacity-50"
           >
             Confirm &amp; log
           </button>
@@ -245,7 +245,7 @@ export function BudgetClient({ budget, initialExpenses }: { budget: Budget; init
               <button
                 type="button"
                 onClick={() => handleDelete(expense.id)}
-                className="rounded-md border border-brick/50 px-3 py-1 text-xs text-brick"
+                className="min-h-[44px] rounded-md border border-brick/50 px-3 py-1 text-xs text-brick"
               >
                 Delete
               </button>

@@ -172,7 +172,7 @@ export default function NewRecipePage() {
             }
           />
         )}
-        <Link href="/recipes" className="self-start rounded-md bg-brick px-4 py-2 text-sm font-medium text-white">
+        <Link href="/recipes" className="min-h-[44px] self-start rounded-md bg-brick px-4 py-2 text-sm font-medium text-white">
           Back to recipes
         </Link>
       </div>
@@ -188,7 +188,7 @@ export default function NewRecipePage() {
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            className="rounded-md border border-cocoa/40 px-3 py-2 text-sm"
+            className="min-h-[44px] rounded-md border border-cocoa/40 px-3 py-2 text-sm"
           >
             📷 Photo of a recipe
           </button>
@@ -211,13 +211,13 @@ export default function NewRecipePage() {
             value={linkInput}
             onChange={(e) => setLinkInput(e.target.value)}
             placeholder="Paste a recipe link…"
-            className="flex-1 rounded-md border border-cocoa/40 bg-white px-3 py-2 text-sm text-ink"
+            className="min-h-[44px] flex-1 rounded-md border border-cocoa/40 bg-white px-3 py-2 text-sm text-ink"
           />
           <button
             type="button"
             onClick={handleLinkImport}
             disabled={importing || !linkInput.trim()}
-            className="rounded-md border border-cocoa/40 px-3 py-2 text-sm disabled:opacity-50"
+            className="min-h-[44px] rounded-md border border-cocoa/40 px-3 py-2 text-sm disabled:opacity-50"
           >
             Import
           </button>
@@ -228,7 +228,7 @@ export default function NewRecipePage() {
             value={aiPrompt}
             onChange={(e) => setAiPrompt(e.target.value)}
             placeholder="✨ Generate with AI — e.g. quick vegetarian pasta"
-            className="flex-1 rounded-md border border-cocoa/40 bg-white px-3 py-2 text-sm text-ink"
+            className="min-h-[44px] flex-1 rounded-md border border-cocoa/40 bg-white px-3 py-2 text-sm text-ink"
           />
           <label className="flex items-center gap-1 text-xs text-cocoa">
             <input
@@ -242,7 +242,7 @@ export default function NewRecipePage() {
             type="button"
             onClick={handleAiGenerate}
             disabled={importing || !aiPrompt.trim()}
-            className="rounded-md border border-cocoa/40 px-3 py-2 text-sm disabled:opacity-50"
+            className="min-h-[44px] rounded-md border border-cocoa/40 px-3 py-2 text-sm disabled:opacity-50"
           >
             Generate
           </button>
@@ -260,7 +260,7 @@ export default function NewRecipePage() {
         type="button"
         onClick={handleSave}
         disabled={saving || !form.title.trim()}
-        className="self-start rounded-md bg-brick px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+        className="min-h-[44px] self-start rounded-md bg-brick px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
       >
         Save recipe
       </button>

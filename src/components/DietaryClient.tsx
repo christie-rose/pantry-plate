@@ -54,7 +54,7 @@ export function DietaryClient({ initialEntries }: { initialEntries: DietaryEntry
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="e.g. Peanuts, Vegetarian"
-            className="rounded-md border border-cocoa/40 bg-white px-2 py-1.5 text-sm"
+            className="min-h-[44px] rounded-md border border-cocoa/40 bg-white px-2 py-1.5 text-sm"
           />
         </div>
         <div className="flex flex-col gap-1">
@@ -62,7 +62,7 @@ export function DietaryClient({ initialEntries }: { initialEntries: DietaryEntry
           <select
             value={category}
             onChange={(e) => setCategory(e.target.value as DietaryCategory)}
-            className="rounded-md border border-cocoa/40 bg-white px-2 py-1.5 text-sm"
+            className="min-h-[44px] rounded-md border border-cocoa/40 bg-white px-2 py-1.5 text-sm"
           >
             {DIETARY_CATEGORIES.map((c) => (
               <option key={c} value={c}>
@@ -77,10 +77,10 @@ export function DietaryClient({ initialEntries }: { initialEntries: DietaryEntry
             value={detail}
             onChange={(e) => setDetail(e.target.value)}
             placeholder="e.g. severe, avoid entirely"
-            className="w-full rounded-md border border-cocoa/40 bg-white px-2 py-1.5 text-sm"
+            className="min-h-[44px] w-full rounded-md border border-cocoa/40 bg-white px-2 py-1.5 text-sm"
           />
         </div>
-        <button type="submit" className="rounded-md bg-brick px-3 py-1.5 text-sm font-medium text-white">
+        <button type="submit" className="min-h-[44px] rounded-md bg-brick px-3 py-1.5 text-sm font-medium text-white">
           Add
         </button>
       </form>
@@ -98,7 +98,7 @@ export function DietaryClient({ initialEntries }: { initialEntries: DietaryEntry
             </div>
             <button
               onClick={() => handleDelete(entry.id)}
-              className="rounded-md border border-brick/50 px-3 py-1 text-xs text-brick"
+              className="min-h-[44px] rounded-md border border-brick/50 px-3 py-1 text-xs text-brick"
             >
               Delete
             </button>
