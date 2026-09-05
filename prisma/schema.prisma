@@ -1,0 +1,86 @@
+// Pantry & Plate — Prisma schema
+// See pantry-and-plate-spec.md §3 for the source of truth on this model.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model PantryItem {
+  id              String             @id @default(cuid())
+  name            String
+  location        String // "Pantry" | "Fridge" | "Freezer"
+  preferredStore  String // "Costco" | "Albertsons" | "WinCo" | "Other"
+  isStaple        Boolean            @default(false)
+  stapleStatus    String? // "In stock" | "Low" | "Out" — used when isStaple = true
+  quantity        String? // free text, e.g. "2 lb" — used when isStaple = false
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  ingredientLinks RecipeIngredient[]
+}
+
+model Recipe {
+  id           String             @id @default(cuid())
+  title        String
+  tags         String[]
+  servings     Int
+  instructions String[]
+  notes        String?
+  source       String // "manual" | "ai" | "photo" | "link"
+  sourceUrl    String?
+  createdAt    DateTime           @default(now())
+  ingredients  RecipeIngredient[]
+}
+
+model RecipeIngredient {
+  id           String      @id @default(cuid())
+  recipeId     String
+  recipe       Recipe      @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  name         String
+  amount       Float?
+  unit         String?
+  pantryItemId String?
+  pantryItem   PantryItem? @relation(fields: [pantryItemId], references: [id])
+  reviewed     Boolean     @default(false) // false = still needs pantry-matching pass
+}
+
+model DietaryEntry {
+  id       String  @id @default(cuid())
+  name     String
+  category String // "Allergy" | "Diet" | "Dislike" | "Preference"
+  detail   String?
+}
+
+model WeekPlan {
+  id          String @id @default(cuid())
+  weekKey     String @unique // ISO date of that week's Monday
+  dayTags     Json // { Mon: "busy", Tue: "normal", Wed: "eating-out", ... }
+  dinners     Json // { Mon: [entry, entry], Tue: [...], ... } — see §6 for entry shape
+  weeklyMeals Json // { breakfast: [entry...], lunch: [...], snack: [...] }
+}
+
+model GroceryList {
+  id      String @id @default(cuid())
+  weekKey String @unique
+  items   Json // array of grocery item objects — see §7
+}
+
+model Budget {
+  id            String    @id @default(cuid())
+  monthlyBudget Float     @default(0)
+  expenses      Expense[]
+}
+
+model Expense {
+  id       String   @id @default(cuid())
+  budgetId String
+  budget   Budget   @relation(fields: [budgetId], references: [id])
+  date     DateTime
+  amount   Float
+  store    String
+  note     String?
+}
