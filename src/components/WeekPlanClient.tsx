@@ -83,6 +83,26 @@ export function WeekPlanClient({ initialPlan, recipes }: { initialPlan: Plan; re
     });
   }
 
+  function updateDinnerServings(day: Day, id: string, servings: number) {
+    persist({
+      ...plan,
+      dinners: {
+        ...plan.dinners,
+        [day]: plan.dinners[day].map((e) => (e.id === id ? { ...e, servings } : e)),
+      },
+    });
+  }
+
+  function updateWeeklyServings(mealType: WeeklyMealType, id: string, servings: number) {
+    persist({
+      ...plan,
+      weeklyMeals: {
+        ...plan.weeklyMeals,
+        [mealType]: plan.weeklyMeals[mealType].map((e) => (e.id === id ? { ...e, servings } : e)),
+      },
+    });
+  }
+
   async function handleGenerate() {
     setGenerating(true);
     setGenerateError(null);
@@ -259,23 +279,32 @@ export function WeekPlanClient({ initialPlan, recipes }: { initialPlan: Plan; re
                     {entry.type === "recipe" && entry.recipeId ? (
                       <Link href={`/recipes/${entry.recipeId}`} className="underline">
                         {entry.label}
-                        {entry.servings ? ` (${entry.servings})` : ""}
                       </Link>
                     ) : (
                       <span>{entry.label}</span>
                     )}
                     <div className="flex shrink-0 items-center gap-1.5">
                       {entry.type === "recipe" && entry.recipeId && (
-                        <button
-                          type="button"
-                          onClick={() => handleAddToGrocery(entry)}
-                          disabled={addingToGrocery === entry.id}
-                          className="flex items-center text-sage disabled:opacity-50"
-                          aria-label="Add to grocery list"
-                          title="Add to grocery list"
-                        >
-                          <RiShoppingCartLine size={14} aria-hidden />
-                        </button>
+                        <>
+                          <input
+                            type="number"
+                            min={1}
+                            value={entry.servings ?? ""}
+                            onChange={(e) => updateDinnerServings(day, entry.id, Number(e.target.value))}
+                            aria-label="Servings"
+                            className="w-10 rounded border border-cocoa/40 bg-white px-1 py-0.5 text-xs"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => handleAddToGrocery(entry)}
+                            disabled={addingToGrocery === entry.id}
+                            className="flex items-center text-sage disabled:opacity-50"
+                            aria-label="Add to grocery list"
+                            title="Add to grocery list"
+                          >
+                            <RiShoppingCartLine size={14} aria-hidden />
+                          </button>
+                        </>
                       )}
                       <button
                         type="button"
@@ -309,23 +338,32 @@ export function WeekPlanClient({ initialPlan, recipes }: { initialPlan: Plan; re
                     {entry.type === "recipe" && entry.recipeId ? (
                       <Link href={`/recipes/${entry.recipeId}`} className="underline">
                         {entry.label}
-                        {entry.servings ? ` (${entry.servings})` : ""}
                       </Link>
                     ) : (
                       <span>{entry.label}</span>
                     )}
                     <div className="flex shrink-0 items-center gap-1.5">
                       {entry.type === "recipe" && entry.recipeId && (
-                        <button
-                          type="button"
-                          onClick={() => handleAddToGrocery(entry)}
-                          disabled={addingToGrocery === entry.id}
-                          className="flex items-center text-sage disabled:opacity-50"
-                          aria-label="Add to grocery list"
-                          title="Add to grocery list"
-                        >
-                          <RiShoppingCartLine size={14} aria-hidden />
-                        </button>
+                        <>
+                          <input
+                            type="number"
+                            min={1}
+                            value={entry.servings ?? ""}
+                            onChange={(e) => updateWeeklyServings(mealType, entry.id, Number(e.target.value))}
+                            aria-label="Servings"
+                            className="w-10 rounded border border-cocoa/40 bg-white px-1 py-0.5 text-xs"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => handleAddToGrocery(entry)}
+                            disabled={addingToGrocery === entry.id}
+                            className="flex items-center text-sage disabled:opacity-50"
+                            aria-label="Add to grocery list"
+                            title="Add to grocery list"
+                          >
+                            <RiShoppingCartLine size={14} aria-hidden />
+                          </button>
+                        </>
                       )}
                       <button
                         type="button"
