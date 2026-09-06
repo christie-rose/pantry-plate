@@ -37,7 +37,8 @@ export function PantryClient({ initialItems }: { initialItems: PantryItem[] }) {
   const [search, setSearch] = useState("");
   const [locationFilter, setLocationFilter] = useState("");
   const [storeFilter, setStoreFilter] = useState("");
-  const [stapleFilter, setStapleFilter] = useState("");
+  const [isStapleFilter, setIsStapleFilter] = useState("");
+  const [stapleStatusFilter, setStapleStatusFilter] = useState("");
   const [sort, setSort] = useState<"name" | "updatedAt">("name");
   const [form, setForm] = useState<FormState>(emptyForm);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -50,10 +51,11 @@ export function PantryClient({ initialItems }: { initialItems: PantryItem[] }) {
     if (search) params.set("search", search);
     if (locationFilter) params.set("location", locationFilter);
     if (storeFilter) params.set("store", storeFilter);
-    if (stapleFilter) params.set("stapleStatus", stapleFilter);
+    if (isStapleFilter) params.set("staple", isStapleFilter);
+    if (isStapleFilter !== "false" && stapleStatusFilter) params.set("stapleStatus", stapleStatusFilter);
     params.set("sort", sort);
     return params.toString();
-  }, [search, locationFilter, storeFilter, stapleFilter, sort]);
+  }, [search, locationFilter, storeFilter, isStapleFilter, stapleStatusFilter, sort]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -272,9 +274,19 @@ export function PantryClient({ initialItems }: { initialItems: PantryItem[] }) {
           ))}
         </select>
         <select
-          value={stapleFilter}
-          onChange={(e) => setStapleFilter(e.target.value)}
+          value={isStapleFilter}
+          onChange={(e) => setIsStapleFilter(e.target.value)}
           className="min-h-[44px] rounded-md border border-cocoa/40 bg-white px-2 py-2 text-sm text-ink"
+        >
+          <option value="">Staples & non-staples</option>
+          <option value="true">Staples only</option>
+          <option value="false">Non-staples only</option>
+        </select>
+        <select
+          value={stapleStatusFilter}
+          onChange={(e) => setStapleStatusFilter(e.target.value)}
+          disabled={isStapleFilter === "false"}
+          className="min-h-[44px] rounded-md border border-cocoa/40 bg-white px-2 py-2 text-sm text-ink disabled:opacity-40"
         >
           <option value="">Any staple status</option>
           {STAPLE_STATUSES.map((s) => (

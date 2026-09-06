@@ -8,6 +8,7 @@ export async function GET(request: NextRequest) {
   const search = searchParams.get("search")?.trim() ?? "";
   const location = searchParams.get("location");
   const store = searchParams.get("store");
+  const staple = searchParams.get("staple"); // "true" | "false"
   const stapleStatus = searchParams.get("stapleStatus");
   const sort = searchParams.get("sort") ?? "name";
 
@@ -21,6 +22,9 @@ export async function GET(request: NextRequest) {
   }
   if (store) {
     where.preferredStore = store;
+  }
+  if (staple === "true" || staple === "false") {
+    where.isStaple = staple === "true";
   }
   if (stapleStatus) {
     where.isStaple = true;
