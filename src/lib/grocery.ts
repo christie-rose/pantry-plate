@@ -1,5 +1,4 @@
 import { prisma } from "@/lib/prisma";
-import type { Dinners, MealEntry, WeeklyMeals } from "@/lib/weekplan";
 
 export type GroceryItem = {
   id: string;
@@ -8,55 +7,47 @@ export type GroceryItem = {
   pantryItemId: string | null;
 };
 
+export type AddRecipeToGroceryResult = {
+  items: GroceryItem[];
+  claimedPantryItemIds: string[];
+  added: string[];
+  skippedStaples: string[];
+  skippedOnHand: string[];
+};
+
 /**
- * Walks every dinner and weekly-meal entry for a week, pulling in each recipe's ingredients
- * (or the entry's own label for a plain-text entry), and decides which ones belong on the
- * grocery list: staple pantry items only when Low/Out, non-staple items only when no quantity
- * is on hand, and anything with no pantry match at all.
+ * Works out which of a recipe's ingredients belong on the grocery list, given what's already
+ * there and which non-staple pantry items other recipes added to this same list have already
+ * claimed as "using up what's on hand":
+ * - Staple pantry items are never added (their stock is managed separately).
+ * - A non-staple pantry item with any quantity on hand is skipped the first time it's needed —
+ *   but that on-hand stock is then "claimed" for this list, so a later recipe needing the same
+ *   item will add it (the earlier recipe is assumed to have used up what was on hand).
+ * - A non-staple item with nothing on hand, or anything with no pantry match at all, is added.
  */
-export async function computeGroceryItemsForWeek(weekKey: string): Promise<GroceryItem[]> {
-  const plan = await prisma.weekPlan.findUnique({ where: { weekKey } });
-  if (!plan) return [];
-
-  const dinners = plan.dinners as unknown as Dinners;
-  const weeklyMeals = plan.weeklyMeals as unknown as WeeklyMeals;
-  const allEntries: MealEntry[] = [...Object.values(dinners).flat(), ...Object.values(weeklyMeals).flat()];
-
-  const recipeIds = allEntries
-    .filter((e) => e.type === "recipe" && e.recipeId)
-    .map((e) => e.recipeId as string);
-  const recipes = await prisma.recipe.findMany({
-    where: { id: { in: recipeIds } },
-    include: { ingredients: true },
-  });
-  const recipeById = new Map(recipes.map((r) => [r.id, r]));
-
-  type Candidate = { name: string; pantryItemId: string | null };
-  const candidates: Candidate[] = [];
-
-  for (const entry of allEntries) {
-    if (entry.type === "recipe" && entry.recipeId) {
-      const recipe = recipeById.get(entry.recipeId);
-      if (recipe) {
-        for (const ingredient of recipe.ingredients) {
-          candidates.push({ name: ingredient.name, pantryItemId: ingredient.pantryItemId });
-        }
-      }
-    } else if (entry.type === "text") {
-      candidates.push({ name: entry.label, pantryItemId: null });
-    }
+export async function addRecipeToGroceryList(
+  recipeId: string,
+  existingItems: GroceryItem[],
+  claimedPantryItemIds: string[],
+): Promise<AddRecipeToGroceryResult> {
+  const recipe = await prisma.recipe.findUnique({ where: { id: recipeId }, include: { ingredients: true } });
+  if (!recipe) {
+    return { items: existingItems, claimedPantryItemIds, added: [], skippedStaples: [], skippedOnHand: [] };
   }
 
   const pantryItems = await prisma.pantryItem.findMany();
   const pantryById = new Map(pantryItems.map((p) => [p.id, p]));
 
-  const resolved = new Map<string, GroceryItem>();
+  const items = [...existingItems];
+  const claimed = new Set(claimedPantryItemIds);
+  const added: string[] = [];
+  const skippedStaples: string[] = [];
+  const skippedOnHand: string[] = [];
 
-  for (const candidate of candidates) {
-    let pantryItem = candidate.pantryItemId ? pantryById.get(candidate.pantryItemId) : undefined;
-
+  for (const ingredient of recipe.ingredients) {
+    let pantryItem = ingredient.pantryItemId ? pantryById.get(ingredient.pantryItemId) : undefined;
     if (!pantryItem) {
-      const lower = candidate.name.toLowerCase();
+      const lower = ingredient.name.toLowerCase();
       pantryItem = pantryItems.find(
         (p) =>
           p.name.toLowerCase() === lower ||
@@ -65,26 +56,34 @@ export async function computeGroceryItemsForWeek(weekKey: string): Promise<Groce
       );
     }
 
-    let include: boolean;
-    if (pantryItem) {
-      include = pantryItem.isStaple ? pantryItem.stapleStatus !== "In stock" : !pantryItem.quantity?.trim();
-    } else {
-      include = true;
+    if (pantryItem?.isStaple) {
+      skippedStaples.push(pantryItem.name);
+      continue;
     }
-    if (!include) continue;
 
-    const key = pantryItem ? pantryItem.id : candidate.name.toLowerCase();
-    if (resolved.has(key)) continue;
+    if (pantryItem) {
+      const hasOnHand = Boolean(pantryItem.quantity?.trim());
+      if (hasOnHand && !claimed.has(pantryItem.id)) {
+        claimed.add(pantryItem.id);
+        skippedOnHand.push(pantryItem.name);
+        continue;
+      }
+    }
 
-    resolved.set(key, {
+    const key = pantryItem ? pantryItem.id : ingredient.name.toLowerCase();
+    const alreadyOnList = items.some((i) => (pantryItem ? i.pantryItemId === pantryItem.id : i.name.toLowerCase() === key));
+    if (alreadyOnList) continue;
+
+    items.push({
       id: crypto.randomUUID(),
-      name: pantryItem ? pantryItem.name : candidate.name,
+      name: pantryItem ? pantryItem.name : ingredient.name,
       store: pantryItem ? pantryItem.preferredStore : "Other",
       pantryItemId: pantryItem ? pantryItem.id : null,
     });
+    added.push(pantryItem ? pantryItem.name : ingredient.name);
   }
 
-  return Array.from(resolved.values());
+  return { items, claimedPantryItemIds: Array.from(claimed), added, skippedStaples, skippedOnHand };
 }
 
 /** Merges newly generated items into an existing list without duplicating or resurrecting items already there. */

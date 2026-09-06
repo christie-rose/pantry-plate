@@ -67,9 +67,10 @@ model WeekPlan {
 }
 
 model GroceryList {
-  id      String @id @default(cuid())
-  weekKey String @unique
-  items   Json // array of grocery item objects — see §7
+  id                   String   @id @default(cuid())
+  weekKey              String   @unique
+  items                Json // array of grocery item objects — see §7
+  claimedPantryItemIds String[] @default([]) // non-staple pantry items whose on-hand stock is already spoken for by a recipe added to this list
 }
 
 model Budget {

@@ -8,7 +8,6 @@ import type { GroceryItem } from "@/lib/grocery";
 
 export function GroceryClient({ weekKey, initialItems }: { weekKey: string; initialItems: GroceryItem[] }) {
   const [items, setItems] = useState<GroceryItem[]>(initialItems);
-  const [generating, setGenerating] = useState(false);
   const [newName, setNewName] = useState("");
   const [newStore, setNewStore] = useState<Store>("Costco");
 
@@ -19,20 +18,6 @@ export function GroceryClient({ weekKey, initialItems }: { weekKey: string; init
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ weekKey, items: next }),
     });
-  }
-
-  async function handleGenerate() {
-    setGenerating(true);
-    const res = await fetch("/api/grocery/generate", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ weekKey }),
-    });
-    setGenerating(false);
-    if (res.ok) {
-      const list = await res.json();
-      setItems(list.items);
-    }
   }
 
   async function handleAdd() {
@@ -84,16 +69,8 @@ export function GroceryClient({ weekKey, initialItems }: { weekKey: string; init
         </div>
       </div>
 
-      <div className="card flex flex-wrap items-center gap-3 p-3">
-        <button
-          type="button"
-          onClick={handleGenerate}
-          disabled={generating}
-          className="min-h-[44px] rounded-md bg-brick px-3 text-sm font-medium text-white disabled:opacity-50"
-        >
-          {generating ? "Generating…" : "Generate from this week's plan"}
-        </button>
-        {items.length > 0 && (
+      {items.length > 0 && (
+        <div className="card flex flex-wrap items-center gap-3 p-3">
           <button
             type="button"
             onClick={markAllShopped}
@@ -101,8 +78,8 @@ export function GroceryClient({ weekKey, initialItems }: { weekKey: string; init
           >
             Mark all shopped
           </button>
-        )}
-      </div>
+        </div>
+      )}
 
       <div className="card flex flex-wrap items-center gap-2 p-3">
         <input
@@ -132,7 +109,15 @@ export function GroceryClient({ weekKey, initialItems }: { weekKey: string; init
         </button>
       </div>
 
-      {groups.length === 0 && <p className="text-sm text-cocoa">No items on the list yet.</p>}
+      {groups.length === 0 && (
+        <p className="text-sm text-cocoa">
+          No items on the list yet. Add items above, or go to{" "}
+          <Link href="/plan" className="underline">
+            Plan
+          </Link>{" "}
+          and add a recipe&apos;s ingredients to this week&apos;s list.
+        </p>
+      )}
 
       {groups.map(({ store, items: storeItems }) => (
         <div key={store} className="flex flex-col gap-2">

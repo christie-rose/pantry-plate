@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { RiCloseLine, RiSparklingLine } from "@remixicon/react";
+import { RiCloseLine, RiShoppingCartLine, RiSparklingLine } from "@remixicon/react";
 import {
   DAYS,
   DAY_TAGS,
@@ -44,6 +44,8 @@ export function WeekPlanClient({ initialPlan, recipes }: { initialPlan: Plan; re
   const [generateError, setGenerateError] = useState<string | null>(null);
   const [respectDietary, setRespectDietary] = useState(true);
   const [includePrepAhead, setIncludePrepAhead] = useState(false);
+  const [groceryStatus, setGroceryStatus] = useState<Record<string, string>>({});
+  const [addingToGrocery, setAddingToGrocery] = useState<string | null>(null);
 
   async function persist(next: Plan) {
     setPlan(next);
@@ -122,6 +124,38 @@ export function WeekPlanClient({ initialPlan, recipes }: { initialPlan: Plan; re
   function handleDiscardDraft() {
     setPlan(savedPlan);
     setIsDraft(false);
+  }
+
+  async function handleAddToGrocery(entry: MealEntry) {
+    if (entry.type !== "recipe" || !entry.recipeId) return;
+
+    setAddingToGrocery(entry.id);
+    setGroceryStatus((prev) => ({ ...prev, [entry.id]: "" }));
+
+    const res = await fetch("/api/grocery/add-recipe", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ weekKey: plan.weekKey, recipeId: entry.recipeId }),
+    });
+
+    setAddingToGrocery(null);
+
+    if (!res.ok) {
+      setGroceryStatus((prev) => ({ ...prev, [entry.id]: "Could not add to grocery list" }));
+      return;
+    }
+
+    const { added } = await res.json();
+    const message: string =
+      added.length > 0 ? `Added ${added.length} item${added.length === 1 ? "" : "s"}` : "Already have everything";
+    setGroceryStatus((prev) => ({ ...prev, [entry.id]: message }));
+    setTimeout(() => {
+      setGroceryStatus((prev) => {
+        const next = { ...prev };
+        delete next[entry.id];
+        return next;
+      });
+    }, 4000);
   }
 
   return (
@@ -220,23 +254,40 @@ export function WeekPlanClient({ initialPlan, recipes }: { initialPlan: Plan; re
 
             <ul className="flex flex-col gap-1">
               {plan.dinners[day].map((entry) => (
-                <li key={entry.id} className="flex items-center justify-between rounded bg-paper-alt px-2 py-1 text-xs">
-                  {entry.type === "recipe" && entry.recipeId ? (
-                    <Link href={`/recipes/${entry.recipeId}`} className="underline">
-                      {entry.label}
-                      {entry.servings ? ` (${entry.servings})` : ""}
-                    </Link>
-                  ) : (
-                    <span>{entry.label}</span>
-                  )}
-                  <button
-                    type="button"
-                    onClick={() => removeDinner(day, entry.id)}
-                    className="flex items-center text-brick"
-                    aria-label="Remove entry"
-                  >
-                    <RiCloseLine size={14} aria-hidden />
-                  </button>
+                <li key={entry.id} className="flex flex-col gap-0.5 rounded bg-paper-alt px-2 py-1 text-xs">
+                  <div className="flex items-center justify-between">
+                    {entry.type === "recipe" && entry.recipeId ? (
+                      <Link href={`/recipes/${entry.recipeId}`} className="underline">
+                        {entry.label}
+                        {entry.servings ? ` (${entry.servings})` : ""}
+                      </Link>
+                    ) : (
+                      <span>{entry.label}</span>
+                    )}
+                    <div className="flex shrink-0 items-center gap-1.5">
+                      {entry.type === "recipe" && entry.recipeId && (
+                        <button
+                          type="button"
+                          onClick={() => handleAddToGrocery(entry)}
+                          disabled={addingToGrocery === entry.id}
+                          className="flex items-center text-sage disabled:opacity-50"
+                          aria-label="Add to grocery list"
+                          title="Add to grocery list"
+                        >
+                          <RiShoppingCartLine size={14} aria-hidden />
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => removeDinner(day, entry.id)}
+                        className="flex items-center text-brick"
+                        aria-label="Remove entry"
+                      >
+                        <RiCloseLine size={14} aria-hidden />
+                      </button>
+                    </div>
+                  </div>
+                  {groceryStatus[entry.id] && <span className="text-cocoa">{groceryStatus[entry.id]}</span>}
                 </li>
               ))}
             </ul>
@@ -253,23 +304,40 @@ export function WeekPlanClient({ initialPlan, recipes }: { initialPlan: Plan; re
             <h3 className="text-lg text-ink">{WEEKLY_MEAL_LABELS[mealType]}</h3>
             <ul className="flex flex-col gap-1">
               {plan.weeklyMeals[mealType].map((entry) => (
-                <li key={entry.id} className="flex items-center justify-between rounded bg-paper-alt px-2 py-1 text-xs">
-                  {entry.type === "recipe" && entry.recipeId ? (
-                    <Link href={`/recipes/${entry.recipeId}`} className="underline">
-                      {entry.label}
-                      {entry.servings ? ` (${entry.servings})` : ""}
-                    </Link>
-                  ) : (
-                    <span>{entry.label}</span>
-                  )}
-                  <button
-                    type="button"
-                    onClick={() => removeWeekly(mealType, entry.id)}
-                    className="flex items-center text-brick"
-                    aria-label="Remove entry"
-                  >
-                    <RiCloseLine size={14} aria-hidden />
-                  </button>
+                <li key={entry.id} className="flex flex-col gap-0.5 rounded bg-paper-alt px-2 py-1 text-xs">
+                  <div className="flex items-center justify-between">
+                    {entry.type === "recipe" && entry.recipeId ? (
+                      <Link href={`/recipes/${entry.recipeId}`} className="underline">
+                        {entry.label}
+                        {entry.servings ? ` (${entry.servings})` : ""}
+                      </Link>
+                    ) : (
+                      <span>{entry.label}</span>
+                    )}
+                    <div className="flex shrink-0 items-center gap-1.5">
+                      {entry.type === "recipe" && entry.recipeId && (
+                        <button
+                          type="button"
+                          onClick={() => handleAddToGrocery(entry)}
+                          disabled={addingToGrocery === entry.id}
+                          className="flex items-center text-sage disabled:opacity-50"
+                          aria-label="Add to grocery list"
+                          title="Add to grocery list"
+                        >
+                          <RiShoppingCartLine size={14} aria-hidden />
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => removeWeekly(mealType, entry.id)}
+                        className="flex items-center text-brick"
+                        aria-label="Remove entry"
+                      >
+                        <RiCloseLine size={14} aria-hidden />
+                      </button>
+                    </div>
+                  </div>
+                  {groceryStatus[entry.id] && <span className="text-cocoa">{groceryStatus[entry.id]}</span>}
                 </li>
               ))}
             </ul>
