@@ -30,6 +30,7 @@ model Recipe {
   categories   String[]           @default([])
   servings     Int
   instructions String[]
+  prepAhead    String[]           @default([])
   notes        String?
   source       String // "manual" | "ai" | "photo" | "link"
   sourceUrl    String?

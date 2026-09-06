@@ -39,6 +39,7 @@ export async function POST(request: NextRequest) {
       categories: result.categories,
       servings: result.servings,
       instructions: result.instructions,
+      prepAhead: result.prepAhead,
       notes: result.notes,
       source: result.source,
       sourceUrl: result.sourceUrl,

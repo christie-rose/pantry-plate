@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { RiCheckLine } from "@remixicon/react";
+import { RiCheckLine, RiCalendarLine } from "@remixicon/react";
 
 type Ingredient = {
   id: string;
@@ -19,6 +19,7 @@ type Recipe = {
   servings: number;
   notes: string | null;
   instructions: string[];
+  prepAhead: string[];
   source: string;
   sourceUrl: string | null;
   ingredients: Ingredient[];
@@ -32,6 +33,7 @@ function formatAmount(ingredient: Ingredient): string {
 export function RecipeCookingView({ recipe }: { recipe: Recipe }) {
   const [checkedIngredients, setCheckedIngredients] = useState<Set<string>>(new Set());
   const [checkedSteps, setCheckedSteps] = useState<Set<number>>(new Set());
+  const [checkedPrepSteps, setCheckedPrepSteps] = useState<Set<number>>(new Set());
 
   function toggleIngredient(id: string) {
     setCheckedIngredients((prev) => {
@@ -44,6 +46,15 @@ export function RecipeCookingView({ recipe }: { recipe: Recipe }) {
 
   function toggleStep(index: number) {
     setCheckedSteps((prev) => {
+      const next = new Set(prev);
+      if (next.has(index)) next.delete(index);
+      else next.add(index);
+      return next;
+    });
+  }
+
+  function togglePrepStep(index: number) {
+    setCheckedPrepSteps((prev) => {
       const next = new Set(prev);
       if (next.has(index)) next.delete(index);
       else next.add(index);
@@ -105,6 +116,41 @@ export function RecipeCookingView({ recipe }: { recipe: Recipe }) {
           })}
         </ul>
       </div>
+
+      {recipe.prepAhead.length > 0 && (
+        <div className="card flex flex-col gap-2 p-4">
+          <h2 className="flex items-center gap-2 text-xl text-ink">
+            <RiCalendarLine size={18} className="text-sage" aria-hidden />
+            Prep ahead
+          </h2>
+          <ol className="flex flex-col divide-y divide-cocoa/20">
+            {recipe.prepAhead.map((step, index) => {
+              const checked = checkedPrepSteps.has(index);
+              return (
+                <li key={index}>
+                  <button
+                    type="button"
+                    onClick={() => togglePrepStep(index)}
+                    className="flex w-full items-start gap-3 py-3 text-left"
+                  >
+                    <span
+                      className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 text-xs font-medium ${
+                        checked ? "border-sage bg-sage text-white" : "border-cocoa/40 text-cocoa"
+                      }`}
+                      aria-hidden
+                    >
+                      {checked ? <RiCheckLine size={16} aria-hidden /> : index + 1}
+                    </span>
+                    <span className={`text-base leading-relaxed ${checked ? "text-cocoa line-through" : "text-ink"}`}>
+                      {step}
+                    </span>
+                  </button>
+                </li>
+              );
+            })}
+          </ol>
+        </div>
+      )}
 
       <div className="card flex flex-col gap-2 p-4">
         <h2 className="text-xl text-ink">Instructions</h2>

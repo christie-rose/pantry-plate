@@ -41,6 +41,7 @@ export default function NewRecipePage() {
       servings: String(parsed.servings ?? 4),
       notes: parsed.notes ?? "",
       instructions: parsed.instructions?.length ? parsed.instructions : [""],
+      prepAhead: f.prepAhead,
       ingredients: parsed.ingredients?.length
         ? parsed.ingredients.map((i) => ({
             name: i.name,

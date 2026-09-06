@@ -41,6 +41,7 @@ export async function PATCH(
       categories: result.categories,
       servings: result.servings,
       instructions: result.instructions,
+      prepAhead: result.prepAhead,
       notes: result.notes,
       sourceUrl: result.sourceUrl,
       ingredients: {

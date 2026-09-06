@@ -26,6 +26,7 @@ export type RecipeInput = {
   categories: RecipeCategory[];
   servings: number;
   instructions: string[];
+  prepAhead: string[];
   notes: string | null;
   source: RecipeSource;
   sourceUrl: string | null;
@@ -59,6 +60,11 @@ export function validateRecipeInput(body: unknown): RecipeInput | { error: strin
     : [];
   if (instructions.length === 0) return { error: "At least one instruction step is required" };
 
+  // Optional: prepping earlier in the week. Empty means no prep-ahead section for this recipe.
+  const prepAhead = Array.isArray(b.prepAhead)
+    ? b.prepAhead.filter((s): s is string => typeof s === "string" && s.trim().length > 0).map((s) => s.trim())
+    : [];
+
   const source = typeof b.source === "string" && RECIPE_SOURCES.includes(b.source as RecipeSource)
     ? (b.source as RecipeSource)
     : "manual";
@@ -79,7 +85,7 @@ export function validateRecipeInput(body: unknown): RecipeInput | { error: strin
   }
   if (ingredients.length === 0) return { error: "At least one ingredient is required" };
 
-  return { title, tags, categories, servings, instructions, notes, source, sourceUrl, ingredients };
+  return { title, tags, categories, servings, instructions, prepAhead, notes, source, sourceUrl, ingredients };
 }
 
 /** Matches a candidate ingredient name against pantry item names (case-insensitive, either-direction substring). */

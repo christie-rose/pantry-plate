@@ -10,6 +10,7 @@ export type RecipeFormState = {
   servings: string;
   notes: string;
   instructions: string[];
+  prepAhead: string[];
   ingredients: { name: string; amount: string; unit: string }[];
 };
 
@@ -20,6 +21,7 @@ export const emptyRecipeForm: RecipeFormState = {
   servings: "4",
   notes: "",
   instructions: [""],
+  prepAhead: [],
   ingredients: [{ name: "", amount: "", unit: "" }],
 };
 
@@ -31,6 +33,7 @@ export function recipeFormToInput(form: RecipeFormState) {
     servings: Number(form.servings),
     notes: form.notes.trim() || null,
     instructions: form.instructions.map((s) => s.trim()).filter(Boolean),
+    prepAhead: form.prepAhead.map((s) => s.trim()).filter(Boolean),
     ingredients: form.ingredients
       .filter((i) => i.name.trim())
       .map((i) => ({
@@ -52,6 +55,12 @@ export function RecipeForm({
     const next = [...value.instructions];
     next[index] = text;
     onChange({ ...value, instructions: next });
+  }
+
+  function updatePrepStep(index: number, text: string) {
+    const next = [...value.prepAhead];
+    next[index] = text;
+    onChange({ ...value, prepAhead: next });
   }
 
   function updateIngredient(index: number, field: "name" | "amount" | "unit", text: string) {
@@ -187,6 +196,37 @@ export function RecipeForm({
           className="self-start text-sm text-sage underline"
         >
           + Add step
+        </button>
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <label className="text-sm text-cocoa">Prep ahead (optional)</label>
+        <p className="text-xs text-cocoa">Steps for prepping this recipe earlier in the week.</p>
+        {value.prepAhead.map((step, index) => (
+          <div key={index} className="flex gap-2">
+            <span className="pt-2 text-sm text-cocoa">{index + 1}.</span>
+            <textarea
+              value={step}
+              onChange={(e) => updatePrepStep(index, e.target.value)}
+              rows={2}
+              className="flex-1 rounded-md border border-cocoa/40 bg-white px-2 py-1.5 text-sm text-ink"
+            />
+            <button
+              type="button"
+              onClick={() => onChange({ ...value, prepAhead: value.prepAhead.filter((_, i) => i !== index) })}
+              className="flex items-center self-start rounded-md border border-brick/50 px-2 py-1 text-brick"
+              aria-label="Remove prep-ahead step"
+            >
+              <RiCloseLine size={16} aria-hidden />
+            </button>
+          </div>
+        ))}
+        <button
+          type="button"
+          onClick={() => onChange({ ...value, prepAhead: [...value.prepAhead, ""] })}
+          className="self-start text-sm text-sage underline"
+        >
+          + Add prep-ahead step
         </button>
       </div>
 

@@ -23,6 +23,7 @@ type Recipe = {
   servings: number;
   notes: string | null;
   instructions: string[];
+  prepAhead: string[];
   ingredients: RecipeIngredient[];
 };
 
@@ -41,6 +42,7 @@ export function RecipeEditClient({
     servings: String(recipe.servings),
     notes: recipe.notes ?? "",
     instructions: recipe.instructions.length ? recipe.instructions : [""],
+    prepAhead: recipe.prepAhead,
     ingredients: recipe.ingredients.length
       ? recipe.ingredients.map((i) => ({
           name: i.name,
