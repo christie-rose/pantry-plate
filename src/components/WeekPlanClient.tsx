@@ -221,10 +221,14 @@ export function WeekPlanClient({ initialPlan, recipes }: { initialPlan: Plan; re
             <ul className="flex flex-col gap-1">
               {plan.dinners[day].map((entry) => (
                 <li key={entry.id} className="flex items-center justify-between rounded bg-paper-alt px-2 py-1 text-xs">
-                  <span>
-                    {entry.label}
-                    {entry.type === "recipe" && entry.servings ? ` (${entry.servings})` : ""}
-                  </span>
+                  {entry.type === "recipe" && entry.recipeId ? (
+                    <Link href={`/recipes/${entry.recipeId}`} className="underline">
+                      {entry.label}
+                      {entry.servings ? ` (${entry.servings})` : ""}
+                    </Link>
+                  ) : (
+                    <span>{entry.label}</span>
+                  )}
                   <button
                     type="button"
                     onClick={() => removeDinner(day, entry.id)}
@@ -250,10 +254,14 @@ export function WeekPlanClient({ initialPlan, recipes }: { initialPlan: Plan; re
             <ul className="flex flex-col gap-1">
               {plan.weeklyMeals[mealType].map((entry) => (
                 <li key={entry.id} className="flex items-center justify-between rounded bg-paper-alt px-2 py-1 text-xs">
-                  <span>
-                    {entry.label}
-                    {entry.type === "recipe" && entry.servings ? ` (${entry.servings})` : ""}
-                  </span>
+                  {entry.type === "recipe" && entry.recipeId ? (
+                    <Link href={`/recipes/${entry.recipeId}`} className="underline">
+                      {entry.label}
+                      {entry.servings ? ` (${entry.servings})` : ""}
+                    </Link>
+                  ) : (
+                    <span>{entry.label}</span>
+                  )}
                   <button
                     type="button"
                     onClick={() => removeWeekly(mealType, entry.id)}
