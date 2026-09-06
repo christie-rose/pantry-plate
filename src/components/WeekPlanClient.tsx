@@ -8,6 +8,7 @@ import {
   DAY_TAGS,
   WEEKLY_MEAL_TYPES,
   addDaysToKey,
+  formatDayDate,
   formatWeekLabel,
   type Day,
   type DayTag,
@@ -319,7 +320,7 @@ export function WeekPlanClient({ initialPlan, recipes }: { initialPlan: Plan; re
       {saving && !isDraft && <p className="text-xs text-cocoa">Saving…</p>}
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
-        {DAYS.map((day) => {
+        {DAYS.map((day, dayIndex) => {
           const location: Location = { kind: "day", day };
           return (
           <div
@@ -335,8 +336,9 @@ export function WeekPlanClient({ initialPlan, recipes }: { initialPlan: Plan; re
             }}
             className={`card flex flex-col gap-2 p-3 ${dragOverLocation && sameLocation(dragOverLocation, location) ? "ring-2 ring-sage" : ""}`}
           >
-            <div className="flex items-center justify-between">
+            <div className="flex items-baseline justify-between">
               <h3 className="text-lg text-ink">{day}</h3>
+              <span className="text-xs text-cocoa">{formatDayDate(plan.weekKey, dayIndex)}</span>
             </div>
             <select
               value={plan.dayTags[day]}

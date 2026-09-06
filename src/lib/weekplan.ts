@@ -49,6 +49,13 @@ export function addDaysToKey(weekKey: string, days: number): string {
   return mondayKeyFor(date);
 }
 
+/** Formats the calendar date for a day within the week starting at `weekKey` (0 = Monday ... 6 = Sunday). */
+export function formatDayDate(weekKey: string, dayIndex: number): string {
+  const date = new Date(`${weekKey}T00:00:00`);
+  date.setDate(date.getDate() + dayIndex);
+  return date.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+}
+
 export function formatWeekLabel(weekKey: string): string {
   const monday = new Date(`${weekKey}T00:00:00`);
   const sunday = new Date(monday);
