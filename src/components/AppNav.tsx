@@ -41,23 +41,25 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-full flex-1 flex-col md:flex-row">
       {/* Desktop side rail */}
-      <nav className="hidden w-56 shrink-0 flex-col gap-1 border-r border-cocoa/20 bg-white p-4 md:flex">
-        <Link href="/" className="mb-4 text-xl text-brick">
-          Pantry & Plate
-        </Link>
-        {NAV_ITEMS.map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
-            className={`flex min-h-[44px] items-center gap-3 rounded-md px-3 text-sm ${
-              isActive(item.href) ? "bg-paper-alt font-medium text-brick" : "text-ink"
-            }`}
-          >
-            <item.Icon size={20} aria-hidden />
-            {item.label}
+      <nav className="hidden w-56 shrink-0 flex-col border-r border-cocoa/20 bg-white md:sticky md:top-0 md:flex md:h-screen">
+        <div className="flex flex-1 flex-col gap-1 overflow-y-auto p-4">
+          <Link href="/" className="mb-4 text-xl text-brick">
+            Pantry & Plate
           </Link>
-        ))}
-        <div className="mt-auto flex flex-col gap-1 border-t border-cocoa/20 pt-2">
+          {NAV_ITEMS.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={`flex min-h-[44px] items-center gap-3 rounded-md px-3 text-sm ${
+                isActive(item.href) ? "bg-paper-alt font-medium text-brick" : "text-ink"
+              }`}
+            >
+              <item.Icon size={20} aria-hidden />
+              {item.label}
+            </Link>
+          ))}
+        </div>
+        <div className="flex shrink-0 flex-col gap-1 border-t border-cocoa/20 bg-white p-4 pt-2">
           <Link
             href="/dietary"
             className={`flex min-h-[44px] items-center gap-3 rounded-md px-3 text-sm ${
