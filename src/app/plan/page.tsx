@@ -34,7 +34,9 @@ export default async function PlanPage({
         weekKey: existing.weekKey,
         dayTags: existing.dayTags as unknown as DayTags,
         dinners: existing.dinners as unknown as Dinners,
-        weeklyMeals: existing.weeklyMeals as unknown as WeeklyMeals,
+        // Merge over defaults so plans saved before a new weekly-meal slot was added (e.g. "other")
+        // still have every key populated.
+        weeklyMeals: { ...defaultWeeklyMeals(), ...(existing.weeklyMeals as unknown as WeeklyMeals) },
       }
     : {
         weekKey,

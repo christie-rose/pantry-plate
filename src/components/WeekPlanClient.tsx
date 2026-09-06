@@ -44,6 +44,7 @@ const WEEKLY_MEAL_LABELS: Record<WeeklyMealType, string> = {
   breakfast: "Breakfast",
   lunch: "Lunch",
   snack: "Snack",
+  other: "Other",
 };
 
 type Location = { kind: "day"; day: Day } | { kind: "weekly"; mealType: WeeklyMealType };
@@ -468,8 +469,8 @@ export function WeekPlanClient({ initialPlan, recipes }: { initialPlan: Plan; re
         })}
       </div>
 
-      <h2 className="text-2xl text-brick">Breakfast / Lunch / Snack</h2>
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+      <h2 className="text-2xl text-brick">Breakfast / Lunch / Snack / Other</h2>
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {WEEKLY_MEAL_TYPES.map((mealType) => {
           const location: Location = { kind: "weekly", mealType };
           return (

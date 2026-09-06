@@ -4,7 +4,7 @@ export type Day = (typeof DAYS)[number];
 export const DAY_TAGS = ["Normal", "Busy or quick", "Eating out", "Have extra time"] as const;
 export type DayTag = (typeof DAY_TAGS)[number];
 
-export const WEEKLY_MEAL_TYPES = ["breakfast", "lunch", "snack"] as const;
+export const WEEKLY_MEAL_TYPES = ["breakfast", "lunch", "snack", "other"] as const;
 export type WeeklyMealType = (typeof WEEKLY_MEAL_TYPES)[number];
 
 export type MealEntry = {
@@ -28,7 +28,7 @@ export function defaultDinners(): Dinners {
 }
 
 export function defaultWeeklyMeals(): WeeklyMeals {
-  return { breakfast: [], lunch: [], snack: [] };
+  return { breakfast: [], lunch: [], snack: [], other: [] };
 }
 
 /** Returns the ISO date (YYYY-MM-DD) of the Monday of the week containing `date`, in local time. */
