@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
+import { RiSparklingLine } from "@remixicon/react";
 import { RecipeForm, recipeFormToInput, type RecipeFormState } from "@/components/RecipeForm";
 import { IngredientMatchPanel } from "@/components/IngredientMatchPanel";
 import { scaleAmount, type Cuisine, type RecipeCategory } from "@/lib/recipes";
@@ -59,6 +60,9 @@ export function RecipeEditClient({
   const [savedOnce, setSavedOnce] = useState(false);
   const [scaling, setScaling] = useState(false);
   const [scaleError, setScaleError] = useState<string | null>(null);
+  const [aiInstruction, setAiInstruction] = useState("");
+  const [aiEditing, setAiEditing] = useState(false);
+  const [aiEditError, setAiEditError] = useState<string | null>(null);
 
   // Fixed baseline the current form was last scaled from — kept steady across repeated scales so
   // rounding doesn't compound, but reflects the form's own state at the time of each scale.
@@ -121,6 +125,69 @@ export function RecipeEditClient({
     }
   }
 
+  async function handleAiEdit() {
+    if (!aiInstruction.trim()) return;
+    setAiEditing(true);
+    setAiEditError(null);
+
+    const res = await fetch("/api/recipes/edit-with-ai", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        instruction: aiInstruction.trim(),
+        recipe: {
+          title: form.title,
+          servings: Number(form.servings) || 1,
+          ingredients: form.ingredients
+            .filter((i) => i.name.trim())
+            .map((i) => ({
+              name: i.name.trim(),
+              amount: i.amount.trim() ? Number(i.amount) : null,
+              unit: i.unit.trim() || null,
+            })),
+          instructions: form.instructions.filter((s) => s.trim()),
+          prepAhead: form.prepAhead.filter((s) => s.trim()),
+        },
+      }),
+    });
+
+    setAiEditing(false);
+
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      setAiEditError(data.error ?? "Could not edit the recipe");
+      return;
+    }
+
+    const parsed = await res.json();
+    const nextIngredients = parsed.ingredients?.length
+      ? parsed.ingredients.map((i: { name: string; amount: number | null; unit: string | null }) => ({
+          name: i.name,
+          amount: i.amount != null ? String(i.amount) : "",
+          unit: i.unit ?? "",
+        }))
+      : form.ingredients;
+    const nextInstructions = parsed.instructions?.length ? parsed.instructions : form.instructions;
+    const nextPrepAhead = parsed.prepAhead ?? form.prepAhead;
+    const nextServings = parsed.servings ? String(parsed.servings) : form.servings;
+
+    setForm((f) => ({
+      ...f,
+      title: parsed.title ?? f.title,
+      servings: nextServings,
+      ingredients: nextIngredients,
+      instructions: nextInstructions,
+      prepAhead: nextPrepAhead,
+    }));
+    baselineRef.current = {
+      servings: Number(nextServings) || baselineRef.current.servings,
+      ingredients: nextIngredients,
+      instructions: nextInstructions,
+      prepAhead: nextPrepAhead,
+    };
+    setAiInstruction("");
+  }
+
   async function handleSave() {
     setSaving(true);
     setError(null);
@@ -165,6 +232,28 @@ export function RecipeEditClient({
         >
           Delete
         </button>
+      </div>
+
+      <div className="card flex flex-col gap-2 p-4">
+        <label className="text-sm text-cocoa">Edit with AI</label>
+        <div className="flex flex-wrap items-center gap-2">
+          <input
+            value={aiInstruction}
+            onChange={(e) => setAiInstruction(e.target.value)}
+            placeholder="e.g. make it vegetarian, add a side of rice, make it spicier"
+            className="min-h-[44px] flex-1 min-w-[200px] rounded-md border border-cocoa/40 bg-white px-3 py-2 text-sm text-ink"
+          />
+          <button
+            type="button"
+            onClick={handleAiEdit}
+            disabled={aiEditing || !aiInstruction.trim()}
+            className="flex min-h-[44px] items-center gap-2 rounded-md border border-cocoa/40 px-3 py-2 text-sm disabled:opacity-50"
+          >
+            <RiSparklingLine size={18} aria-hidden />
+            {aiEditing ? "Editing…" : "Apply"}
+          </button>
+        </div>
+        {aiEditError && <p className="text-sm text-brick">{aiEditError}</p>}
       </div>
 
       <RecipeForm value={form} onChange={setForm} onScale={handleScale} scaling={scaling} scaleError={scaleError} />
