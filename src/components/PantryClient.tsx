@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { RiCloseLine } from "@remixicon/react";
 import { LOCATIONS, STORES, STAPLE_STATUSES, type Location, type Store, type StapleStatus } from "@/lib/pantry";
 import { VoiceButton } from "./VoiceButton";
 
@@ -45,6 +46,7 @@ export function PantryClient({ initialItems }: { initialItems: PantryItem[] }) {
   const [editForm, setEditForm] = useState<FormState>(emptyForm);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showAddModal, setShowAddModal] = useState(false);
 
   const queryString = useMemo(() => {
     const params = new URLSearchParams();
@@ -113,6 +115,7 @@ export function PantryClient({ initialItems }: { initialItems: PantryItem[] }) {
     }
 
     setForm(emptyForm);
+    setShowAddModal(false);
     await refresh();
   }
 
@@ -172,85 +175,115 @@ export function PantryClient({ initialItems }: { initialItems: PantryItem[] }) {
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 p-4 pb-24">
-      <h1 className="text-3xl text-brick">Pantry</h1>
-
-      <form onSubmit={handleAdd} className="card flex flex-col gap-3 p-4">
-        <div className="flex gap-2">
-          <input
-            value={form.name}
-            onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-            placeholder="Add an item…"
-            className="min-h-[44px] flex-1 rounded-md border border-cocoa/40 bg-white px-3 py-2 text-ink outline-none focus:border-brick"
-          />
-          <VoiceButton onTranscript={handleVoiceTranscript} />
-        </div>
-
-        <div className="flex flex-wrap gap-2">
-          <select
-            value={form.location}
-            onChange={(e) => setForm((f) => ({ ...f, location: e.target.value as Location }))}
-            className="min-h-[44px] rounded-md border border-cocoa/40 bg-white px-2 py-2 text-sm text-ink"
-          >
-            {LOCATIONS.map((l) => (
-              <option key={l} value={l}>
-                {l}
-              </option>
-            ))}
-          </select>
-
-          <select
-            value={form.preferredStore}
-            onChange={(e) => setForm((f) => ({ ...f, preferredStore: e.target.value as Store }))}
-            className="min-h-[44px] rounded-md border border-cocoa/40 bg-white px-2 py-2 text-sm text-ink"
-          >
-            {STORES.map((s) => (
-              <option key={s} value={s}>
-                {s}
-              </option>
-            ))}
-          </select>
-
-          <label className="min-h-[44px] flex items-center gap-2 rounded-md border border-cocoa/40 bg-white px-2 py-2 text-sm text-ink">
-            <input
-              type="checkbox"
-              checked={form.isStaple}
-              onChange={(e) => setForm((f) => ({ ...f, isStaple: e.target.checked }))}
-            />
-            Staple
-          </label>
-
-          {form.isStaple ? (
-            <select
-              value={form.stapleStatus}
-              onChange={(e) => setForm((f) => ({ ...f, stapleStatus: e.target.value as StapleStatus }))}
-              className="min-h-[44px] rounded-md border border-cocoa/40 bg-white px-2 py-2 text-sm text-ink"
-            >
-              {STAPLE_STATUSES.map((s) => (
-                <option key={s} value={s}>
-                  {s}
-                </option>
-              ))}
-            </select>
-          ) : (
-            <input
-              value={form.quantity}
-              onChange={(e) => setForm((f) => ({ ...f, quantity: e.target.value }))}
-              placeholder="Quantity (e.g. 2 lb)"
-              className="min-h-[44px] rounded-md border border-cocoa/40 bg-white px-2 py-2 text-sm text-ink"
-            />
-          )}
-        </div>
-
-        {error && <p className="text-sm text-brick">{error}</p>}
-
+      <div className="flex items-center justify-between">
+        <h1 className="text-3xl text-brick">Pantry</h1>
         <button
-          type="submit"
-          disabled={loading || !form.name.trim()}
-          className="min-h-[44px] self-start rounded-md bg-brick px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+          type="button"
+          onClick={() => setShowAddModal(true)}
+          className="min-h-[44px] rounded-md bg-brick px-4 text-sm font-medium text-white"
         >
           Add item
         </button>
-      </form>
+      </div>
+
+      {showAddModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/40 p-4" onClick={() => setShowAddModal(false)}>
+          <form
+            onSubmit={handleAdd}
+            onClick={(e) => e.stopPropagation()}
+            className="flex w-full max-w-md flex-col gap-3 rounded-lg bg-white p-4 shadow-lg"
+          >
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg text-brick">Add pantry item</h2>
+              <button
+                type="button"
+                onClick={() => setShowAddModal(false)}
+                aria-label="Close"
+                className="flex h-8 w-8 items-center justify-center rounded-md text-cocoa hover:bg-paper-alt"
+              >
+                <RiCloseLine size={20} aria-hidden />
+              </button>
+            </div>
+
+            <div className="flex gap-2">
+              <input
+                value={form.name}
+                onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+                placeholder="Add an item…"
+                autoFocus
+                className="min-h-[44px] flex-1 rounded-md border border-cocoa/40 bg-white px-3 py-2 text-ink outline-none focus:border-brick"
+              />
+              <VoiceButton onTranscript={handleVoiceTranscript} />
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              <select
+                value={form.location}
+                onChange={(e) => setForm((f) => ({ ...f, location: e.target.value as Location }))}
+                className="min-h-[44px] rounded-md border border-cocoa/40 bg-white px-2 py-2 text-sm text-ink"
+              >
+                {LOCATIONS.map((l) => (
+                  <option key={l} value={l}>
+                    {l}
+                  </option>
+                ))}
+              </select>
+
+              <select
+                value={form.preferredStore}
+                onChange={(e) => setForm((f) => ({ ...f, preferredStore: e.target.value as Store }))}
+                className="min-h-[44px] rounded-md border border-cocoa/40 bg-white px-2 py-2 text-sm text-ink"
+              >
+                {STORES.map((s) => (
+                  <option key={s} value={s}>
+                    {s}
+                  </option>
+                ))}
+              </select>
+
+              <label className="min-h-[44px] flex items-center gap-2 rounded-md border border-cocoa/40 bg-white px-2 py-2 text-sm text-ink">
+                <input
+                  type="checkbox"
+                  checked={form.isStaple}
+                  onChange={(e) => setForm((f) => ({ ...f, isStaple: e.target.checked }))}
+                />
+                Staple
+              </label>
+
+              {form.isStaple ? (
+                <select
+                  value={form.stapleStatus}
+                  onChange={(e) => setForm((f) => ({ ...f, stapleStatus: e.target.value as StapleStatus }))}
+                  className="min-h-[44px] rounded-md border border-cocoa/40 bg-white px-2 py-2 text-sm text-ink"
+                >
+                  {STAPLE_STATUSES.map((s) => (
+                    <option key={s} value={s}>
+                      {s}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <input
+                  value={form.quantity}
+                  onChange={(e) => setForm((f) => ({ ...f, quantity: e.target.value }))}
+                  placeholder="Quantity (e.g. 2 lb)"
+                  className="min-h-[44px] rounded-md border border-cocoa/40 bg-white px-2 py-2 text-sm text-ink"
+                />
+              )}
+            </div>
+
+            {error && <p className="text-sm text-brick">{error}</p>}
+
+            <button
+              type="submit"
+              disabled={loading || !form.name.trim()}
+              className="min-h-[44px] self-start rounded-md bg-brick px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+            >
+              Add item
+            </button>
+          </form>
+        </div>
+      )}
 
       <div className="flex flex-wrap items-center gap-2">
         <input
