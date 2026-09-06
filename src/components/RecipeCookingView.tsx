@@ -14,6 +14,7 @@ type Recipe = {
   id: string;
   title: string;
   tags: string[];
+  categories: string[];
   servings: number;
   notes: string | null;
   instructions: string[];
@@ -59,6 +60,7 @@ export function RecipeCookingView({ recipe }: { recipe: Recipe }) {
           <h1 className="text-3xl text-brick">{recipe.title}</h1>
           <p className="text-sm text-cocoa">
             Serves {recipe.servings}
+            {recipe.categories.length > 0 ? ` · ${recipe.categories.join(", ")}` : ""}
             {recipe.tags.length > 0 ? ` · ${recipe.tags.join(", ")}` : ""}
           </p>
         </div>

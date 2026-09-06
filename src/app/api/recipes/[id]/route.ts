@@ -38,6 +38,7 @@ export async function PATCH(
     data: {
       title: result.title,
       tags: result.tags,
+      categories: result.categories,
       servings: result.servings,
       instructions: result.instructions,
       notes: result.notes,

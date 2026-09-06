@@ -1,8 +1,11 @@
 "use client";
 
+import { RECIPE_CATEGORIES, type RecipeCategory } from "@/lib/recipes";
+
 export type RecipeFormState = {
   title: string;
   tags: string;
+  categories: RecipeCategory[];
   servings: string;
   notes: string;
   instructions: string[];
@@ -12,6 +15,7 @@ export type RecipeFormState = {
 export const emptyRecipeForm: RecipeFormState = {
   title: "",
   tags: "",
+  categories: [],
   servings: "4",
   notes: "",
   instructions: [""],
@@ -22,6 +26,7 @@ export function recipeFormToInput(form: RecipeFormState) {
   return {
     title: form.title.trim(),
     tags: form.tags.split(",").map((t) => t.trim()).filter(Boolean),
+    categories: form.categories,
     servings: Number(form.servings),
     notes: form.notes.trim() || null,
     instructions: form.instructions.map((s) => s.trim()).filter(Boolean),
@@ -53,6 +58,13 @@ export function RecipeForm({
     onChange({ ...value, ingredients: next });
   }
 
+  function toggleCategory(category: RecipeCategory) {
+    const next = value.categories.includes(category)
+      ? value.categories.filter((c) => c !== category)
+      : [...value.categories, category];
+    onChange({ ...value, categories: next });
+  }
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-1">
@@ -62,6 +74,26 @@ export function RecipeForm({
           onChange={(e) => onChange({ ...value, title: e.target.value })}
           className="min-h-[44px] rounded-md border border-cocoa/40 bg-white px-3 py-2 text-ink"
         />
+      </div>
+
+      <div className="flex flex-col gap-1">
+        <label className="text-sm text-cocoa">Categories</label>
+        <div className="flex flex-wrap gap-2">
+          {RECIPE_CATEGORIES.map((category) => {
+            const checked = value.categories.includes(category);
+            return (
+              <label
+                key={category}
+                className={`flex min-h-[44px] cursor-pointer items-center gap-2 rounded-md border px-3 text-sm ${
+                  checked ? "border-brick bg-paper-alt text-brick" : "border-cocoa/40 text-ink"
+                }`}
+              >
+                <input type="checkbox" checked={checked} onChange={() => toggleCategory(category)} className="sr-only" />
+                {category}
+              </label>
+            );
+          })}
+        </div>
       </div>
 
       <div className="flex gap-3">

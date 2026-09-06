@@ -3,6 +3,17 @@ import { prisma } from "@/lib/prisma";
 export const RECIPE_SOURCES = ["manual", "ai", "photo", "link"] as const;
 export type RecipeSource = (typeof RECIPE_SOURCES)[number];
 
+export const RECIPE_CATEGORIES = [
+  "Breakfast",
+  "Lunch",
+  "Dinner",
+  "Snack",
+  "Side Dish",
+  "Dessert",
+  "Appetizer",
+] as const;
+export type RecipeCategory = (typeof RECIPE_CATEGORIES)[number];
+
 export type IngredientInput = {
   name: string;
   amount: number | null;
@@ -12,6 +23,7 @@ export type IngredientInput = {
 export type RecipeInput = {
   title: string;
   tags: string[];
+  categories: RecipeCategory[];
   servings: number;
   instructions: string[];
   notes: string | null;
@@ -36,6 +48,10 @@ export function validateRecipeInput(body: unknown): RecipeInput | { error: strin
 
   const tags = Array.isArray(b.tags)
     ? b.tags.filter((t): t is string => typeof t === "string" && t.trim().length > 0).map((t) => t.trim())
+    : [];
+
+  const categories = Array.isArray(b.categories)
+    ? b.categories.filter((c): c is RecipeCategory => RECIPE_CATEGORIES.includes(c as RecipeCategory))
     : [];
 
   const instructions = Array.isArray(b.instructions)
@@ -63,7 +79,7 @@ export function validateRecipeInput(body: unknown): RecipeInput | { error: strin
   }
   if (ingredients.length === 0) return { error: "At least one ingredient is required" };
 
-  return { title, tags, servings, instructions, notes, source, sourceUrl, ingredients };
+  return { title, tags, categories, servings, instructions, notes, source, sourceUrl, ingredients };
 }
 
 /** Matches a candidate ingredient name against pantry item names (case-insensitive, either-direction substring). */

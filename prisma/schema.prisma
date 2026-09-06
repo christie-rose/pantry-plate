@@ -27,6 +27,7 @@ model Recipe {
   id           String             @id @default(cuid())
   title        String
   tags         String[]
+  categories   String[]           @default([])
   servings     Int
   instructions String[]
   notes        String?

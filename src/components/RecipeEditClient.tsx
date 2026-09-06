@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { RecipeForm, recipeFormToInput, type RecipeFormState } from "@/components/RecipeForm";
 import { IngredientMatchPanel } from "@/components/IngredientMatchPanel";
+import type { RecipeCategory } from "@/lib/recipes";
 
 type RecipeIngredient = {
   id: string;
@@ -18,6 +19,7 @@ type Recipe = {
   id: string;
   title: string;
   tags: string[];
+  categories: string[];
   servings: number;
   notes: string | null;
   instructions: string[];
@@ -35,6 +37,7 @@ export function RecipeEditClient({
   const [form, setForm] = useState<RecipeFormState>({
     title: recipe.title,
     tags: recipe.tags.join(", "),
+    categories: recipe.categories as RecipeCategory[],
     servings: String(recipe.servings),
     notes: recipe.notes ?? "",
     instructions: recipe.instructions.length ? recipe.instructions : [""],

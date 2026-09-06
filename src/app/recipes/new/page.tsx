@@ -33,9 +33,10 @@ export default function NewRecipePage() {
     ingredients?: { name: string; amount: number | null; unit: string | null }[];
     instructions?: string[];
   }) {
-    setForm({
+    setForm((f) => ({
       title: parsed.title ?? "",
       tags: "",
+      categories: f.categories,
       servings: String(parsed.servings ?? 4),
       notes: parsed.notes ?? "",
       instructions: parsed.instructions?.length ? parsed.instructions : [""],
@@ -46,7 +47,7 @@ export default function NewRecipePage() {
             unit: i.unit ?? "",
           }))
         : [{ name: "", amount: "", unit: "" }],
-    });
+    }));
   }
 
   async function handlePhotoSelected(file: File) {
