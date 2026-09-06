@@ -12,7 +12,9 @@ Respond with only a JSON object, no other text, in this exact shape:
   "notes": string | null
 }
 Write clear, approachable, weeknight-friendly instructions. Keep ingredient names simple and generic
-(e.g. "chicken breast", not "2 lb boneless skinless chicken breast").`;
+(e.g. "chicken breast", not "2 lb boneless skinless chicken breast"). The household's pantry is given
+only as a hint for ingredients that are convenient to use — it is not a constraint. Use whatever
+ingredients make the best recipe for the request, including ones not in the pantry.`;
 
 export async function POST(request: NextRequest) {
   const apiKey = process.env.ANTHROPIC_API_KEY;
@@ -36,7 +38,8 @@ export async function POST(request: NextRequest) {
 
   const userMessage = `Request: ${body.prompt.trim()}
 
-Household pantry (prefer using what's already on hand when it fits the request):
+Household pantry (a hint, not a constraint — use it as a tiebreaker when it fits, but freely use
+other ingredients the request needs):
 ${pantrySummary}
 
 Household dietary restrictions to respect:

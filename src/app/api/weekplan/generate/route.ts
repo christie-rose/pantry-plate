@@ -23,7 +23,8 @@ Rules:
   the same cuisine back-to-back.
 - Prefer recipes and new ideas that use ingredients already on hand in the pantry, but variety across
   the week matters more than pantry use — don't default to the same on-hand protein every night just
-  because it's available.
+  because it's available. The pantry is a hint, not a constraint: freely use other ingredients a new
+  recipe needs, including ones not on hand.
 - Respect the household's dietary restrictions exactly as given.
 
 Respond with only a JSON object, no other text, in this exact shape (all seven keys required):
