@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -10,6 +11,8 @@ import {
   RiWalletLine,
   RiSettings3Line,
   RiLogoutBoxRLine,
+  RiMenuLine,
+  RiCloseLine,
 } from "@remixicon/react";
 
 const NAV_ITEMS = [
@@ -23,6 +26,7 @@ const NAV_ITEMS = [
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   if (pathname === "/login") {
     return <>{children}</>;
@@ -80,47 +84,67 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </div>
       </nav>
 
-      {/* Mobile top bar: title + settings + logout */}
-      <header className="sticky top-0 z-20 flex min-h-[56px] items-center justify-between border-b border-cocoa/20 bg-white px-4 md:hidden">
+      {/* Mobile top bar: title + hamburger */}
+      <header className="sticky top-0 z-30 flex min-h-[56px] items-center justify-between border-b border-cocoa/20 bg-white px-4 md:hidden">
         <Link href="/" className="text-lg text-brick">
           Pantry & Plate
         </Link>
-        <div className="flex items-center gap-1">
-          <Link
-            href="/dietary"
-            aria-label="Household settings"
-            className="flex h-11 w-11 items-center justify-center rounded-full text-ink"
-          >
-            <RiSettings3Line size={22} aria-hidden />
-          </Link>
-          <button
-            type="button"
-            onClick={handleLogout}
-            aria-label="Log out"
-            className="flex h-11 w-11 items-center justify-center rounded-full text-cocoa"
-          >
-            <RiLogoutBoxRLine size={22} aria-hidden />
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={() => setMobileMenuOpen((o) => !o)}
+          aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+          aria-expanded={mobileMenuOpen}
+          className="flex h-11 w-11 items-center justify-center rounded-full text-ink"
+        >
+          {mobileMenuOpen ? <RiCloseLine size={24} aria-hidden /> : <RiMenuLine size={24} aria-hidden />}
+        </button>
       </header>
 
-      <main className="flex-1 pb-20 md:pb-0">{children}</main>
+      {mobileMenuOpen && (
+        <div className="fixed inset-0 z-20 md:hidden">
+          <div className="absolute inset-0 bg-ink/40" onClick={() => setMobileMenuOpen(false)} />
+          <nav className="absolute inset-x-0 top-[56px] flex flex-col gap-1 border-b border-cocoa/20 bg-white p-4 shadow-lg">
+            {NAV_ITEMS.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={() => setMobileMenuOpen(false)}
+                className={`flex min-h-[44px] items-center gap-3 rounded-md px-3 text-sm ${
+                  isActive(item.href) ? "bg-paper-alt font-medium text-brick" : "text-ink"
+                }`}
+              >
+                <item.Icon size={20} aria-hidden />
+                {item.label}
+              </Link>
+            ))}
+            <div className="mt-2 flex flex-col gap-1 border-t border-cocoa/20 pt-2">
+              <Link
+                href="/dietary"
+                onClick={() => setMobileMenuOpen(false)}
+                className={`flex min-h-[44px] items-center gap-3 rounded-md px-3 text-sm ${
+                  isActive("/dietary") ? "bg-paper-alt font-medium text-brick" : "text-ink"
+                }`}
+              >
+                <RiSettings3Line size={20} aria-hidden />
+                Household settings
+              </Link>
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  handleLogout();
+                }}
+                className="flex min-h-[44px] items-center gap-3 rounded-md px-3 text-left text-sm text-cocoa"
+              >
+                <RiLogoutBoxRLine size={20} aria-hidden />
+                Log out
+              </button>
+            </div>
+          </nav>
+        </div>
+      )}
 
-      {/* Mobile bottom tab bar */}
-      <nav className="fixed inset-x-0 bottom-0 z-10 flex border-t border-cocoa/20 bg-white md:hidden">
-        {NAV_ITEMS.map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
-            className={`flex min-h-[56px] flex-1 flex-col items-center justify-center gap-0.5 text-xs ${
-              isActive(item.href) ? "text-brick" : "text-cocoa"
-            }`}
-          >
-            <item.Icon size={22} aria-hidden />
-            {item.label}
-          </Link>
-        ))}
-      </nav>
+      <main className="flex-1">{children}</main>
     </div>
   );
 }
