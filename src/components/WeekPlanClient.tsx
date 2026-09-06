@@ -34,6 +34,32 @@ const WEEKLY_MEAL_LABELS: Record<WeeklyMealType, string> = {
   snack: "Snack",
 };
 
+type Location = { kind: "day"; day: Day } | { kind: "weekly"; mealType: WeeklyMealType };
+
+function locationValue(loc: Location): string {
+  return loc.kind === "day" ? `day:${loc.day}` : `weekly:${loc.mealType}`;
+}
+
+function parseLocationValue(value: string): Location | null {
+  const [kind, key] = value.split(":");
+  if (kind === "day") return { kind: "day", day: key as Day };
+  if (kind === "weekly") return { kind: "weekly", mealType: key as WeeklyMealType };
+  return null;
+}
+
+function sameLocation(a: Location, b: Location): boolean {
+  return locationValue(a) === locationValue(b);
+}
+
+const ALL_LOCATIONS: Location[] = [
+  ...DAYS.map((day): Location => ({ kind: "day", day })),
+  ...WEEKLY_MEAL_TYPES.map((mealType): Location => ({ kind: "weekly", mealType })),
+];
+
+function locationLabel(loc: Location): string {
+  return loc.kind === "day" ? loc.day : WEEKLY_MEAL_LABELS[loc.mealType];
+}
+
 export function WeekPlanClient({ initialPlan, recipes }: { initialPlan: Plan; recipes: Recipe[] }) {
   const [plan, setPlan] = useState<Plan>(initialPlan);
   const [savedPlan, setSavedPlan] = useState<Plan>(initialPlan);
@@ -46,8 +72,8 @@ export function WeekPlanClient({ initialPlan, recipes }: { initialPlan: Plan; re
   const [includePrepAhead, setIncludePrepAhead] = useState(false);
   const [groceryStatus, setGroceryStatus] = useState<Record<string, string>>({});
   const [addingToGrocery, setAddingToGrocery] = useState<string | null>(null);
-  const [draggedFrom, setDraggedFrom] = useState<{ day: Day; entryId: string } | null>(null);
-  const [dragOverDay, setDragOverDay] = useState<Day | null>(null);
+  const [draggedFrom, setDraggedFrom] = useState<{ location: Location; entryId: string } | null>(null);
+  const [dragOverLocation, setDragOverLocation] = useState<Location | null>(null);
 
   async function persist(next: Plan) {
     setPlan(next);
@@ -85,33 +111,40 @@ export function WeekPlanClient({ initialPlan, recipes }: { initialPlan: Plan; re
     });
   }
 
-  function moveDinner(fromDay: Day, toDay: Day, entryId: string) {
-    if (fromDay === toDay) return;
-    const entry = plan.dinners[fromDay].find((e) => e.id === entryId);
-    if (!entry) return;
-    persist({
-      ...plan,
-      dinners: {
-        ...plan.dinners,
-        [fromDay]: plan.dinners[fromDay].filter((e) => e.id !== entryId),
-        [toDay]: [...plan.dinners[toDay], entry],
-      },
-    });
+  function getEntries(loc: Location): MealEntry[] {
+    return loc.kind === "day" ? plan.dinners[loc.day] : plan.weeklyMeals[loc.mealType];
   }
 
-  function handleDragStart(day: Day, entryId: string) {
-    setDraggedFrom({ day, entryId });
+  function moveEntry(from: Location, to: Location, entryId: string) {
+    if (sameLocation(from, to)) return;
+    const entry = getEntries(from).find((e) => e.id === entryId);
+    if (!entry) return;
+
+    const nextDinners = { ...plan.dinners };
+    const nextWeekly = { ...plan.weeklyMeals };
+
+    if (from.kind === "day") nextDinners[from.day] = nextDinners[from.day].filter((e) => e.id !== entryId);
+    else nextWeekly[from.mealType] = nextWeekly[from.mealType].filter((e) => e.id !== entryId);
+
+    if (to.kind === "day") nextDinners[to.day] = [...nextDinners[to.day], entry];
+    else nextWeekly[to.mealType] = [...nextWeekly[to.mealType], entry];
+
+    persist({ ...plan, dinners: nextDinners, weeklyMeals: nextWeekly });
+  }
+
+  function handleDragStart(location: Location, entryId: string) {
+    setDraggedFrom({ location, entryId });
   }
 
   function handleDragEnd() {
     setDraggedFrom(null);
-    setDragOverDay(null);
+    setDragOverLocation(null);
   }
 
-  function handleDropOnDay(day: Day) {
-    if (draggedFrom) moveDinner(draggedFrom.day, day, draggedFrom.entryId);
+  function handleDropOnLocation(location: Location) {
+    if (draggedFrom) moveEntry(draggedFrom.location, location, draggedFrom.entryId);
     setDraggedFrom(null);
-    setDragOverDay(null);
+    setDragOverLocation(null);
   }
 
   function updateDinnerServings(day: Day, id: string, servings: number) {
@@ -286,19 +319,21 @@ export function WeekPlanClient({ initialPlan, recipes }: { initialPlan: Plan; re
       {saving && !isDraft && <p className="text-xs text-cocoa">Saving…</p>}
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
-        {DAYS.map((day) => (
+        {DAYS.map((day) => {
+          const location: Location = { kind: "day", day };
+          return (
           <div
             key={day}
             onDragOver={(e) => {
               e.preventDefault();
-              setDragOverDay(day);
+              setDragOverLocation(location);
             }}
-            onDragLeave={() => setDragOverDay((prev) => (prev === day ? null : prev))}
+            onDragLeave={() => setDragOverLocation((prev) => (prev && sameLocation(prev, location) ? null : prev))}
             onDrop={(e) => {
               e.preventDefault();
-              handleDropOnDay(day);
+              handleDropOnLocation(location);
             }}
-            className={`card flex flex-col gap-2 p-3 ${dragOverDay === day ? "ring-2 ring-sage" : ""}`}
+            className={`card flex flex-col gap-2 p-3 ${dragOverLocation && sameLocation(dragOverLocation, location) ? "ring-2 ring-sage" : ""}`}
           >
             <div className="flex items-center justify-between">
               <h3 className="text-lg text-ink">{day}</h3>
@@ -326,11 +361,11 @@ export function WeekPlanClient({ initialPlan, recipes }: { initialPlan: Plan; re
                   <div className="flex items-start gap-1">
                     <span
                       draggable
-                      onDragStart={() => handleDragStart(day, entry.id)}
+                      onDragStart={() => handleDragStart(location, entry.id)}
                       onDragEnd={handleDragEnd}
                       className="flex h-6 w-6 shrink-0 cursor-grab items-center justify-center text-cocoa active:cursor-grabbing"
-                      aria-label="Drag to move to another day"
-                      title="Drag to move to another day"
+                      aria-label="Drag to move"
+                      title="Drag to move"
                     >
                       <RiDraggable size={16} aria-hidden />
                     </span>
@@ -362,17 +397,17 @@ export function WeekPlanClient({ initialPlan, recipes }: { initialPlan: Plan; re
                       <select
                         value=""
                         onChange={(e) => {
-                          const targetDay = e.target.value as Day;
-                          if (targetDay) moveDinner(day, targetDay, entry.id);
+                          const target = parseLocationValue(e.target.value);
+                          if (target) moveEntry(location, target, entry.id);
                         }}
-                        aria-label="Move to another day"
-                        title="Move to another day"
+                        aria-label="Move to"
+                        title="Move to"
                         className="h-8 rounded-md border border-cocoa/40 bg-white px-1 text-xs"
                       >
                         <option value="">Move…</option>
-                        {DAYS.filter((d) => d !== day).map((d) => (
-                          <option key={d} value={d}>
-                            {d}
+                        {ALL_LOCATIONS.filter((l) => !sameLocation(l, location)).map((l) => (
+                          <option key={locationValue(l)} value={locationValue(l)}>
+                            {locationLabel(l)}
                           </option>
                         ))}
                       </select>
@@ -405,28 +440,55 @@ export function WeekPlanClient({ initialPlan, recipes }: { initialPlan: Plan; re
 
             <MealEntryAdder recipes={recipeOptions} onAdd={(entry) => addDinner(day, entry)} />
           </div>
-        ))}
+          );
+        })}
       </div>
 
       <h2 className="text-2xl text-brick">Breakfast / Lunch / Snack</h2>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-        {WEEKLY_MEAL_TYPES.map((mealType) => (
-          <div key={mealType} className="card flex flex-col gap-2 p-3">
+        {WEEKLY_MEAL_TYPES.map((mealType) => {
+          const location: Location = { kind: "weekly", mealType };
+          return (
+          <div
+            key={mealType}
+            onDragOver={(e) => {
+              e.preventDefault();
+              setDragOverLocation(location);
+            }}
+            onDragLeave={() => setDragOverLocation((prev) => (prev && sameLocation(prev, location) ? null : prev))}
+            onDrop={(e) => {
+              e.preventDefault();
+              handleDropOnLocation(location);
+            }}
+            className={`card flex flex-col gap-2 p-3 ${dragOverLocation && sameLocation(dragOverLocation, location) ? "ring-2 ring-sage" : ""}`}
+          >
             <h3 className="text-lg text-ink">{WEEKLY_MEAL_LABELS[mealType]}</h3>
             <ul className="flex flex-col gap-1">
               {plan.weeklyMeals[mealType].map((entry) => (
                 <li key={entry.id} className="flex flex-col gap-1.5 rounded-md bg-paper-alt p-2 text-xs">
-                  {entry.type === "recipe" && entry.recipeId ? (
-                    <Link
-                      href={`/recipes/${entry.recipeId}${entry.servings ? `?servings=${entry.servings}` : ""}`}
-                      className="leading-snug underline"
+                  <div className="flex items-start gap-1">
+                    <span
+                      draggable
+                      onDragStart={() => handleDragStart(location, entry.id)}
+                      onDragEnd={handleDragEnd}
+                      className="flex h-6 w-6 shrink-0 cursor-grab items-center justify-center text-cocoa active:cursor-grabbing"
+                      aria-label="Drag to move"
+                      title="Drag to move"
                     >
-                      {entry.label}
-                    </Link>
-                  ) : (
-                    <span className="leading-snug">{entry.label}</span>
-                  )}
-                  <div className="flex items-center justify-between gap-1">
+                      <RiDraggable size={16} aria-hidden />
+                    </span>
+                    {entry.type === "recipe" && entry.recipeId ? (
+                      <Link
+                        href={`/recipes/${entry.recipeId}${entry.servings ? `?servings=${entry.servings}` : ""}`}
+                        className="leading-snug underline"
+                      >
+                        {entry.label}
+                      </Link>
+                    ) : (
+                      <span className="leading-snug">{entry.label}</span>
+                    )}
+                  </div>
+                  <div className="flex flex-wrap items-center justify-between gap-1">
                     {entry.type === "recipe" && entry.recipeId ? (
                       <input
                         type="number"
@@ -440,6 +502,23 @@ export function WeekPlanClient({ initialPlan, recipes }: { initialPlan: Plan; re
                       <span />
                     )}
                     <div className="flex shrink-0 items-center gap-0.5">
+                      <select
+                        value=""
+                        onChange={(e) => {
+                          const target = parseLocationValue(e.target.value);
+                          if (target) moveEntry(location, target, entry.id);
+                        }}
+                        aria-label="Move to"
+                        title="Move to"
+                        className="h-8 rounded-md border border-cocoa/40 bg-white px-1 text-xs"
+                      >
+                        <option value="">Move…</option>
+                        {ALL_LOCATIONS.filter((l) => !sameLocation(l, location)).map((l) => (
+                          <option key={locationValue(l)} value={locationValue(l)}>
+                            {locationLabel(l)}
+                          </option>
+                        ))}
+                      </select>
                       {entry.type === "recipe" && entry.recipeId && (
                         <button
                           type="button"
@@ -468,7 +547,8 @@ export function WeekPlanClient({ initialPlan, recipes }: { initialPlan: Plan; re
             </ul>
             <MealEntryAdder recipes={recipeOptions} onAdd={(entry) => addWeekly(mealType, entry)} />
           </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
