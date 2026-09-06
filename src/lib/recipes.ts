@@ -22,6 +22,7 @@ export const CUISINES = [
   "Asian",
   "Mediterranean",
   "Indian",
+  "Thai",
   "French",
   "Other",
 ] as const;
