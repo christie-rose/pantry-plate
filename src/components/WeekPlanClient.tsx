@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { RiCloseLine, RiShoppingCartLine, RiSparklingLine } from "@remixicon/react";
+import { RiCloseLine, RiDraggable, RiShoppingCartLine, RiSparklingLine } from "@remixicon/react";
 import {
   DAYS,
   DAY_TAGS,
@@ -46,6 +46,8 @@ export function WeekPlanClient({ initialPlan, recipes }: { initialPlan: Plan; re
   const [includePrepAhead, setIncludePrepAhead] = useState(false);
   const [groceryStatus, setGroceryStatus] = useState<Record<string, string>>({});
   const [addingToGrocery, setAddingToGrocery] = useState<string | null>(null);
+  const [draggedFrom, setDraggedFrom] = useState<{ day: Day; entryId: string } | null>(null);
+  const [dragOverDay, setDragOverDay] = useState<Day | null>(null);
 
   async function persist(next: Plan) {
     setPlan(next);
@@ -81,6 +83,35 @@ export function WeekPlanClient({ initialPlan, recipes }: { initialPlan: Plan; re
       ...plan,
       weeklyMeals: { ...plan.weeklyMeals, [mealType]: plan.weeklyMeals[mealType].filter((e) => e.id !== id) },
     });
+  }
+
+  function moveDinner(fromDay: Day, toDay: Day, entryId: string) {
+    if (fromDay === toDay) return;
+    const entry = plan.dinners[fromDay].find((e) => e.id === entryId);
+    if (!entry) return;
+    persist({
+      ...plan,
+      dinners: {
+        ...plan.dinners,
+        [fromDay]: plan.dinners[fromDay].filter((e) => e.id !== entryId),
+        [toDay]: [...plan.dinners[toDay], entry],
+      },
+    });
+  }
+
+  function handleDragStart(day: Day, entryId: string) {
+    setDraggedFrom({ day, entryId });
+  }
+
+  function handleDragEnd() {
+    setDraggedFrom(null);
+    setDragOverDay(null);
+  }
+
+  function handleDropOnDay(day: Day) {
+    if (draggedFrom) moveDinner(draggedFrom.day, day, draggedFrom.entryId);
+    setDraggedFrom(null);
+    setDragOverDay(null);
   }
 
   function updateDinnerServings(day: Day, id: string, servings: number) {
@@ -256,7 +287,19 @@ export function WeekPlanClient({ initialPlan, recipes }: { initialPlan: Plan; re
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
         {DAYS.map((day) => (
-          <div key={day} className="card flex flex-col gap-2 p-3">
+          <div
+            key={day}
+            onDragOver={(e) => {
+              e.preventDefault();
+              setDragOverDay(day);
+            }}
+            onDragLeave={() => setDragOverDay((prev) => (prev === day ? null : prev))}
+            onDrop={(e) => {
+              e.preventDefault();
+              handleDropOnDay(day);
+            }}
+            className={`card flex flex-col gap-2 p-3 ${dragOverDay === day ? "ring-2 ring-sage" : ""}`}
+          >
             <div className="flex items-center justify-between">
               <h3 className="text-lg text-ink">{day}</h3>
             </div>
@@ -274,17 +317,34 @@ export function WeekPlanClient({ initialPlan, recipes }: { initialPlan: Plan; re
 
             <ul className="flex flex-col gap-1">
               {plan.dinners[day].map((entry) => (
-                <li key={entry.id} className="flex flex-col gap-1.5 rounded-md bg-paper-alt p-2 text-xs">
-                  {entry.type === "recipe" && entry.recipeId ? (
-                    <Link
-                      href={`/recipes/${entry.recipeId}${entry.servings ? `?servings=${entry.servings}` : ""}`}
-                      className="leading-snug underline"
+                <li
+                  key={entry.id}
+                  className={`flex flex-col gap-1.5 rounded-md bg-paper-alt p-2 text-xs ${
+                    draggedFrom?.entryId === entry.id ? "opacity-40" : ""
+                  }`}
+                >
+                  <div className="flex items-start gap-1">
+                    <span
+                      draggable
+                      onDragStart={() => handleDragStart(day, entry.id)}
+                      onDragEnd={handleDragEnd}
+                      className="flex h-6 w-6 shrink-0 cursor-grab items-center justify-center text-cocoa active:cursor-grabbing"
+                      aria-label="Drag to move to another day"
+                      title="Drag to move to another day"
                     >
-                      {entry.label}
-                    </Link>
-                  ) : (
-                    <span className="leading-snug">{entry.label}</span>
-                  )}
+                      <RiDraggable size={16} aria-hidden />
+                    </span>
+                    {entry.type === "recipe" && entry.recipeId ? (
+                      <Link
+                        href={`/recipes/${entry.recipeId}${entry.servings ? `?servings=${entry.servings}` : ""}`}
+                        className="leading-snug underline"
+                      >
+                        {entry.label}
+                      </Link>
+                    ) : (
+                      <span className="leading-snug">{entry.label}</span>
+                    )}
+                  </div>
                   <div className="flex items-center justify-between gap-1">
                     {entry.type === "recipe" && entry.recipeId ? (
                       <input
