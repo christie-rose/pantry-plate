@@ -345,7 +345,7 @@ export function WeekPlanClient({ initialPlan, recipes }: { initialPlan: Plan; re
                       <span className="leading-snug">{entry.label}</span>
                     )}
                   </div>
-                  <div className="flex items-center justify-between gap-1">
+                  <div className="flex flex-wrap items-center justify-between gap-1">
                     {entry.type === "recipe" && entry.recipeId ? (
                       <input
                         type="number"
@@ -359,6 +359,23 @@ export function WeekPlanClient({ initialPlan, recipes }: { initialPlan: Plan; re
                       <span />
                     )}
                     <div className="flex shrink-0 items-center gap-0.5">
+                      <select
+                        value=""
+                        onChange={(e) => {
+                          const targetDay = e.target.value as Day;
+                          if (targetDay) moveDinner(day, targetDay, entry.id);
+                        }}
+                        aria-label="Move to another day"
+                        title="Move to another day"
+                        className="h-8 rounded-md border border-cocoa/40 bg-white px-1 text-xs"
+                      >
+                        <option value="">Move…</option>
+                        {DAYS.filter((d) => d !== day).map((d) => (
+                          <option key={d} value={d}>
+                            {d}
+                          </option>
+                        ))}
+                      </select>
                       {entry.type === "recipe" && entry.recipeId && (
                         <button
                           type="button"
