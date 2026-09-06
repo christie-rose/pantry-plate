@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { RECIPE_CATEGORIES } from "@/lib/recipes";
+import { detectProteins, PROTEIN_TYPES, RECIPE_CATEGORIES } from "@/lib/recipes";
 
 type Recipe = {
   id: string;
@@ -11,19 +11,22 @@ type Recipe = {
   source: string;
   tags: string[];
   categories: string[];
+  ingredients: { name: string }[];
 };
 
 export function RecipesClient({ initialRecipes }: { initialRecipes: Recipe[] }) {
   const [recipes, setRecipes] = useState(initialRecipes);
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
+  const [proteinFilter, setProteinFilter] = useState("");
 
   const queryString = useMemo(() => {
     const params = new URLSearchParams();
     if (search) params.set("search", search);
     if (categoryFilter) params.set("category", categoryFilter);
+    if (proteinFilter) params.set("protein", proteinFilter);
     return params.toString();
-  }, [search, categoryFilter]);
+  }, [search, categoryFilter, proteinFilter]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -34,11 +37,12 @@ export function RecipesClient({ initialRecipes }: { initialRecipes: Recipe[] }) 
     return () => controller.abort();
   }, [queryString]);
 
-  const hasActiveFilters = Boolean(search || categoryFilter);
+  const hasActiveFilters = Boolean(search || categoryFilter || proteinFilter);
 
   function clearFilters() {
     setSearch("");
     setCategoryFilter("");
+    setProteinFilter("");
   }
 
   return (
@@ -69,6 +73,18 @@ export function RecipesClient({ initialRecipes }: { initialRecipes: Recipe[] }) 
             </option>
           ))}
         </select>
+        <select
+          value={proteinFilter}
+          onChange={(e) => setProteinFilter(e.target.value)}
+          className="min-h-[44px] rounded-md border border-cocoa/40 bg-white px-2 py-2 text-sm text-ink"
+        >
+          <option value="">All proteins</option>
+          {PROTEIN_TYPES.map((p) => (
+            <option key={p} value={p}>
+              {p}
+            </option>
+          ))}
+        </select>
         {hasActiveFilters && (
           <button
             type="button"
@@ -86,28 +102,36 @@ export function RecipesClient({ initialRecipes }: { initialRecipes: Recipe[] }) 
         </p>
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          {recipes.map((recipe) => (
-            <Link key={recipe.id} href={`/recipes/${recipe.id}`} className="card flex flex-col gap-2 p-4">
-              <h2 className="text-xl text-ink">{recipe.title}</h2>
-              <p className="text-xs text-cocoa">
-                Serves {recipe.servings} · {recipe.source}
-              </p>
-              {(recipe.categories.length > 0 || recipe.tags.length > 0) && (
-                <div className="flex flex-wrap gap-1">
-                  {recipe.categories.map((category) => (
-                    <span key={category} className="rounded-full bg-sage/20 px-2 py-0.5 text-xs text-ink">
-                      {category}
-                    </span>
-                  ))}
-                  {recipe.tags.map((tag) => (
-                    <span key={tag} className="rounded-full bg-paper-alt px-2 py-0.5 text-xs text-cocoa">
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              )}
-            </Link>
-          ))}
+          {recipes.map((recipe) => {
+            const proteins = detectProteins(recipe.ingredients.map((i) => i.name));
+            return (
+              <Link key={recipe.id} href={`/recipes/${recipe.id}`} className="card flex flex-col gap-2 p-4">
+                <h2 className="text-xl text-ink">{recipe.title}</h2>
+                <p className="text-xs text-cocoa">
+                  Serves {recipe.servings} · {recipe.source}
+                </p>
+                {(recipe.categories.length > 0 || proteins.length > 0 || recipe.tags.length > 0) && (
+                  <div className="flex flex-wrap gap-1">
+                    {recipe.categories.map((category) => (
+                      <span key={category} className="rounded-full bg-sage/20 px-2 py-0.5 text-xs text-ink">
+                        {category}
+                      </span>
+                    ))}
+                    {proteins.map((protein) => (
+                      <span key={protein} className="rounded-full bg-brick/10 px-2 py-0.5 text-xs text-brick">
+                        {protein}
+                      </span>
+                    ))}
+                    {recipe.tags.map((tag) => (
+                      <span key={tag} className="rounded-full bg-paper-alt px-2 py-0.5 text-xs text-cocoa">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </Link>
+            );
+          })}
         </div>
       )}
     </div>

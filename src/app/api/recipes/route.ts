@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { matchIngredientToPantry, validateRecipeInput } from "@/lib/recipes";
+import { detectProteins, matchIngredientToPantry, validateRecipeInput, PROTEIN_TYPES, type ProteinType } from "@/lib/recipes";
 import type { Prisma } from "@prisma/client";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl;
   const search = searchParams.get("search")?.trim() ?? "";
   const category = searchParams.get("category");
+  const protein = searchParams.get("protein");
 
   const where: Prisma.RecipeWhereInput = {};
   if (search) {
@@ -21,7 +22,13 @@ export async function GET(request: NextRequest) {
     include: { ingredients: true },
     orderBy: { title: "asc" },
   });
-  return NextResponse.json(recipes);
+
+  const filtered =
+    protein && PROTEIN_TYPES.includes(protein as ProteinType)
+      ? recipes.filter((r) => detectProteins(r.ingredients.map((i) => i.name)).includes(protein as ProteinType))
+      : recipes;
+
+  return NextResponse.json(filtered);
 }
 
 export async function POST(request: NextRequest) {

@@ -14,6 +14,37 @@ export const RECIPE_CATEGORIES = [
 ] as const;
 export type RecipeCategory = (typeof RECIPE_CATEGORIES)[number];
 
+export const PROTEIN_TYPES = [
+  "Chicken",
+  "Beef",
+  "Pork",
+  "Turkey",
+  "Venison",
+  "Fish/Seafood",
+  "Sausage",
+  "Tofu/Plant-based",
+] as const;
+export type ProteinType = (typeof PROTEIN_TYPES)[number];
+
+const PROTEIN_KEYWORDS: Record<ProteinType, string[]> = {
+  Chicken: ["chicken"],
+  Beef: ["beef", "steak"],
+  Pork: ["pork", "bacon", "ham"],
+  Turkey: ["turkey"],
+  Venison: ["venison"],
+  "Fish/Seafood": ["fish", "salmon", "shrimp", "tuna", "cod", "tilapia", "seafood", "crab", "lobster"],
+  Sausage: ["sausage"],
+  "Tofu/Plant-based": ["tofu", "tempeh", "lentil", "chickpea", "black bean", "plant-based"],
+};
+
+/** Detects protein types present in a recipe from its ingredient names (substring keyword match). */
+export function detectProteins(ingredientNames: string[]): ProteinType[] {
+  const lowerNames = ingredientNames.map((n) => n.toLowerCase());
+  return PROTEIN_TYPES.filter((protein) =>
+    PROTEIN_KEYWORDS[protein].some((keyword) => lowerNames.some((name) => name.includes(keyword))),
+  );
+}
+
 export type IngredientInput = {
   name: string;
   amount: number | null;
