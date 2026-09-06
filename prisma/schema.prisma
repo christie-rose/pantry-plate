@@ -13,7 +13,7 @@ datasource db {
 model PantryItem {
   id              String             @id @default(cuid())
   name            String
-  location        String // "Pantry" | "Fridge" | "Freezer"
+  location        String // "Pantry" | "Fridge" | "Freezer" | "Household Supplies"
   preferredStore  String // "Costco" | "Albertsons" | "WinCo" | "Other"
   isStaple        Boolean            @default(false)
   stapleStatus    String? // "In stock" | "Low" | "Out" — used when isStaple = true

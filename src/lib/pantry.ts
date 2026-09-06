@@ -1,4 +1,4 @@
-export const LOCATIONS = ["Pantry", "Fridge", "Freezer"] as const;
+export const LOCATIONS = ["Pantry", "Fridge", "Freezer", "Household Supplies"] as const;
 export const STORES = ["Costco", "Albertsons", "WinCo", "Other"] as const;
 export const STAPLE_STATUSES = ["In stock", "Low", "Out"] as const;
 
