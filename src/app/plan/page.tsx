@@ -17,7 +17,15 @@ export default async function PlanPage({
     prisma.weekPlan.findUnique({ where: { weekKey } }),
     prisma.recipe.findMany({
       orderBy: { title: "asc" },
-      select: { id: true, title: true, servings: true, prepAhead: true },
+      select: {
+        id: true,
+        title: true,
+        servings: true,
+        prepAhead: true,
+        categories: true,
+        cuisine: true,
+        ingredients: { select: { name: true } },
+      },
     }),
   ]);
 

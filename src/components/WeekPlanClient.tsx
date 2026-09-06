@@ -20,7 +20,16 @@ import {
 } from "@/lib/weekplan";
 import { MealEntryAdder } from "@/components/MealEntryAdder";
 
-type Recipe = { id: string; title: string; servings: number; prepAhead: string[] };
+export type PlanRecipeOption = {
+  id: string;
+  title: string;
+  servings: number;
+  prepAhead: string[];
+  categories: string[];
+  cuisine: string | null;
+  ingredients: { name: string }[];
+};
+type Recipe = PlanRecipeOption;
 
 type Plan = {
   weekKey: string;
