@@ -47,6 +47,8 @@ export function PantryClient({ initialItems }: { initialItems: PantryItem[] }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
+  const [resetting, setResetting] = useState(false);
 
   const queryString = useMemo(() => {
     const params = new URLSearchParams();
@@ -173,18 +175,67 @@ export function PantryClient({ initialItems }: { initialItems: PantryItem[] }) {
     await refresh();
   }
 
+  async function handleResetAll() {
+    setResetting(true);
+    await fetch("/api/pantry/reset-all", { method: "POST" });
+    setResetting(false);
+    setShowResetConfirm(false);
+    await refresh();
+  }
+
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 p-4 pb-24">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl text-brick">Pantry</h1>
-        <button
-          type="button"
-          onClick={() => setShowAddModal(true)}
-          className="min-h-[44px] rounded-md bg-brick px-4 text-sm font-medium text-white"
-        >
-          Add item
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setShowResetConfirm(true)}
+            className="min-h-[44px] rounded-md border border-cocoa/40 px-3 text-sm text-cocoa"
+          >
+            Reset all
+          </button>
+          <button
+            type="button"
+            onClick={() => setShowAddModal(true)}
+            className="min-h-[44px] rounded-md bg-brick px-4 text-sm font-medium text-white"
+          >
+            Add item
+          </button>
+        </div>
       </div>
+
+      {showResetConfirm && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-ink/40 p-4"
+          onClick={() => setShowResetConfirm(false)}
+        >
+          <div onClick={(e) => e.stopPropagation()} className="flex w-full max-w-sm flex-col gap-3 rounded-lg bg-white p-4 shadow-lg">
+            <h2 className="text-lg text-brick">Reset all pantry items?</h2>
+            <p className="text-sm text-cocoa">
+              Every non-staple item&apos;s quantity will be set to 0, and every staple will be marked In stock.
+              This can&apos;t be undone.
+            </p>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={handleResetAll}
+                disabled={resetting}
+                className="min-h-[44px] rounded-md bg-brick px-4 text-sm font-medium text-white disabled:opacity-50"
+              >
+                {resetting ? "Resetting…" : "Reset all"}
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowResetConfirm(false)}
+                className="min-h-[44px] rounded-md border border-cocoa/40 px-4 text-sm"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {showAddModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/40 p-4" onClick={() => setShowAddModal(false)}>
