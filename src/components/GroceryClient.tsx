@@ -46,8 +46,8 @@ export function GroceryClient({ weekKey, initialItems }: { weekKey: string; init
     persist(items.filter((item) => item.id !== id));
   }
 
-  function markAllShopped() {
-    persist([]);
+  function markStoreShopped(store: string) {
+    persist(items.filter((item) => item.store !== store));
   }
 
   const groups = STORES.map((store) => ({ store, items: items.filter((i) => i.store === store) })).filter(
@@ -68,18 +68,6 @@ export function GroceryClient({ weekKey, initialItems }: { weekKey: string; init
           </Link>
         </div>
       </div>
-
-      {items.length > 0 && (
-        <div className="card flex flex-wrap items-center gap-3 p-3">
-          <button
-            type="button"
-            onClick={markAllShopped}
-            className="min-h-[44px] rounded-md border border-cocoa/40 px-3 text-sm"
-          >
-            Mark all shopped
-          </button>
-        </div>
-      )}
 
       <div className="card flex flex-wrap items-center gap-2 p-3">
         <input
@@ -121,7 +109,16 @@ export function GroceryClient({ weekKey, initialItems }: { weekKey: string; init
 
       {groups.map(({ store, items: storeItems }) => (
         <div key={store} className="flex flex-col gap-2">
-          <h2 className="text-xl text-brick">{store}</h2>
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl text-brick">{store}</h2>
+            <button
+              type="button"
+              onClick={() => markStoreShopped(store)}
+              className="min-h-[44px] rounded-md border border-cocoa/40 px-3 text-sm"
+            >
+              Mark all shopped
+            </button>
+          </div>
           <ul className="flex flex-col divide-y divide-cocoa/20 rounded-md border border-cocoa/30 bg-white">
             {storeItems.map((item) => (
               <li key={item.id} className="flex items-center justify-between gap-2 p-3">
