@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { RiCheckLine, RiCloseLine, RiDraggable, RiShoppingCartLine, RiSparklingLine } from "@remixicon/react";
+import { RiCheckLine, RiDraggable, RiSparklingLine } from "@remixicon/react";
+import { EntryActionsMenu } from "@/components/EntryActionsMenu";
 import {
   DAYS,
   DAY_TAGS,
@@ -401,80 +402,45 @@ export function WeekPlanClient({ initialPlan, recipes }: { initialPlan: Plan; re
                     draggedFrom?.entryId === entry.id ? "opacity-40" : ""
                   }`}
                 >
-                  <div className="flex items-start gap-1">
-                    <span
-                      draggable
-                      onDragStart={() => handleDragStart(location, entry.id)}
-                      onDragEnd={handleDragEnd}
-                      className="flex h-6 w-6 shrink-0 cursor-grab items-center justify-center text-cocoa active:cursor-grabbing"
-                      aria-label="Drag to move"
-                      title="Drag to move"
-                    >
-                      <RiDraggable size={16} aria-hidden />
-                    </span>
-                    {entry.type === "recipe" && entry.recipeId ? (
-                      <Link
-                        href={`/recipes/${entry.recipeId}${entry.servings ? `?servings=${entry.servings}` : ""}`}
-                        className="leading-snug underline"
+                  <div className="flex items-start justify-between gap-1">
+                    <div className="flex items-start gap-1">
+                      <span
+                        draggable
+                        onDragStart={() => handleDragStart(location, entry.id)}
+                        onDragEnd={handleDragEnd}
+                        className="flex h-6 w-6 shrink-0 cursor-grab items-center justify-center text-cocoa active:cursor-grabbing"
+                        aria-label="Drag to move"
+                        title="Drag to move"
                       >
-                        {entry.label}
-                      </Link>
-                    ) : (
-                      <span className="leading-snug">{entry.label}</span>
-                    )}
-                  </div>
-                  <div className="flex flex-wrap items-center justify-between gap-1">
-                    {entry.type === "recipe" && entry.recipeId ? (
-                      <input
-                        type="number"
-                        min={1}
-                        value={entry.servings ?? ""}
-                        onChange={(e) => updateDinnerServings(day, entry.id, Number(e.target.value))}
-                        aria-label="Servings"
-                        className="h-8 w-12 rounded-md border border-cocoa/40 bg-white px-1 text-center text-sm"
-                      />
-                    ) : (
-                      <span />
-                    )}
-                    <div className="flex shrink-0 items-center gap-0.5">
-                      <select
-                        value=""
-                        onChange={(e) => {
-                          const target = parseLocationValue(e.target.value);
-                          if (target) moveEntry(location, target, entry.id);
-                        }}
-                        aria-label="Move to"
-                        title="Move to"
-                        className="h-8 rounded-md border border-cocoa/40 bg-white px-1 text-xs"
-                      >
-                        <option value="">Move…</option>
-                        {ALL_LOCATIONS.filter((l) => !sameLocation(l, location)).map((l) => (
-                          <option key={locationValue(l)} value={locationValue(l)}>
-                            {locationLabel(l)}
-                          </option>
-                        ))}
-                      </select>
-                      {entry.type === "recipe" && entry.recipeId && (
-                        <button
-                          type="button"
-                          onClick={() => handleAddToGrocery(entry)}
-                          disabled={addingToGrocery === entry.id}
-                          className="flex h-8 w-8 items-center justify-center rounded-md text-sage hover:bg-sage/10 disabled:opacity-50"
-                          aria-label="Add to grocery list"
-                          title="Add to grocery list"
+                        <RiDraggable size={16} aria-hidden />
+                      </span>
+                      {entry.type === "recipe" && entry.recipeId ? (
+                        <Link
+                          href={`/recipes/${entry.recipeId}${entry.servings ? `?servings=${entry.servings}` : ""}`}
+                          className="leading-snug underline"
                         >
-                          <RiShoppingCartLine size={18} aria-hidden />
-                        </button>
+                          {entry.label}
+                        </Link>
+                      ) : (
+                        <span className="leading-snug">{entry.label}</span>
                       )}
-                      <button
-                        type="button"
-                        onClick={() => removeDinner(day, entry.id)}
-                        className="flex h-8 w-8 items-center justify-center rounded-md text-brick hover:bg-brick/10"
-                        aria-label="Remove entry"
-                      >
-                        <RiCloseLine size={18} aria-hidden />
-                      </button>
                     </div>
+                    <EntryActionsMenu
+                      isRecipe={entry.type === "recipe" && Boolean(entry.recipeId)}
+                      servings={entry.servings}
+                      onServingsChange={(servings) => updateDinnerServings(day, entry.id, servings)}
+                      addingToGrocery={addingToGrocery === entry.id}
+                      onAddToGrocery={() => handleAddToGrocery(entry)}
+                      onRemove={() => removeDinner(day, entry.id)}
+                      moveOptions={ALL_LOCATIONS.filter((l) => !sameLocation(l, location)).map((l) => ({
+                        value: locationValue(l),
+                        label: locationLabel(l),
+                      }))}
+                      onMove={(value) => {
+                        const target = parseLocationValue(value);
+                        if (target) moveEntry(location, target, entry.id);
+                      }}
+                    />
                   </div>
                   {groceryStatus[entry.id] && <span className="text-cocoa">{groceryStatus[entry.id]}</span>}
                 </li>
@@ -509,80 +475,45 @@ export function WeekPlanClient({ initialPlan, recipes }: { initialPlan: Plan; re
             <ul className="flex flex-col gap-1">
               {plan.weeklyMeals[mealType].map((entry) => (
                 <li key={entry.id} className="flex flex-col gap-1.5 rounded-md bg-paper-alt p-2 text-xs">
-                  <div className="flex items-start gap-1">
-                    <span
-                      draggable
-                      onDragStart={() => handleDragStart(location, entry.id)}
-                      onDragEnd={handleDragEnd}
-                      className="flex h-6 w-6 shrink-0 cursor-grab items-center justify-center text-cocoa active:cursor-grabbing"
-                      aria-label="Drag to move"
-                      title="Drag to move"
-                    >
-                      <RiDraggable size={16} aria-hidden />
-                    </span>
-                    {entry.type === "recipe" && entry.recipeId ? (
-                      <Link
-                        href={`/recipes/${entry.recipeId}${entry.servings ? `?servings=${entry.servings}` : ""}`}
-                        className="leading-snug underline"
+                  <div className="flex items-start justify-between gap-1">
+                    <div className="flex items-start gap-1">
+                      <span
+                        draggable
+                        onDragStart={() => handleDragStart(location, entry.id)}
+                        onDragEnd={handleDragEnd}
+                        className="flex h-6 w-6 shrink-0 cursor-grab items-center justify-center text-cocoa active:cursor-grabbing"
+                        aria-label="Drag to move"
+                        title="Drag to move"
                       >
-                        {entry.label}
-                      </Link>
-                    ) : (
-                      <span className="leading-snug">{entry.label}</span>
-                    )}
-                  </div>
-                  <div className="flex flex-wrap items-center justify-between gap-1">
-                    {entry.type === "recipe" && entry.recipeId ? (
-                      <input
-                        type="number"
-                        min={1}
-                        value={entry.servings ?? ""}
-                        onChange={(e) => updateWeeklyServings(mealType, entry.id, Number(e.target.value))}
-                        aria-label="Servings"
-                        className="h-8 w-12 rounded-md border border-cocoa/40 bg-white px-1 text-center text-sm"
-                      />
-                    ) : (
-                      <span />
-                    )}
-                    <div className="flex shrink-0 items-center gap-0.5">
-                      <select
-                        value=""
-                        onChange={(e) => {
-                          const target = parseLocationValue(e.target.value);
-                          if (target) moveEntry(location, target, entry.id);
-                        }}
-                        aria-label="Move to"
-                        title="Move to"
-                        className="h-8 rounded-md border border-cocoa/40 bg-white px-1 text-xs"
-                      >
-                        <option value="">Move…</option>
-                        {ALL_LOCATIONS.filter((l) => !sameLocation(l, location)).map((l) => (
-                          <option key={locationValue(l)} value={locationValue(l)}>
-                            {locationLabel(l)}
-                          </option>
-                        ))}
-                      </select>
-                      {entry.type === "recipe" && entry.recipeId && (
-                        <button
-                          type="button"
-                          onClick={() => handleAddToGrocery(entry)}
-                          disabled={addingToGrocery === entry.id}
-                          className="flex h-8 w-8 items-center justify-center rounded-md text-sage hover:bg-sage/10 disabled:opacity-50"
-                          aria-label="Add to grocery list"
-                          title="Add to grocery list"
+                        <RiDraggable size={16} aria-hidden />
+                      </span>
+                      {entry.type === "recipe" && entry.recipeId ? (
+                        <Link
+                          href={`/recipes/${entry.recipeId}${entry.servings ? `?servings=${entry.servings}` : ""}`}
+                          className="leading-snug underline"
                         >
-                          <RiShoppingCartLine size={18} aria-hidden />
-                        </button>
+                          {entry.label}
+                        </Link>
+                      ) : (
+                        <span className="leading-snug">{entry.label}</span>
                       )}
-                      <button
-                        type="button"
-                        onClick={() => removeWeekly(mealType, entry.id)}
-                        className="flex h-8 w-8 items-center justify-center rounded-md text-brick hover:bg-brick/10"
-                        aria-label="Remove entry"
-                      >
-                        <RiCloseLine size={18} aria-hidden />
-                      </button>
                     </div>
+                    <EntryActionsMenu
+                      isRecipe={entry.type === "recipe" && Boolean(entry.recipeId)}
+                      servings={entry.servings}
+                      onServingsChange={(servings) => updateWeeklyServings(mealType, entry.id, servings)}
+                      addingToGrocery={addingToGrocery === entry.id}
+                      onAddToGrocery={() => handleAddToGrocery(entry)}
+                      onRemove={() => removeWeekly(mealType, entry.id)}
+                      moveOptions={ALL_LOCATIONS.filter((l) => !sameLocation(l, location)).map((l) => ({
+                        value: locationValue(l),
+                        label: locationLabel(l),
+                      }))}
+                      onMove={(value) => {
+                        const target = parseLocationValue(value);
+                        if (target) moveEntry(location, target, entry.id);
+                      }}
+                    />
                   </div>
                   {groceryStatus[entry.id] && <span className="text-cocoa">{groceryStatus[entry.id]}</span>}
                 </li>
