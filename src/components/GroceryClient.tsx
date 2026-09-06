@@ -192,7 +192,10 @@ export function GroceryClient({ weekKey, initialItems }: { weekKey: string; init
           <ul className="flex flex-col divide-y divide-cocoa/20 rounded-md border border-cocoa/30 bg-white">
             {storeItems.map((item) => (
               <li key={item.id} className="flex items-center justify-between gap-2 p-3">
-                <span className="text-ink">{item.name}</span>
+                <span className="text-ink">
+                  {item.name}
+                  {item.note && <span className="text-cocoa"> — {item.note}</span>}
+                </span>
                 <div className="flex shrink-0 items-center gap-2">
                   <select
                     value={item.store}

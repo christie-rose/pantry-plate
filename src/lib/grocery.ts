@@ -1,11 +1,18 @@
 import { prisma } from "@/lib/prisma";
+import { scaleAmount } from "@/lib/recipes";
 
 export type GroceryItem = {
   id: string;
   name: string;
   store: string;
   pantryItemId: string | null;
+  note?: string | null;
 };
+
+function formatQuantity(amount: number | null, unit: string | null): string | null {
+  if (amount == null) return null;
+  return [amount, unit].filter(Boolean).join(" ");
+}
 
 export type AddRecipeToGroceryResult = {
   items: GroceryItem[];
@@ -29,11 +36,14 @@ export async function addRecipeToGroceryList(
   recipeId: string,
   existingItems: GroceryItem[],
   claimedPantryItemIds: string[],
+  targetServings?: number,
 ): Promise<AddRecipeToGroceryResult> {
   const recipe = await prisma.recipe.findUnique({ where: { id: recipeId }, include: { ingredients: true } });
   if (!recipe) {
     return { items: existingItems, claimedPantryItemIds, added: [], skippedStaples: [], skippedOnHand: [] };
   }
+
+  const ratio = targetServings && recipe.servings ? targetServings / recipe.servings : 1;
 
   const pantryItems = await prisma.pantryItem.findMany();
   const pantryById = new Map(pantryItems.map((p) => [p.id, p]));
@@ -74,11 +84,14 @@ export async function addRecipeToGroceryList(
     const alreadyOnList = items.some((i) => (pantryItem ? i.pantryItemId === pantryItem.id : i.name.toLowerCase() === key));
     if (alreadyOnList) continue;
 
+    const scaledAmount = ingredient.amount != null ? scaleAmount(ingredient.amount, ratio) : null;
+
     items.push({
       id: crypto.randomUUID(),
       name: pantryItem ? pantryItem.name : ingredient.name,
       store: pantryItem ? pantryItem.preferredStore : "Other",
       pantryItemId: pantryItem ? pantryItem.id : null,
+      note: formatQuantity(scaledAmount, ingredient.unit),
     });
     added.push(pantryItem ? pantryItem.name : ingredient.name);
   }

@@ -155,7 +155,7 @@ export function WeekPlanClient({ initialPlan, recipes }: { initialPlan: Plan; re
     const res = await fetch("/api/grocery/add-recipe", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ weekKey: plan.weekKey, recipeId: entry.recipeId }),
+      body: JSON.stringify({ weekKey: plan.weekKey, recipeId: entry.recipeId, servings: entry.servings }),
     });
 
     setAddingToGrocery(null);
@@ -277,7 +277,10 @@ export function WeekPlanClient({ initialPlan, recipes }: { initialPlan: Plan; re
                 <li key={entry.id} className="flex flex-col gap-0.5 rounded bg-paper-alt px-2 py-1 text-xs">
                   <div className="flex items-center justify-between">
                     {entry.type === "recipe" && entry.recipeId ? (
-                      <Link href={`/recipes/${entry.recipeId}`} className="underline">
+                      <Link
+                        href={`/recipes/${entry.recipeId}${entry.servings ? `?servings=${entry.servings}` : ""}`}
+                        className="underline"
+                      >
                         {entry.label}
                       </Link>
                     ) : (
@@ -336,7 +339,10 @@ export function WeekPlanClient({ initialPlan, recipes }: { initialPlan: Plan; re
                 <li key={entry.id} className="flex flex-col gap-0.5 rounded bg-paper-alt px-2 py-1 text-xs">
                   <div className="flex items-center justify-between">
                     {entry.type === "recipe" && entry.recipeId ? (
-                      <Link href={`/recipes/${entry.recipeId}`} className="underline">
+                      <Link
+                        href={`/recipes/${entry.recipeId}${entry.servings ? `?servings=${entry.servings}` : ""}`}
+                        className="underline"
+                      >
                         {entry.label}
                       </Link>
                     ) : (

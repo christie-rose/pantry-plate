@@ -8,11 +8,14 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "weekKey and recipeId are required" }, { status: 400 });
   }
 
+  const targetServings = typeof body.servings === "number" && body.servings > 0 ? body.servings : undefined;
+
   const existing = await prisma.groceryList.findUnique({ where: { weekKey: body.weekKey } });
   const result = await addRecipeToGroceryList(
     body.recipeId,
     (existing?.items as unknown as GroceryItem[]) ?? [],
     existing?.claimedPantryItemIds ?? [],
+    targetServings,
   );
 
   const list = await prisma.groceryList.upsert({
