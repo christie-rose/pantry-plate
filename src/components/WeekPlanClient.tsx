@@ -274,48 +274,50 @@ export function WeekPlanClient({ initialPlan, recipes }: { initialPlan: Plan; re
 
             <ul className="flex flex-col gap-1">
               {plan.dinners[day].map((entry) => (
-                <li key={entry.id} className="flex flex-col gap-0.5 rounded bg-paper-alt px-2 py-1 text-xs">
-                  <div className="flex items-center justify-between">
+                <li key={entry.id} className="flex flex-col gap-1.5 rounded-md bg-paper-alt p-2 text-xs">
+                  {entry.type === "recipe" && entry.recipeId ? (
+                    <Link
+                      href={`/recipes/${entry.recipeId}${entry.servings ? `?servings=${entry.servings}` : ""}`}
+                      className="leading-snug underline"
+                    >
+                      {entry.label}
+                    </Link>
+                  ) : (
+                    <span className="leading-snug">{entry.label}</span>
+                  )}
+                  <div className="flex items-center justify-between gap-1">
                     {entry.type === "recipe" && entry.recipeId ? (
-                      <Link
-                        href={`/recipes/${entry.recipeId}${entry.servings ? `?servings=${entry.servings}` : ""}`}
-                        className="underline"
-                      >
-                        {entry.label}
-                      </Link>
+                      <input
+                        type="number"
+                        min={1}
+                        value={entry.servings ?? ""}
+                        onChange={(e) => updateDinnerServings(day, entry.id, Number(e.target.value))}
+                        aria-label="Servings"
+                        className="h-8 w-12 rounded-md border border-cocoa/40 bg-white px-1 text-center text-sm"
+                      />
                     ) : (
-                      <span>{entry.label}</span>
+                      <span />
                     )}
-                    <div className="flex shrink-0 items-center gap-1.5">
+                    <div className="flex shrink-0 items-center gap-0.5">
                       {entry.type === "recipe" && entry.recipeId && (
-                        <>
-                          <input
-                            type="number"
-                            min={1}
-                            value={entry.servings ?? ""}
-                            onChange={(e) => updateDinnerServings(day, entry.id, Number(e.target.value))}
-                            aria-label="Servings"
-                            className="w-10 rounded border border-cocoa/40 bg-white px-1 py-0.5 text-xs"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => handleAddToGrocery(entry)}
-                            disabled={addingToGrocery === entry.id}
-                            className="flex items-center text-sage disabled:opacity-50"
-                            aria-label="Add to grocery list"
-                            title="Add to grocery list"
-                          >
-                            <RiShoppingCartLine size={14} aria-hidden />
-                          </button>
-                        </>
+                        <button
+                          type="button"
+                          onClick={() => handleAddToGrocery(entry)}
+                          disabled={addingToGrocery === entry.id}
+                          className="flex h-8 w-8 items-center justify-center rounded-md text-sage hover:bg-sage/10 disabled:opacity-50"
+                          aria-label="Add to grocery list"
+                          title="Add to grocery list"
+                        >
+                          <RiShoppingCartLine size={18} aria-hidden />
+                        </button>
                       )}
                       <button
                         type="button"
                         onClick={() => removeDinner(day, entry.id)}
-                        className="flex items-center text-brick"
+                        className="flex h-8 w-8 items-center justify-center rounded-md text-brick hover:bg-brick/10"
                         aria-label="Remove entry"
                       >
-                        <RiCloseLine size={14} aria-hidden />
+                        <RiCloseLine size={18} aria-hidden />
                       </button>
                     </div>
                   </div>
@@ -336,48 +338,50 @@ export function WeekPlanClient({ initialPlan, recipes }: { initialPlan: Plan; re
             <h3 className="text-lg text-ink">{WEEKLY_MEAL_LABELS[mealType]}</h3>
             <ul className="flex flex-col gap-1">
               {plan.weeklyMeals[mealType].map((entry) => (
-                <li key={entry.id} className="flex flex-col gap-0.5 rounded bg-paper-alt px-2 py-1 text-xs">
-                  <div className="flex items-center justify-between">
+                <li key={entry.id} className="flex flex-col gap-1.5 rounded-md bg-paper-alt p-2 text-xs">
+                  {entry.type === "recipe" && entry.recipeId ? (
+                    <Link
+                      href={`/recipes/${entry.recipeId}${entry.servings ? `?servings=${entry.servings}` : ""}`}
+                      className="leading-snug underline"
+                    >
+                      {entry.label}
+                    </Link>
+                  ) : (
+                    <span className="leading-snug">{entry.label}</span>
+                  )}
+                  <div className="flex items-center justify-between gap-1">
                     {entry.type === "recipe" && entry.recipeId ? (
-                      <Link
-                        href={`/recipes/${entry.recipeId}${entry.servings ? `?servings=${entry.servings}` : ""}`}
-                        className="underline"
-                      >
-                        {entry.label}
-                      </Link>
+                      <input
+                        type="number"
+                        min={1}
+                        value={entry.servings ?? ""}
+                        onChange={(e) => updateWeeklyServings(mealType, entry.id, Number(e.target.value))}
+                        aria-label="Servings"
+                        className="h-8 w-12 rounded-md border border-cocoa/40 bg-white px-1 text-center text-sm"
+                      />
                     ) : (
-                      <span>{entry.label}</span>
+                      <span />
                     )}
-                    <div className="flex shrink-0 items-center gap-1.5">
+                    <div className="flex shrink-0 items-center gap-0.5">
                       {entry.type === "recipe" && entry.recipeId && (
-                        <>
-                          <input
-                            type="number"
-                            min={1}
-                            value={entry.servings ?? ""}
-                            onChange={(e) => updateWeeklyServings(mealType, entry.id, Number(e.target.value))}
-                            aria-label="Servings"
-                            className="w-10 rounded border border-cocoa/40 bg-white px-1 py-0.5 text-xs"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => handleAddToGrocery(entry)}
-                            disabled={addingToGrocery === entry.id}
-                            className="flex items-center text-sage disabled:opacity-50"
-                            aria-label="Add to grocery list"
-                            title="Add to grocery list"
-                          >
-                            <RiShoppingCartLine size={14} aria-hidden />
-                          </button>
-                        </>
+                        <button
+                          type="button"
+                          onClick={() => handleAddToGrocery(entry)}
+                          disabled={addingToGrocery === entry.id}
+                          className="flex h-8 w-8 items-center justify-center rounded-md text-sage hover:bg-sage/10 disabled:opacity-50"
+                          aria-label="Add to grocery list"
+                          title="Add to grocery list"
+                        >
+                          <RiShoppingCartLine size={18} aria-hidden />
+                        </button>
                       )}
                       <button
                         type="button"
                         onClick={() => removeWeekly(mealType, entry.id)}
-                        className="flex items-center text-brick"
+                        className="flex h-8 w-8 items-center justify-center rounded-md text-brick hover:bg-brick/10"
                         aria-label="Remove entry"
                       >
-                        <RiCloseLine size={14} aria-hidden />
+                        <RiCloseLine size={18} aria-hidden />
                       </button>
                     </div>
                   </div>
