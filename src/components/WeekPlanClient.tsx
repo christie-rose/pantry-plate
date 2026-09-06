@@ -43,6 +43,7 @@ export function WeekPlanClient({ initialPlan, recipes }: { initialPlan: Plan; re
   const [generating, setGenerating] = useState(false);
   const [generateError, setGenerateError] = useState<string | null>(null);
   const [respectDietary, setRespectDietary] = useState(true);
+  const [includePrepAhead, setIncludePrepAhead] = useState(false);
 
   async function persist(next: Plan) {
     setPlan(next);
@@ -87,7 +88,7 @@ export function WeekPlanClient({ initialPlan, recipes }: { initialPlan: Plan; re
     const res = await fetch("/api/weekplan/generate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ dayTags: plan.dayTags, respectDietary }),
+      body: JSON.stringify({ dayTags: plan.dayTags, respectDietary, includePrepAhead }),
     });
 
     setGenerating(false);
@@ -162,6 +163,14 @@ export function WeekPlanClient({ initialPlan, recipes }: { initialPlan: Plan; re
               onChange={(e) => setRespectDietary(e.target.checked)}
             />
             Respect household restrictions
+          </label>
+          <label className="flex items-center gap-1 text-xs text-cocoa">
+            <input
+              type="checkbox"
+              checked={includePrepAhead}
+              onChange={(e) => setIncludePrepAhead(e.target.checked)}
+            />
+            Include prep-ahead steps
           </label>
           <span className="text-xs text-cocoa">Uses each day&apos;s tag below to plan dinners.</span>
         </div>

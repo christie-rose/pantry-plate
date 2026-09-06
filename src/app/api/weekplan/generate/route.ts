@@ -10,7 +10,8 @@ import {
 import { matchIngredientToPantry } from "@/lib/recipes";
 import { DAYS, defaultDinners, type Day, type DayTags, type MealEntry } from "@/lib/weekplan";
 
-const SYSTEM_PROMPT = `You are planning a week of dinners for a household meal-planning app.
+function buildSystemPrompt(includePrepAhead: boolean): string {
+  return `You are planning a week of dinners for a household meal-planning app.
 
 Rules:
 - Prefer recipes already in the household's recipe library. Only propose a brand-new recipe for a day
@@ -25,12 +26,21 @@ Rules:
   the week matters more than pantry use — don't default to the same on-hand protein every night just
   because it's available. The pantry is a hint, not a constraint: freely use other ingredients a new
   recipe needs, including ones not on hand.
-- Respect the household's dietary restrictions exactly as given.
+- Respect the household's dietary restrictions exactly as given.${
+    includePrepAhead
+      ? `\n- For any brand-new recipe you propose, also include a "prepAhead" array of steps for preparing
+  parts of that recipe earlier in the week (e.g. marinating, chopping, pre-cooking components) so it
+  comes together quickly on the day it's served. Omit "prepAhead" (or leave it empty) if the recipe has
+  no genuinely useful make-ahead steps.`
+      : ""
+  }
 
 Respond with only a JSON object, no other text, in this exact shape (all seven keys required):
 {
   "Mon": { "source": "existing", "recipeTitle": "<exact title from the library>", "servings": number } |
-         { "source": "new", "title": string, "servings": number, "ingredients": [{ "name": string, "amount": number | null, "unit": string | null }], "instructions": [string, ...] },
+         { "source": "new", "title": string, "servings": number, "ingredients": [{ "name": string, "amount": number | null, "unit": string | null }], "instructions": [string, ...]${
+           includePrepAhead ? `, "prepAhead": [string, ...]` : ""
+         } },
   "Tue": ... (same shape),
   "Wed": ...,
   "Thu": ...,
@@ -38,6 +48,7 @@ Respond with only a JSON object, no other text, in this exact shape (all seven k
   "Sat": ...,
   "Sun": ...
 }`;
+}
 
 type ExistingChoice = { source: "existing"; recipeTitle: string; servings: number };
 type NewChoice = {
@@ -46,6 +57,7 @@ type NewChoice = {
   servings: number;
   ingredients: { name: string; amount: number | null; unit: string | null }[];
   instructions: string[];
+  prepAhead?: string[];
 };
 
 export async function POST(request: NextRequest) {
@@ -63,6 +75,7 @@ export async function POST(request: NextRequest) {
   }
   const dayTags = body.dayTags as DayTags;
   const respectDietary = Boolean(body.respectDietary);
+  const includePrepAhead = Boolean(body.includePrepAhead);
 
   const [pantrySummary, dietarySummary, librarySummary] = await Promise.all([
     buildPantrySummary(),
@@ -88,7 +101,7 @@ ${dietarySummary}`;
     const message = await anthropic.messages.create({
       model: "claude-haiku-4-5",
       max_tokens: 4000,
-      system: SYSTEM_PROMPT,
+      system: buildSystemPrompt(includePrepAhead),
       messages: [{ role: "user", content: userMessage }],
     });
 
@@ -131,6 +144,7 @@ ${dietarySummary}`;
           tags: [],
           servings: choice.servings || 4,
           instructions: choice.instructions?.length ? choice.instructions : ["No instructions provided."],
+          prepAhead: choice.prepAhead?.length ? choice.prepAhead : [],
           source: "ai",
           ingredients: {
             create: await Promise.all(
