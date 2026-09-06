@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { RecipeForm, recipeFormToInput, type RecipeFormState } from "@/components/RecipeForm";
@@ -48,6 +49,7 @@ export function RecipeEditClient({
   const [unreviewed, setUnreviewed] = useState(recipe.ingredients.filter((i) => !i.reviewed));
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [savedOnce, setSavedOnce] = useState(false);
 
   async function handleSave() {
     setSaving(true);
@@ -69,6 +71,7 @@ export function RecipeEditClient({
 
     const updated = await res.json();
     setUnreviewed(updated.ingredients.filter((i: RecipeIngredient) => !i.reviewed));
+    setSavedOnce(true);
   }
 
   async function handleDelete() {
@@ -79,7 +82,12 @@ export function RecipeEditClient({
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 p-4 pb-24">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl text-brick">Edit recipe</h1>
+        <div>
+          <Link href={`/recipes/${recipe.id}`} className="text-sm text-cocoa underline">
+            ‹ Cancel
+          </Link>
+          <h1 className="text-3xl text-brick">Edit recipe</h1>
+        </div>
         <button
           type="button"
           onClick={handleDelete}
@@ -93,14 +101,21 @@ export function RecipeEditClient({
 
       {error && <p className="text-sm text-brick">{error}</p>}
 
-      <button
-        type="button"
-        onClick={handleSave}
-        disabled={saving || !form.title.trim()}
-        className="min-h-[44px] self-start rounded-md bg-brick px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
-      >
-        Save changes
-      </button>
+      <div className="flex items-center gap-3">
+        <button
+          type="button"
+          onClick={handleSave}
+          disabled={saving || !form.title.trim()}
+          className="min-h-[44px] self-start rounded-md bg-brick px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+        >
+          Save changes
+        </button>
+        {savedOnce && (
+          <Link href={`/recipes/${recipe.id}`} className="text-sm text-sage underline">
+            Saved — view recipe →
+          </Link>
+        )}
+      </div>
 
       {unreviewed.length > 0 && (
         <IngredientMatchPanel

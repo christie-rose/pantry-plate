@@ -20,7 +20,7 @@ export default async function RecipesPage() {
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {recipes.map((recipe) => (
-            <Link key={recipe.id} href={`/recipes/${recipe.id}/edit`} className="card flex flex-col gap-2 p-4">
+            <Link key={recipe.id} href={`/recipes/${recipe.id}`} className="card flex flex-col gap-2 p-4">
               <h2 className="text-xl text-ink">{recipe.title}</h2>
               <p className="text-xs text-cocoa">
                 Serves {recipe.servings} · {recipe.source}

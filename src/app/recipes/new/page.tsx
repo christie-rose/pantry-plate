@@ -172,9 +172,20 @@ export default function NewRecipePage() {
             }
           />
         )}
-        <Link href="/recipes" className="min-h-[44px] self-start rounded-md bg-brick px-4 py-2 text-sm font-medium text-white">
-          Back to recipes
-        </Link>
+        <div className="flex gap-3">
+          <Link
+            href={`/recipes/${saved.id}`}
+            className="min-h-[44px] flex items-center rounded-md bg-brick px-4 text-sm font-medium text-white"
+          >
+            View recipe
+          </Link>
+          <Link
+            href="/recipes"
+            className="min-h-[44px] flex items-center rounded-md border border-cocoa/40 px-4 text-sm"
+          >
+            Back to recipes
+          </Link>
+        </div>
       </div>
     );
   }
