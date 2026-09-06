@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { RecipeForm, recipeFormToInput, type RecipeFormState } from "@/components/RecipeForm";
 import { IngredientMatchPanel } from "@/components/IngredientMatchPanel";
-import { scaleAmount, type RecipeCategory } from "@/lib/recipes";
+import { scaleAmount, type Cuisine, type RecipeCategory } from "@/lib/recipes";
 
 type RecipeIngredient = {
   id: string;
@@ -20,6 +20,7 @@ type Recipe = {
   title: string;
   tags: string[];
   categories: string[];
+  cuisine: string | null;
   servings: number;
   notes: string | null;
   instructions: string[];
@@ -39,6 +40,7 @@ export function RecipeEditClient({
     title: recipe.title,
     tags: recipe.tags.join(", "),
     categories: recipe.categories as RecipeCategory[],
+    cuisine: (recipe.cuisine as Cuisine) ?? "",
     servings: String(recipe.servings),
     notes: recipe.notes ?? "",
     instructions: recipe.instructions.length ? recipe.instructions : [""],

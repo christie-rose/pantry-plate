@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { detectProteins, PROTEIN_TYPES, RECIPE_CATEGORIES } from "@/lib/recipes";
+import { CUISINES, detectProteins, PROTEIN_TYPES, RECIPE_CATEGORIES } from "@/lib/recipes";
 
 type Recipe = {
   id: string;
@@ -11,6 +11,7 @@ type Recipe = {
   source: string;
   tags: string[];
   categories: string[];
+  cuisine: string | null;
   ingredients: { name: string }[];
 };
 
@@ -19,14 +20,16 @@ export function RecipesClient({ initialRecipes }: { initialRecipes: Recipe[] }) 
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
   const [proteinFilter, setProteinFilter] = useState("");
+  const [cuisineFilter, setCuisineFilter] = useState("");
 
   const queryString = useMemo(() => {
     const params = new URLSearchParams();
     if (search) params.set("search", search);
     if (categoryFilter) params.set("category", categoryFilter);
     if (proteinFilter) params.set("protein", proteinFilter);
+    if (cuisineFilter) params.set("cuisine", cuisineFilter);
     return params.toString();
-  }, [search, categoryFilter, proteinFilter]);
+  }, [search, categoryFilter, proteinFilter, cuisineFilter]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -37,12 +40,13 @@ export function RecipesClient({ initialRecipes }: { initialRecipes: Recipe[] }) 
     return () => controller.abort();
   }, [queryString]);
 
-  const hasActiveFilters = Boolean(search || categoryFilter || proteinFilter);
+  const hasActiveFilters = Boolean(search || categoryFilter || proteinFilter || cuisineFilter);
 
   function clearFilters() {
     setSearch("");
     setCategoryFilter("");
     setProteinFilter("");
+    setCuisineFilter("");
   }
 
   return (
@@ -85,6 +89,18 @@ export function RecipesClient({ initialRecipes }: { initialRecipes: Recipe[] }) 
             </option>
           ))}
         </select>
+        <select
+          value={cuisineFilter}
+          onChange={(e) => setCuisineFilter(e.target.value)}
+          className="min-h-[44px] rounded-md border border-cocoa/40 bg-white px-2 py-2 text-sm text-ink"
+        >
+          <option value="">All cuisines</option>
+          {CUISINES.map((c) => (
+            <option key={c} value={c}>
+              {c}
+            </option>
+          ))}
+        </select>
         {hasActiveFilters && (
           <button
             type="button"
@@ -110,8 +126,11 @@ export function RecipesClient({ initialRecipes }: { initialRecipes: Recipe[] }) 
                 <p className="text-xs text-cocoa">
                   Serves {recipe.servings} · {recipe.source}
                 </p>
-                {(recipe.categories.length > 0 || proteins.length > 0 || recipe.tags.length > 0) && (
+                {(recipe.categories.length > 0 || recipe.cuisine || proteins.length > 0 || recipe.tags.length > 0) && (
                   <div className="flex flex-wrap gap-1">
+                    {recipe.cuisine && (
+                      <span className="rounded-full bg-butter/40 px-2 py-0.5 text-xs text-ink">{recipe.cuisine}</span>
+                    )}
                     {recipe.categories.map((category) => (
                       <span key={category} className="rounded-full bg-sage/20 px-2 py-0.5 text-xs text-ink">
                         {category}

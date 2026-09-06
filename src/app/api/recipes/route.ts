@@ -8,6 +8,7 @@ export async function GET(request: NextRequest) {
   const search = searchParams.get("search")?.trim() ?? "";
   const category = searchParams.get("category");
   const protein = searchParams.get("protein");
+  const cuisine = searchParams.get("cuisine");
 
   const where: Prisma.RecipeWhereInput = {};
   if (search) {
@@ -15,6 +16,9 @@ export async function GET(request: NextRequest) {
   }
   if (category) {
     where.categories = { has: category };
+  }
+  if (cuisine) {
+    where.cuisine = cuisine;
   }
 
   const recipes = await prisma.recipe.findMany({
@@ -44,6 +48,7 @@ export async function POST(request: NextRequest) {
       title: result.title,
       tags: result.tags,
       categories: result.categories,
+      cuisine: result.cuisine,
       servings: result.servings,
       instructions: result.instructions,
       prepAhead: result.prepAhead,

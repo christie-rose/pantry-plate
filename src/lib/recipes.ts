@@ -15,6 +15,18 @@ export const RECIPE_CATEGORIES = [
 ] as const;
 export type RecipeCategory = (typeof RECIPE_CATEGORIES)[number];
 
+export const CUISINES = [
+  "American",
+  "Italian",
+  "Mexican",
+  "Asian",
+  "Mediterranean",
+  "Indian",
+  "French",
+  "Other",
+] as const;
+export type Cuisine = (typeof CUISINES)[number];
+
 export const PROTEIN_TYPES = [
   "Chicken",
   "Beef",
@@ -56,6 +68,7 @@ export type RecipeInput = {
   title: string;
   tags: string[];
   categories: RecipeCategory[];
+  cuisine: Cuisine | null;
   servings: number;
   instructions: string[];
   prepAhead: string[];
@@ -87,6 +100,8 @@ export function validateRecipeInput(body: unknown): RecipeInput | { error: strin
     ? b.categories.filter((c): c is RecipeCategory => RECIPE_CATEGORIES.includes(c as RecipeCategory))
     : [];
 
+  const cuisine = typeof b.cuisine === "string" && CUISINES.includes(b.cuisine as Cuisine) ? (b.cuisine as Cuisine) : null;
+
   const instructions = Array.isArray(b.instructions)
     ? b.instructions.filter((s): s is string => typeof s === "string" && s.trim().length > 0).map((s) => s.trim())
     : [];
@@ -117,7 +132,7 @@ export function validateRecipeInput(body: unknown): RecipeInput | { error: strin
   }
   if (ingredients.length === 0) return { error: "At least one ingredient is required" };
 
-  return { title, tags, categories, servings, instructions, prepAhead, notes, source, sourceUrl, ingredients };
+  return { title, tags, categories, cuisine, servings, instructions, prepAhead, notes, source, sourceUrl, ingredients };
 }
 
 /** Scales an ingredient amount by a servings ratio, rounded to a sane cooking precision. */

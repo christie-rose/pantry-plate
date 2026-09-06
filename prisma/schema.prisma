@@ -28,6 +28,7 @@ model Recipe {
   title        String
   tags         String[]
   categories   String[]           @default([])
+  cuisine      String?
   servings     Int
   instructions String[]
   prepAhead    String[]           @default([])

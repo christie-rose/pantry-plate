@@ -1,12 +1,13 @@
 "use client";
 
 import { RiCloseLine } from "@remixicon/react";
-import { RECIPE_CATEGORIES, type RecipeCategory } from "@/lib/recipes";
+import { CUISINES, RECIPE_CATEGORIES, type Cuisine, type RecipeCategory } from "@/lib/recipes";
 
 export type RecipeFormState = {
   title: string;
   tags: string;
   categories: RecipeCategory[];
+  cuisine: Cuisine | "";
   servings: string;
   notes: string;
   instructions: string[];
@@ -18,6 +19,7 @@ export const emptyRecipeForm: RecipeFormState = {
   title: "",
   tags: "",
   categories: [],
+  cuisine: "",
   servings: "4",
   notes: "",
   instructions: [""],
@@ -30,6 +32,7 @@ export function recipeFormToInput(form: RecipeFormState) {
     title: form.title.trim(),
     tags: form.tags.split(",").map((t) => t.trim()).filter(Boolean),
     categories: form.categories,
+    cuisine: form.cuisine || null,
     servings: Number(form.servings),
     notes: form.notes.trim() || null,
     instructions: form.instructions.map((s) => s.trim()).filter(Boolean),
@@ -110,6 +113,22 @@ export function RecipeForm({
             );
           })}
         </div>
+      </div>
+
+      <div className="flex flex-col gap-1">
+        <label className="text-sm text-cocoa">Cuisine</label>
+        <select
+          value={value.cuisine}
+          onChange={(e) => onChange({ ...value, cuisine: e.target.value as Cuisine | "" })}
+          className="min-h-[44px] rounded-md border border-cocoa/40 bg-white px-3 py-2 text-sm text-ink"
+        >
+          <option value="">None</option>
+          {CUISINES.map((c) => (
+            <option key={c} value={c}>
+              {c}
+            </option>
+          ))}
+        </select>
       </div>
 
       <div className="flex gap-3">

@@ -40,6 +40,7 @@ export default function NewRecipePage() {
       title: parsed.title ?? "",
       tags: "",
       categories: f.categories,
+      cuisine: f.cuisine,
       servings: String(parsed.servings ?? 4),
       notes: parsed.notes ?? "",
       instructions: parsed.instructions?.length ? parsed.instructions : [""],
