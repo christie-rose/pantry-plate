@@ -81,7 +81,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </nav>
 
       {/* Mobile top bar: title + settings + logout */}
-      <header className="flex min-h-[56px] items-center justify-between border-b border-cocoa/20 bg-white px-4 md:hidden">
+      <header className="sticky top-0 z-20 flex min-h-[56px] items-center justify-between border-b border-cocoa/20 bg-white px-4 md:hidden">
         <Link href="/" className="text-lg text-brick">
           Pantry & Plate
         </Link>
