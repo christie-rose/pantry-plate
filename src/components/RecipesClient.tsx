@@ -58,6 +58,23 @@ export function RecipesClient({ initialRecipes }: { initialRecipes: Recipe[] }) 
         </Link>
       </div>
 
+      <div className="-mx-1 flex gap-1 overflow-x-auto border-b border-cocoa/20 px-1">
+        {(["", ...RECIPE_CATEGORIES] as const).map((c) => (
+          <button
+            key={c || "all"}
+            type="button"
+            onClick={() => setCategoryFilter(c)}
+            className={`-mb-px shrink-0 whitespace-nowrap rounded-t-md border-b-2 px-3 py-2 text-sm ${
+              categoryFilter === c
+                ? "border-brick bg-paper-alt font-medium text-brick"
+                : "border-transparent text-cocoa hover:text-ink"
+            }`}
+          >
+            {c || "All"}
+          </button>
+        ))}
+      </div>
+
       <div className="flex flex-wrap items-center gap-2">
         <input
           value={search}
@@ -65,18 +82,6 @@ export function RecipesClient({ initialRecipes }: { initialRecipes: Recipe[] }) 
           placeholder="Search recipes…"
           className="min-h-[44px] flex-1 min-w-[140px] rounded-md border border-cocoa/40 bg-white px-3 py-2 text-sm text-ink"
         />
-        <select
-          value={categoryFilter}
-          onChange={(e) => setCategoryFilter(e.target.value)}
-          className="min-h-[44px] rounded-md border border-cocoa/40 bg-white px-2 py-2 text-sm text-ink"
-        >
-          <option value="">All categories</option>
-          {RECIPE_CATEGORIES.map((c) => (
-            <option key={c} value={c}>
-              {c}
-            </option>
-          ))}
-        </select>
         <select
           value={proteinFilter}
           onChange={(e) => setProteinFilter(e.target.value)}
