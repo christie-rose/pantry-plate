@@ -57,6 +57,16 @@ export function PantryClient({ initialItems }: { initialItems: PantryItem[] }) {
     return params.toString();
   }, [search, locationFilter, storeFilter, isStapleFilter, stapleStatusFilter, sort]);
 
+  const hasActiveFilters = Boolean(search || locationFilter || storeFilter || isStapleFilter || stapleStatusFilter);
+
+  function clearFilters() {
+    setSearch("");
+    setLocationFilter("");
+    setStoreFilter("");
+    setIsStapleFilter("");
+    setStapleStatusFilter("");
+  }
+
   useEffect(() => {
     const controller = new AbortController();
     fetch(`/api/pantry?${queryString}`, { signal: controller.signal })
@@ -295,6 +305,15 @@ export function PantryClient({ initialItems }: { initialItems: PantryItem[] }) {
             </option>
           ))}
         </select>
+        {hasActiveFilters && (
+          <button
+            type="button"
+            onClick={clearFilters}
+            className="min-h-[44px] rounded-md border border-cocoa/40 px-3 text-sm text-cocoa"
+          >
+            Clear filters
+          </button>
+        )}
         <select
           value={sort}
           onChange={(e) => setSort(e.target.value as "name" | "updatedAt")}
