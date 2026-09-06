@@ -19,6 +19,7 @@ export default function NewRecipePage() {
   const [linkInput, setLinkInput] = useState("");
   const [aiPrompt, setAiPrompt] = useState("");
   const [respectDietary, setRespectDietary] = useState(true);
+  const [includePrepAhead, setIncludePrepAhead] = useState(false);
   const [importing, setImporting] = useState(false);
   const [importError, setImportError] = useState<string | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -33,6 +34,7 @@ export default function NewRecipePage() {
     notes?: string | null;
     ingredients?: { name: string; amount: number | null; unit: string | null }[];
     instructions?: string[];
+    prepAhead?: string[];
   }) {
     setForm((f) => ({
       title: parsed.title ?? "",
@@ -41,7 +43,7 @@ export default function NewRecipePage() {
       servings: String(parsed.servings ?? 4),
       notes: parsed.notes ?? "",
       instructions: parsed.instructions?.length ? parsed.instructions : [""],
-      prepAhead: f.prepAhead,
+      prepAhead: parsed.prepAhead?.length ? parsed.prepAhead : f.prepAhead,
       ingredients: parsed.ingredients?.length
         ? parsed.ingredients.map((i) => ({
             name: i.name,
@@ -119,7 +121,7 @@ export default function NewRecipePage() {
     const res = await fetch("/api/recipes/generate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ prompt: aiPrompt.trim(), respectDietary }),
+      body: JSON.stringify({ prompt: aiPrompt.trim(), respectDietary, includePrepAhead }),
     });
 
     setImporting(false);
@@ -252,6 +254,14 @@ export default function NewRecipePage() {
               onChange={(e) => setRespectDietary(e.target.checked)}
             />
             Respect household restrictions
+          </label>
+          <label className="flex items-center gap-1 text-xs text-cocoa">
+            <input
+              type="checkbox"
+              checked={includePrepAhead}
+              onChange={(e) => setIncludePrepAhead(e.target.checked)}
+            />
+            Include prep-ahead steps
           </label>
           <button
             type="button"

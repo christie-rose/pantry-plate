@@ -2,19 +2,27 @@ import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { buildDietarySummary, buildPantrySummary, parseJsonResponse } from "@/lib/ai-context";
 
-const SYSTEM_PROMPT = `You are a home-cooking recipe writer for a household meal-planning app.
+function buildSystemPrompt(includePrepAhead: boolean): string {
+  return `You are a home-cooking recipe writer for a household meal-planning app.
 Respond with only a JSON object, no other text, in this exact shape:
 {
   "title": string,
   "servings": number,
   "ingredients": [{ "name": string, "amount": number | null, "unit": string | null }],
   "instructions": [string, ...],
-  "notes": string | null
+  ${includePrepAhead ? `"prepAhead": [string, ...],\n  ` : ""}"notes": string | null
 }
 Write clear, approachable, weeknight-friendly instructions. Keep ingredient names simple and generic
 (e.g. "chicken breast", not "2 lb boneless skinless chicken breast"). The household's pantry is given
 only as a hint for ingredients that are convenient to use — it is not a constraint. Use whatever
-ingredients make the best recipe for the request, including ones not in the pantry.`;
+ingredients make the best recipe for the request, including ones not in the pantry.${
+    includePrepAhead
+      ? `\nAlso include a "prepAhead" array of steps for preparing parts of this recipe earlier in the
+week (e.g. marinating, chopping, pre-cooking components) so it comes together quickly on the day
+it's served. Keep this list focused on genuinely useful make-ahead steps for this specific recipe.`
+      : ""
+  }`;
+}
 
 export async function POST(request: NextRequest) {
   const apiKey = process.env.ANTHROPIC_API_KEY;
@@ -30,6 +38,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "prompt is required" }, { status: 400 });
   }
   const respectDietary = Boolean(body.respectDietary);
+  const includePrepAhead = Boolean(body.includePrepAhead);
 
   const [pantrySummary, dietarySummary] = await Promise.all([
     buildPantrySummary(),
@@ -50,7 +59,7 @@ ${dietarySummary}`;
     const message = await anthropic.messages.create({
       model: "claude-haiku-4-5",
       max_tokens: 1500,
-      system: SYSTEM_PROMPT,
+      system: buildSystemPrompt(includePrepAhead),
       messages: [{ role: "user", content: userMessage }],
     });
 
