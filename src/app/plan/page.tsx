@@ -15,7 +15,10 @@ export default async function PlanPage({
 
   const [existing, recipes] = await Promise.all([
     prisma.weekPlan.findUnique({ where: { weekKey } }),
-    prisma.recipe.findMany({ orderBy: { title: "asc" }, select: { id: true, title: true, servings: true } }),
+    prisma.recipe.findMany({
+      orderBy: { title: "asc" },
+      select: { id: true, title: true, servings: true, prepAhead: true },
+    }),
   ]);
 
   const plan = existing

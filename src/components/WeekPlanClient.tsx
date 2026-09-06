@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { RiCloseLine, RiDraggable, RiShoppingCartLine, RiSparklingLine } from "@remixicon/react";
+import { RiCheckLine, RiCloseLine, RiDraggable, RiShoppingCartLine, RiSparklingLine } from "@remixicon/react";
 import {
   DAYS,
   DAY_TAGS,
@@ -20,7 +20,7 @@ import {
 } from "@/lib/weekplan";
 import { MealEntryAdder } from "@/components/MealEntryAdder";
 
-type Recipe = { id: string; title: string; servings: number };
+type Recipe = { id: string; title: string; servings: number; prepAhead: string[] };
 
 type Plan = {
   weekKey: string;
@@ -75,6 +75,16 @@ export function WeekPlanClient({ initialPlan, recipes }: { initialPlan: Plan; re
   const [addingToGrocery, setAddingToGrocery] = useState<string | null>(null);
   const [draggedFrom, setDraggedFrom] = useState<{ location: Location; entryId: string } | null>(null);
   const [dragOverLocation, setDragOverLocation] = useState<Location | null>(null);
+  const [checkedPrepSteps, setCheckedPrepSteps] = useState<Set<string>>(new Set());
+
+  function togglePrepStep(key: string) {
+    setCheckedPrepSteps((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  }
 
   async function persist(next: Plan) {
     setPlan(next);
@@ -242,6 +252,28 @@ export function WeekPlanClient({ initialPlan, recipes }: { initialPlan: Plan; re
       });
     }, 4000);
   }
+
+  const recipeById = new Map(recipeOptions.map((r) => [r.id, r]));
+  const usageByRecipeId = new Map<string, Set<string>>();
+  for (const day of DAYS) {
+    for (const entry of plan.dinners[day]) {
+      if (entry.type === "recipe" && entry.recipeId) {
+        if (!usageByRecipeId.has(entry.recipeId)) usageByRecipeId.set(entry.recipeId, new Set());
+        usageByRecipeId.get(entry.recipeId)!.add(day);
+      }
+    }
+  }
+  for (const mealType of WEEKLY_MEAL_TYPES) {
+    for (const entry of plan.weeklyMeals[mealType]) {
+      if (entry.type === "recipe" && entry.recipeId) {
+        if (!usageByRecipeId.has(entry.recipeId)) usageByRecipeId.set(entry.recipeId, new Set());
+        usageByRecipeId.get(entry.recipeId)!.add(WEEKLY_MEAL_LABELS[mealType]);
+      }
+    }
+  }
+  const prepRecipes = Array.from(usageByRecipeId.keys())
+    .map((id) => recipeById.get(id))
+    .filter((r): r is Recipe => Boolean(r && r.prepAhead.length > 0));
 
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 p-4 pb-24">
@@ -552,6 +584,54 @@ export function WeekPlanClient({ initialPlan, recipes }: { initialPlan: Plan; re
           );
         })}
       </div>
+
+      {prepRecipes.length > 0 && (
+        <>
+          <h2 className="text-2xl text-brick">Prep</h2>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {prepRecipes.map((recipe) => {
+              const locations = Array.from(usageByRecipeId.get(recipe.id) ?? []);
+              return (
+                <div key={recipe.id} className="card flex flex-col gap-2 p-3">
+                  <div>
+                    <Link href={`/recipes/${recipe.id}`} className="text-sm font-medium text-ink underline">
+                      {recipe.title}
+                    </Link>
+                    {locations.length > 0 && <p className="text-xs text-cocoa">{locations.join(", ")}</p>}
+                  </div>
+                  <ol className="flex flex-col divide-y divide-cocoa/20">
+                    {recipe.prepAhead.map((step, index) => {
+                      const key = `${recipe.id}:${index}`;
+                      const checked = checkedPrepSteps.has(key);
+                      return (
+                        <li key={key}>
+                          <button
+                            type="button"
+                            onClick={() => togglePrepStep(key)}
+                            className="flex w-full items-start gap-2 py-2 text-left"
+                          >
+                            <span
+                              className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 text-xs ${
+                                checked ? "border-sage bg-sage text-white" : "border-cocoa/40 text-cocoa"
+                              }`}
+                              aria-hidden
+                            >
+                              {checked ? <RiCheckLine size={13} aria-hidden /> : index + 1}
+                            </span>
+                            <span className={`text-xs leading-relaxed ${checked ? "text-cocoa line-through" : "text-ink"}`}>
+                              {step}
+                            </span>
+                          </button>
+                        </li>
+                      );
+                    })}
+                  </ol>
+                </div>
+              );
+            })}
+          </div>
+        </>
+      )}
     </div>
   );
 }
