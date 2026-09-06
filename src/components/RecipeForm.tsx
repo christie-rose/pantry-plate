@@ -1,5 +1,6 @@
 "use client";
 
+import { RiCloseLine } from "@remixicon/react";
 import { RECIPE_CATEGORIES, type RecipeCategory } from "@/lib/recipes";
 
 export type RecipeFormState = {
@@ -143,9 +144,10 @@ export function RecipeForm({
             <button
               type="button"
               onClick={() => onChange({ ...value, ingredients: value.ingredients.filter((_, i) => i !== index) })}
-              className="rounded-md border border-brick/50 px-2 text-xs text-brick"
+              className="flex items-center rounded-md border border-brick/50 px-2 text-brick"
+              aria-label="Remove ingredient"
             >
-              ✕
+              <RiCloseLine size={16} aria-hidden />
             </button>
           </div>
         ))}
@@ -172,9 +174,10 @@ export function RecipeForm({
             <button
               type="button"
               onClick={() => onChange({ ...value, instructions: value.instructions.filter((_, i) => i !== index) })}
-              className="self-start rounded-md border border-brick/50 px-2 py-1 text-xs text-brick"
+              className="flex items-center self-start rounded-md border border-brick/50 px-2 py-1 text-brick"
+              aria-label="Remove step"
             >
-              ✕
+              <RiCloseLine size={16} aria-hidden />
             </button>
           </div>
         ))}

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { RiCloseLine, RiSparklingLine } from "@remixicon/react";
 import {
   DAYS,
   DAY_TAGS,
@@ -143,9 +144,16 @@ export function WeekPlanClient({ initialPlan, recipes }: { initialPlan: Plan; re
             type="button"
             onClick={handleGenerate}
             disabled={generating}
-            className="rounded-md bg-brick px-3 py-1.5 text-sm font-medium text-white disabled:opacity-50"
+            className="flex items-center gap-2 rounded-md bg-brick px-3 py-1.5 text-sm font-medium text-white disabled:opacity-50"
           >
-            {generating ? "Planning…" : "✨ Plan my week (AI)"}
+            {generating ? (
+              "Planning…"
+            ) : (
+              <>
+                <RiSparklingLine size={16} aria-hidden />
+                Plan my week (AI)
+              </>
+            )}
           </button>
           <label className="flex items-center gap-1 text-xs text-cocoa">
             <input
@@ -208,8 +216,13 @@ export function WeekPlanClient({ initialPlan, recipes }: { initialPlan: Plan; re
                     {entry.label}
                     {entry.type === "recipe" && entry.servings ? ` (${entry.servings})` : ""}
                   </span>
-                  <button type="button" onClick={() => removeDinner(day, entry.id)} className="text-brick">
-                    ✕
+                  <button
+                    type="button"
+                    onClick={() => removeDinner(day, entry.id)}
+                    className="flex items-center text-brick"
+                    aria-label="Remove entry"
+                  >
+                    <RiCloseLine size={14} aria-hidden />
                   </button>
                 </li>
               ))}
@@ -232,8 +245,13 @@ export function WeekPlanClient({ initialPlan, recipes }: { initialPlan: Plan; re
                     {entry.label}
                     {entry.type === "recipe" && entry.servings ? ` (${entry.servings})` : ""}
                   </span>
-                  <button type="button" onClick={() => removeWeekly(mealType, entry.id)} className="text-brick">
-                    ✕
+                  <button
+                    type="button"
+                    onClick={() => removeWeekly(mealType, entry.id)}
+                    className="flex items-center text-brick"
+                    aria-label="Remove entry"
+                  >
+                    <RiCloseLine size={14} aria-hidden />
                   </button>
                 </li>
               ))}

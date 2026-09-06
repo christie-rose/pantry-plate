@@ -12,6 +12,7 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.124.0",
     "@prisma/client": "^6.19.3",
+    "@remixicon/react": "^4.9.0",
     "jose": "^6.2.11",
     "next": "16.3.4",
     "prisma": "^6.19.3",

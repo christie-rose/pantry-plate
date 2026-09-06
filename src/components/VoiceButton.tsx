@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { RiMicLine, RiStopCircleLine } from "@remixicon/react";
 
 type SpeechRecognitionResultLike = {
   transcript: string;
@@ -71,7 +72,7 @@ export function VoiceButton({ onTranscript }: { onTranscript: (transcript: strin
         listening ? "bg-brick text-white" : "bg-white text-cocoa"
       }`}
     >
-      {listening ? "●" : "🎤"}
+      {listening ? <RiStopCircleLine size={20} aria-hidden /> : <RiMicLine size={20} aria-hidden />}
     </button>
   );
 }

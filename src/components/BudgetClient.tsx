@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useRef, useState } from "react";
+import { RiCameraLine, RiUpload2Line } from "@remixicon/react";
 import { STORES, type Store } from "@/lib/pantry";
 import { formatDateOnly, isInMonth, monthKeyFor } from "@/lib/budget";
 
@@ -164,9 +165,10 @@ export function BudgetClient({ budget, initialExpenses }: { budget: Budget; init
           <button
             type="button"
             onClick={() => cameraInputRef.current?.click()}
-            className="min-h-[44px] rounded-md border border-cocoa/40 px-3 py-2 text-sm"
+            className="min-h-[44px] flex items-center gap-2 rounded-md border border-cocoa/40 px-3 py-2 text-sm"
           >
-            📷 Snap a receipt
+            <RiCameraLine size={18} aria-hidden />
+            Snap a receipt
           </button>
           <input
             ref={cameraInputRef}
@@ -184,9 +186,10 @@ export function BudgetClient({ budget, initialExpenses }: { budget: Budget; init
           <button
             type="button"
             onClick={() => uploadInputRef.current?.click()}
-            className="min-h-[44px] rounded-md border border-cocoa/40 px-3 py-2 text-sm"
+            className="min-h-[44px] flex items-center gap-2 rounded-md border border-cocoa/40 px-3 py-2 text-sm"
           >
-            📁 Upload a receipt
+            <RiUpload2Line size={18} aria-hidden />
+            Upload a receipt
           </button>
           <input
             ref={uploadInputRef}

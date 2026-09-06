@@ -2,13 +2,22 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import {
+  RiFridgeLine,
+  RiBookOpenLine,
+  RiCalendarLine,
+  RiShoppingCartLine,
+  RiWalletLine,
+  RiSettings3Line,
+  RiLogoutBoxRLine,
+} from "@remixicon/react";
 
 const NAV_ITEMS = [
-  { href: "/pantry", label: "Pantry", icon: "🥫" },
-  { href: "/recipes", label: "Recipes", icon: "📖" },
-  { href: "/plan", label: "Plan", icon: "📅" },
-  { href: "/grocery", label: "Grocery", icon: "🛒" },
-  { href: "/budget", label: "Budget", icon: "💰" },
+  { href: "/pantry", label: "Pantry", Icon: RiFridgeLine },
+  { href: "/recipes", label: "Recipes", Icon: RiBookOpenLine },
+  { href: "/plan", label: "Plan", Icon: RiCalendarLine },
+  { href: "/grocery", label: "Grocery", Icon: RiShoppingCartLine },
+  { href: "/budget", label: "Budget", Icon: RiWalletLine },
 ] as const;
 
 export function AppShell({ children }: { children: React.ReactNode }) {
@@ -44,7 +53,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               isActive(item.href) ? "bg-paper-alt font-medium text-brick" : "text-ink"
             }`}
           >
-            <span aria-hidden>{item.icon}</span>
+            <item.Icon size={20} aria-hidden />
             {item.label}
           </Link>
         ))}
@@ -55,7 +64,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               isActive("/dietary") ? "bg-paper-alt font-medium text-brick" : "text-ink"
             }`}
           >
-            <span aria-hidden>⚙️</span>
+            <RiSettings3Line size={20} aria-hidden />
             Household settings
           </Link>
           <button
@@ -63,7 +72,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             onClick={handleLogout}
             className="flex min-h-[44px] items-center gap-3 rounded-md px-3 text-left text-sm text-cocoa"
           >
-            <span aria-hidden>🚪</span>
+            <RiLogoutBoxRLine size={20} aria-hidden />
             Log out
           </button>
         </div>
@@ -78,17 +87,17 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <Link
             href="/dietary"
             aria-label="Household settings"
-            className="flex h-11 w-11 items-center justify-center rounded-full text-lg"
+            className="flex h-11 w-11 items-center justify-center rounded-full text-ink"
           >
-            ⚙️
+            <RiSettings3Line size={22} aria-hidden />
           </Link>
           <button
             type="button"
             onClick={handleLogout}
             aria-label="Log out"
-            className="flex h-11 w-11 items-center justify-center rounded-full text-lg"
+            className="flex h-11 w-11 items-center justify-center rounded-full text-cocoa"
           >
-            🚪
+            <RiLogoutBoxRLine size={22} aria-hidden />
           </button>
         </div>
       </header>
@@ -105,9 +114,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               isActive(item.href) ? "text-brick" : "text-cocoa"
             }`}
           >
-            <span aria-hidden className="text-lg leading-none">
-              {item.icon}
-            </span>
+            <item.Icon size={22} aria-hidden />
             {item.label}
           </Link>
         ))}

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { RiCheckLine } from "@remixicon/react";
 
 type Ingredient = {
   id: string;
@@ -90,7 +91,7 @@ export function RecipeCookingView({ recipe }: { recipe: Recipe }) {
                     }`}
                     aria-hidden
                   >
-                    {checked ? "✓" : ""}
+                    {checked && <RiCheckLine size={16} aria-hidden />}
                   </span>
                   <span className={`text-base ${checked ? "text-cocoa line-through" : "text-ink"}`}>
                     {formatAmount(ingredient) && (
@@ -123,7 +124,7 @@ export function RecipeCookingView({ recipe }: { recipe: Recipe }) {
                     }`}
                     aria-hidden
                   >
-                    {checked ? "✓" : index + 1}
+                    {checked ? <RiCheckLine size={16} aria-hidden /> : index + 1}
                   </span>
                   <span className={`text-base leading-relaxed ${checked ? "text-cocoa line-through" : "text-ink"}`}>
                     {step}

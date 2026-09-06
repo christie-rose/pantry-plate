@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import Link from "next/link";
+import { RiCameraLine, RiSparklingLine } from "@remixicon/react";
 import { RecipeForm, emptyRecipeForm, recipeFormToInput, type RecipeFormState } from "@/components/RecipeForm";
 import { IngredientMatchPanel } from "@/components/IngredientMatchPanel";
 import type { RecipeSource } from "@/lib/recipes";
@@ -200,9 +201,10 @@ export default function NewRecipePage() {
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            className="min-h-[44px] rounded-md border border-cocoa/40 px-3 py-2 text-sm"
+            className="min-h-[44px] flex items-center gap-2 rounded-md border border-cocoa/40 px-3 py-2 text-sm"
           >
-            📷 Photo of a recipe
+            <RiCameraLine size={18} aria-hidden />
+            Photo of a recipe
           </button>
           <input
             ref={fileInputRef}
@@ -239,7 +241,7 @@ export default function NewRecipePage() {
           <input
             value={aiPrompt}
             onChange={(e) => setAiPrompt(e.target.value)}
-            placeholder="✨ Generate with AI — e.g. quick vegetarian pasta"
+            placeholder="Generate with AI — e.g. quick vegetarian pasta"
             className="min-h-[44px] flex-1 rounded-md border border-cocoa/40 bg-white px-3 py-2 text-sm text-ink"
           />
           <label className="flex items-center gap-1 text-xs text-cocoa">
@@ -254,8 +256,9 @@ export default function NewRecipePage() {
             type="button"
             onClick={handleAiGenerate}
             disabled={importing || !aiPrompt.trim()}
-            className="min-h-[44px] rounded-md border border-cocoa/40 px-3 py-2 text-sm disabled:opacity-50"
+            className="min-h-[44px] flex items-center gap-2 rounded-md border border-cocoa/40 px-3 py-2 text-sm disabled:opacity-50"
           >
+            <RiSparklingLine size={18} aria-hidden />
             Generate
           </button>
         </div>
