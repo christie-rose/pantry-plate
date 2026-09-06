@@ -32,7 +32,8 @@ export function BudgetClient({ budget, initialExpenses }: { budget: Budget; init
   const [draftDate, setDraftDate] = useState(todayIsoDate());
   const [draftNote, setDraftNote] = useState("");
   const [logging, setLogging] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
+  const uploadInputRef = useRef<HTMLInputElement>(null);
 
   const currentMonthKey = monthKeyFor(new Date());
   const monthExpenses = useMemo(
@@ -56,7 +57,7 @@ export function BudgetClient({ budget, initialExpenses }: { budget: Budget; init
     if (res.ok) setMonthlyBudget(value);
   }
 
-  async function handlePhotoSelected(file: File) {
+  async function handleReceiptFileSelected(file: File) {
     setReading(true);
     setReadError(null);
 
@@ -162,20 +163,39 @@ export function BudgetClient({ budget, initialExpenses }: { budget: Budget; init
         <div className="flex flex-wrap gap-2">
           <button
             type="button"
-            onClick={() => fileInputRef.current?.click()}
+            onClick={() => cameraInputRef.current?.click()}
             className="min-h-[44px] rounded-md border border-cocoa/40 px-3 py-2 text-sm"
           >
             📷 Snap a receipt
           </button>
           <input
-            ref={fileInputRef}
+            ref={cameraInputRef}
             type="file"
             accept="image/*"
             capture="environment"
             className="hidden"
             onChange={(e) => {
               const file = e.target.files?.[0];
-              if (file) handlePhotoSelected(file);
+              if (file) handleReceiptFileSelected(file);
+              e.target.value = "";
+            }}
+          />
+
+          <button
+            type="button"
+            onClick={() => uploadInputRef.current?.click()}
+            className="min-h-[44px] rounded-md border border-cocoa/40 px-3 py-2 text-sm"
+          >
+            📁 Upload a receipt
+          </button>
+          <input
+            ref={uploadInputRef}
+            type="file"
+            accept="image/*,application/pdf"
+            className="hidden"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) handleReceiptFileSelected(file);
               e.target.value = "";
             }}
           />

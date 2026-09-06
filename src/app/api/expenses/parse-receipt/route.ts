@@ -2,10 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { parseJsonResponse } from "@/lib/ai-context";
 
-const SYSTEM_PROMPT = `You are reading a photo of a store receipt. Find the final total the customer paid
-(after tax, after any discounts) — not a subtotal. Also try to identify the store name if it's legible.
+const SYSTEM_PROMPT = `You are reading a store receipt, either a photo or a digital receipt (an image or PDF
+of an emailed/downloaded receipt). Find the final total the customer paid (after tax, after any
+discounts) — not a subtotal. Also try to identify the store name if it's legible.
 Respond with only a JSON object, no other text, in this exact shape:
 { "total": number, "store": string | null }`;
+
+const IMAGE_MEDIA_TYPES = new Set(["image/jpeg", "image/png", "image/gif", "image/webp"]);
 
 export async function POST(request: NextRequest) {
   const apiKey = process.env.ANTHROPIC_API_KEY;
@@ -21,6 +24,11 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "imageBase64 and mediaType are required" }, { status: 400 });
   }
 
+  const isPdf = body.mediaType === "application/pdf";
+  if (!isPdf && !IMAGE_MEDIA_TYPES.has(body.mediaType)) {
+    return NextResponse.json({ error: "Unsupported file type — use an image or a PDF" }, { status: 400 });
+  }
+
   try {
     const anthropic = new Anthropic({ apiKey });
     const message = await anthropic.messages.create({
@@ -31,10 +39,15 @@ export async function POST(request: NextRequest) {
         {
           role: "user",
           content: [
-            {
-              type: "image",
-              source: { type: "base64", media_type: body.mediaType, data: body.imageBase64 },
-            },
+            isPdf
+              ? {
+                  type: "document",
+                  source: { type: "base64", media_type: "application/pdf", data: body.imageBase64 },
+                }
+              : {
+                  type: "image",
+                  source: { type: "base64", media_type: body.mediaType, data: body.imageBase64 },
+                },
             { type: "text", text: "What's the total on this receipt?" },
           ],
         },
