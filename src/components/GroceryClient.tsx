@@ -70,16 +70,34 @@ export function GroceryClient({ weekKey, initialItems }: { weekKey: string; init
     persist(items.map((item) => (item.id === id ? { ...item, store } : item)));
   }
 
-  function markShopped(id: string) {
-    persist(items.filter((item) => item.id !== id));
+  async function markShopped(id: string) {
+    setItems((prev) => prev.filter((item) => item.id !== id));
+    const res = await fetch("/api/grocery/mark-shopped", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ weekKey, itemId: id }),
+    });
+    if (res.ok) {
+      const list = await res.json();
+      setItems(list.items);
+    }
   }
 
   function deleteItem(id: string) {
     persist(items.filter((item) => item.id !== id));
   }
 
-  function markStoreShopped(store: string) {
-    persist(items.filter((item) => item.store !== store));
+  async function markStoreShopped(store: string) {
+    setItems((prev) => prev.filter((item) => item.store !== store));
+    const res = await fetch("/api/grocery/mark-store-shopped", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ weekKey, store }),
+    });
+    if (res.ok) {
+      const list = await res.json();
+      setItems(list.items);
+    }
   }
 
   const groups = STORES.map((store) => ({ store, items: items.filter((i) => i.store === store) })).filter(

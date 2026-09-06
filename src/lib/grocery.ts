@@ -86,6 +86,22 @@ export async function addRecipeToGroceryList(
   return { items, claimedPantryItemIds: Array.from(claimed), added, skippedStaples, skippedOnHand };
 }
 
+/**
+ * Restocks a pantry item once its grocery entry is marked shopped: staples go back to "In stock",
+ * and non-staples get a quantity so they read as on hand again (we don't track a purchased amount,
+ * so this is a generic marker rather than a specific number).
+ */
+export async function restockPantryItem(pantryItemId: string): Promise<void> {
+  const pantryItem = await prisma.pantryItem.findUnique({ where: { id: pantryItemId } });
+  if (!pantryItem) return;
+
+  if (pantryItem.isStaple) {
+    await prisma.pantryItem.update({ where: { id: pantryItemId }, data: { stapleStatus: "In stock" } });
+  } else {
+    await prisma.pantryItem.update({ where: { id: pantryItemId }, data: { quantity: "In stock" } });
+  }
+}
+
 /** Merges newly generated items into an existing list without duplicating or resurrecting items already there. */
 export function mergeGroceryItems(existing: GroceryItem[], generated: GroceryItem[]): GroceryItem[] {
   const existingKeys = new Set(existing.map((item) => item.pantryItemId ?? item.name.toLowerCase()));
