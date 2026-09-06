@@ -88,6 +88,11 @@ export function validateRecipeInput(body: unknown): RecipeInput | { error: strin
   return { title, tags, categories, servings, instructions, prepAhead, notes, source, sourceUrl, ingredients };
 }
 
+/** Scales an ingredient amount by a servings ratio, rounded to a sane cooking precision. */
+export function scaleAmount(amount: number, ratio: number): number {
+  return Math.round(amount * ratio * 100) / 100;
+}
+
 /** Matches a candidate ingredient name against pantry item names (case-insensitive, either-direction substring). */
 export async function matchIngredientToPantry(name: string) {
   const lower = name.toLowerCase();

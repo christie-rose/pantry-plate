@@ -47,9 +47,15 @@ export function recipeFormToInput(form: RecipeFormState) {
 export function RecipeForm({
   value,
   onChange,
+  onScale,
+  scaling,
+  scaleError,
 }: {
   value: RecipeFormState;
   onChange: (next: RecipeFormState) => void;
+  onScale?: (targetServings: number) => void;
+  scaling?: boolean;
+  scaleError?: string | null;
 }) {
   function updateInstruction(index: number, text: string) {
     const next = [...value.instructions];
@@ -116,6 +122,17 @@ export function RecipeForm({
             onChange={(e) => onChange({ ...value, servings: e.target.value })}
             className="min-h-[44px] rounded-md border border-cocoa/40 bg-white px-3 py-2 text-ink"
           />
+          {onScale && (
+            <button
+              type="button"
+              onClick={() => onScale(Number(value.servings))}
+              disabled={scaling || !Number(value.servings)}
+              className="self-start text-xs text-sage underline disabled:opacity-50"
+            >
+              {scaling ? "Scaling…" : "Scale ingredients & instructions to this many servings"}
+            </button>
+          )}
+          {scaleError && <p className="text-xs text-brick">{scaleError}</p>}
         </div>
         <div className="flex flex-[2] flex-col gap-1">
           <label className="text-sm text-cocoa">Tags (comma separated)</label>

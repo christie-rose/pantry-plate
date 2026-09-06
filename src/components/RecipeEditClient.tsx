@@ -2,10 +2,10 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { RecipeForm, recipeFormToInput, type RecipeFormState } from "@/components/RecipeForm";
 import { IngredientMatchPanel } from "@/components/IngredientMatchPanel";
-import type { RecipeCategory } from "@/lib/recipes";
+import { scaleAmount, type RecipeCategory } from "@/lib/recipes";
 
 type RecipeIngredient = {
   id: string;
@@ -55,6 +55,69 @@ export function RecipeEditClient({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [savedOnce, setSavedOnce] = useState(false);
+  const [scaling, setScaling] = useState(false);
+  const [scaleError, setScaleError] = useState<string | null>(null);
+
+  // Fixed baseline the current form was last scaled from — kept steady across repeated scales so
+  // rounding doesn't compound, but reflects the form's own state at the time of each scale.
+  const baselineRef = useRef({
+    servings: recipe.servings,
+    ingredients: form.ingredients,
+    instructions: form.instructions,
+    prepAhead: form.prepAhead,
+  });
+
+  async function handleScale(targetServings: number) {
+    const baseline = baselineRef.current;
+    if (!Number.isFinite(targetServings) || targetServings <= 0 || targetServings === baseline.servings) return;
+
+    setScaling(true);
+    setScaleError(null);
+
+    const ratio = targetServings / baseline.servings;
+    const scaledIngredients = baseline.ingredients.map((ing) => ({
+      ...ing,
+      amount: ing.amount.trim() && Number.isFinite(Number(ing.amount)) ? String(scaleAmount(Number(ing.amount), ratio)) : ing.amount,
+    }));
+
+    setForm((f) => ({ ...f, ingredients: scaledIngredients }));
+    baselineRef.current = { ...baseline, servings: targetServings, ingredients: scaledIngredients };
+
+    try {
+      const res = await fetch("/api/recipes/scale-instructions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          instructions: baseline.instructions,
+          prepAhead: baseline.prepAhead,
+          oldServings: baseline.servings,
+          newServings: targetServings,
+        }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setScaleError(data.error ?? "Scaled ingredients, but could not auto-adjust instructions text");
+        return;
+      }
+
+      const { instructions, prepAhead } = await res.json();
+      setForm((f) => ({
+        ...f,
+        instructions: instructions?.length ? instructions : f.instructions,
+        prepAhead: prepAhead ?? f.prepAhead,
+      }));
+      baselineRef.current = {
+        ...baselineRef.current,
+        instructions: instructions?.length ? instructions : baselineRef.current.instructions,
+        prepAhead: prepAhead ?? baselineRef.current.prepAhead,
+      };
+    } catch {
+      setScaleError("Scaled ingredients, but could not auto-adjust instructions text");
+    } finally {
+      setScaling(false);
+    }
+  }
 
   async function handleSave() {
     setSaving(true);
@@ -102,7 +165,7 @@ export function RecipeEditClient({
         </button>
       </div>
 
-      <RecipeForm value={form} onChange={setForm} />
+      <RecipeForm value={form} onChange={setForm} onScale={handleScale} scaling={scaling} scaleError={scaleError} />
 
       {error && <p className="text-sm text-brick">{error}</p>}
 
