@@ -14,6 +14,59 @@ export function GroceryClient({ weekKey, initialItems }: { weekKey: string; init
   const [newStore, setNewStore] = useState<Store>("Costco");
   const [matches, setMatches] = useState<PantryMatch[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [copiedKey, setCopiedKey] = useState<string | null>(null);
+  const [copyFailedKey, setCopyFailedKey] = useState<string | null>(null);
+
+  function formatItemLine(item: GroceryItem): string {
+    return item.note ? `${item.name} (${item.note})` : item.name;
+  }
+
+  function showCopied(key: string) {
+    setCopyFailedKey(null);
+    setCopiedKey(key);
+    setTimeout(() => setCopiedKey((k) => (k === key ? null : k)), 2000);
+  }
+
+  function fallbackCopy(text: string, key: string) {
+    try {
+      const textarea = document.createElement("textarea");
+      textarea.value = text;
+      textarea.style.position = "fixed";
+      textarea.style.opacity = "0";
+      document.body.appendChild(textarea);
+      textarea.focus();
+      textarea.select();
+      const ok = document.execCommand("copy");
+      document.body.removeChild(textarea);
+      if (ok) {
+        showCopied(key);
+      } else {
+        setCopyFailedKey(key);
+      }
+    } catch {
+      setCopyFailedKey(key);
+    }
+  }
+
+  function copyText(text: string, key: string) {
+    if (navigator.clipboard?.writeText) {
+      navigator.clipboard.writeText(text).then(
+        () => showCopied(key),
+        () => fallbackCopy(text, key),
+      );
+    } else {
+      fallbackCopy(text, key);
+    }
+  }
+
+  function copyStoreList(store: string, storeItems: GroceryItem[]) {
+    copyText(storeItems.map(formatItemLine).join("\n"), store);
+  }
+
+  function copyAllLists() {
+    const text = groups.map(({ store, items: si }) => `${store}\n${si.map(formatItemLine).join("\n")}`).join("\n\n");
+    copyText(text, "all");
+  }
 
   useEffect(() => {
     const query = newName.trim();
@@ -119,6 +172,23 @@ export function GroceryClient({ weekKey, initialItems }: { weekKey: string; init
         </div>
       </div>
 
+      {groups.length > 0 && (
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={copyAllLists}
+            className="min-h-[44px] rounded-md border border-cocoa/40 px-3 text-sm text-ink"
+          >
+            {copiedKey === "all" ? "Copied!" : "Copy full list"}
+          </button>
+          <p className="text-xs text-cocoa">
+            {copyFailedKey === "all"
+              ? "Couldn't copy automatically — select the list text manually."
+              : "Paste into Instacart or your store's pickup app to search each item."}
+          </p>
+        </div>
+      )}
+
       <div className="card flex flex-wrap items-center gap-2 p-3">
         <div className="relative flex-1 min-w-[140px]">
           <input
@@ -179,16 +249,28 @@ export function GroceryClient({ weekKey, initialItems }: { weekKey: string; init
 
       {groups.map(({ store, items: storeItems }) => (
         <div key={store} className="flex flex-col gap-2">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-2">
             <h2 className="text-xl text-brick">{store}</h2>
-            <button
-              type="button"
-              onClick={() => markStoreShopped(store)}
-              className="min-h-[44px] rounded-md border border-cocoa/40 px-3 text-sm"
-            >
-              Mark all shopped
-            </button>
+            <div className="flex shrink-0 items-center gap-2">
+              <button
+                type="button"
+                onClick={() => copyStoreList(store, storeItems)}
+                className="min-h-[44px] rounded-md border border-cocoa/40 px-3 text-sm"
+              >
+                {copiedKey === store ? "Copied!" : "Copy list"}
+              </button>
+              <button
+                type="button"
+                onClick={() => markStoreShopped(store)}
+                className="min-h-[44px] rounded-md border border-cocoa/40 px-3 text-sm"
+              >
+                Mark all shopped
+              </button>
+            </div>
           </div>
+          {copyFailedKey === store && (
+            <p className="text-xs text-brick">Couldn&apos;t copy automatically — select the list text manually.</p>
+          )}
           <ul className="flex flex-col divide-y divide-cocoa/20 rounded-md border border-cocoa/30 bg-white">
             {storeItems.map((item) => (
               <li key={item.id} className="flex items-center justify-between gap-2 p-3">
