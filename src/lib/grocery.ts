@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { scaleAmount } from "@/lib/recipes";
+import { formatAmountAsFraction, scaleAmount } from "@/lib/recipes";
 
 export type GroceryItem = {
   id: string;
@@ -11,7 +11,7 @@ export type GroceryItem = {
 
 function formatQuantity(amount: number | null, unit: string | null): string | null {
   if (amount == null) return null;
-  return [amount, unit].filter(Boolean).join(" ");
+  return [formatAmountAsFraction(amount), unit].filter(Boolean).join(" ");
 }
 
 export type AddRecipeToGroceryResult = {

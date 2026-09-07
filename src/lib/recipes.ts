@@ -142,6 +142,47 @@ export function scaleAmount(amount: number, ratio: number): number {
   return Math.round(amount * ratio * 100) / 100;
 }
 
+const COMMON_FRACTIONS: [number, string][] = [
+  [1 / 8, "1/8"],
+  [1 / 4, "1/4"],
+  [1 / 3, "1/3"],
+  [3 / 8, "3/8"],
+  [1 / 2, "1/2"],
+  [5 / 8, "5/8"],
+  [2 / 3, "2/3"],
+  [3 / 4, "3/4"],
+  [7 / 8, "7/8"],
+];
+
+/**
+ * Formats a decimal ingredient amount as a cooking-friendly fraction (e.g. 0.5 → "1/2",
+ * 1.33 → "1 1/3"). Falls back to a plain rounded decimal if it isn't close to a common
+ * eighth/third fraction, and returns whole numbers unchanged.
+ */
+export function formatAmountAsFraction(amount: number): string {
+  if (Number.isInteger(amount)) return String(amount);
+
+  const whole = Math.floor(amount);
+  const frac = amount - whole;
+
+  let best = COMMON_FRACTIONS[0];
+  let bestDiff = Infinity;
+  for (const candidate of COMMON_FRACTIONS) {
+    const diff = Math.abs(candidate[0] - frac);
+    if (diff < bestDiff) {
+      bestDiff = diff;
+      best = candidate;
+    }
+  }
+
+  if (bestDiff < 0.03) {
+    return whole > 0 ? `${whole} ${best[1]}` : best[1];
+  }
+
+  const rounded = Math.round(amount * 100) / 100;
+  return String(rounded);
+}
+
 /** Matches a candidate ingredient name against pantry item names (case-insensitive, either-direction substring). */
 export async function matchIngredientToPantry(name: string) {
   const lower = name.toLowerCase();

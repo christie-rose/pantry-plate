@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { RiCheckLine, RiCalendarLine } from "@remixicon/react";
+import { formatAmountAsFraction } from "@/lib/recipes";
 
 type Ingredient = {
   id: string;
@@ -27,7 +28,10 @@ type Recipe = {
 };
 
 function formatAmount(ingredient: Ingredient): string {
-  const parts = [ingredient.amount != null ? String(ingredient.amount) : null, ingredient.unit].filter(Boolean);
+  const parts = [
+    ingredient.amount != null ? formatAmountAsFraction(ingredient.amount) : null,
+    ingredient.unit,
+  ].filter(Boolean);
   return parts.join(" ");
 }
 
