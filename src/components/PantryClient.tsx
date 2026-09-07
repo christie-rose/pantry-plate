@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { RiCloseLine } from "@remixicon/react";
 import { LOCATIONS, STORES, STAPLE_STATUSES, type Location, type Store, type StapleStatus } from "@/lib/pantry";
 import { VoiceButton } from "./VoiceButton";
+import { PantryScanModal } from "./PantryScanModal";
 
 type PantryItem = {
   id: string;
@@ -49,6 +50,14 @@ export function PantryClient({ initialItems }: { initialItems: PantryItem[] }) {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [resetting, setResetting] = useState(false);
+  const [showScanModal, setShowScanModal] = useState(false);
+  const [scanPantryItems, setScanPantryItems] = useState<PantryItem[]>([]);
+
+  async function openScanModal() {
+    const res = await fetch("/api/pantry");
+    setScanPantryItems(await res.json());
+    setShowScanModal(true);
+  }
 
   const queryString = useMemo(() => {
     const params = new URLSearchParams();
@@ -187,13 +196,20 @@ export function PantryClient({ initialItems }: { initialItems: PantryItem[] }) {
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 p-4 pb-24">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl text-brick">Pantry</h1>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center justify-end gap-2">
           <button
             type="button"
             onClick={() => setShowResetConfirm(true)}
             className="min-h-[44px] rounded-md border border-cocoa/40 px-3 text-sm text-cocoa"
           >
             Reset all
+          </button>
+          <button
+            type="button"
+            onClick={openScanModal}
+            className="min-h-[44px] rounded-md border border-cocoa/40 px-3 text-sm text-ink"
+          >
+            Scan photo
           </button>
           <button
             type="button"
@@ -204,6 +220,14 @@ export function PantryClient({ initialItems }: { initialItems: PantryItem[] }) {
           </button>
         </div>
       </div>
+
+      {showScanModal && (
+        <PantryScanModal
+          pantryItems={scanPantryItems}
+          onDone={refresh}
+          onClose={() => setShowScanModal(false)}
+        />
+      )}
 
       {showResetConfirm && (
         <div
