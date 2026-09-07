@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { hasOnHandQuantity } from "@/lib/pantry";
 import { formatAmountAsFraction, scaleAmount } from "@/lib/recipes";
 
 export type GroceryItem = {
@@ -72,7 +73,7 @@ export async function addRecipeToGroceryList(
     }
 
     if (pantryItem) {
-      const hasOnHand = Boolean(pantryItem.quantity?.trim());
+      const hasOnHand = hasOnHandQuantity(pantryItem.quantity);
       if (hasOnHand && !claimed.has(pantryItem.id)) {
         claimed.add(pantryItem.id);
         skippedOnHand.push(pantryItem.name);

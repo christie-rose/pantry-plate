@@ -15,6 +15,22 @@ export type PantryItemInput = {
   quantity: string | null;
 };
 
+/**
+ * Whether a non-staple pantry item's free-text quantity should count as "on hand". A leading
+ * number of 0 (e.g. "0", "0 lb") means none is left, even though the field itself isn't empty.
+ * Any other non-empty text (a positive leading number, or a purely descriptive quantity like
+ * "some" or "In stock") counts as on hand. Empty or missing quantity never counts.
+ */
+export function hasOnHandQuantity(quantity: string | null | undefined): boolean {
+  const trimmed = quantity?.trim();
+  if (!trimmed) return false;
+  const leadingNumber = trimmed.match(/^-?\d+(\.\d+)?/);
+  if (leadingNumber) {
+    return parseFloat(leadingNumber[0]) > 0;
+  }
+  return true;
+}
+
 export function validatePantryItemInput(body: unknown): PantryItemInput | { error: string } {
   if (typeof body !== "object" || body === null) {
     return { error: "Invalid request body" };
