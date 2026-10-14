@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { RiCheckLine, RiCalendarLine } from "@remixicon/react";
 import { formatAmountAsFraction } from "@/lib/recipes";
 
@@ -39,6 +40,19 @@ export function RecipeCookingView({ recipe, originalServings }: { recipe: Recipe
   const [checkedIngredients, setCheckedIngredients] = useState<Set<string>>(new Set());
   const [checkedSteps, setCheckedSteps] = useState<Set<number>>(new Set());
   const [checkedPrepSteps, setCheckedPrepSteps] = useState<Set<number>>(new Set());
+  const [duplicating, setDuplicating] = useState(false);
+  const router = useRouter();
+
+  async function handleDuplicate() {
+    setDuplicating(true);
+    const res = await fetch(`/api/recipes/${recipe.id}/duplicate`, { method: "POST" });
+    if (!res.ok) {
+      setDuplicating(false);
+      return;
+    }
+    const { id } = await res.json();
+    router.push(`/recipes/${id}/edit`);
+  }
 
   function toggleIngredient(id: string) {
     setCheckedIngredients((prev) => {
@@ -83,12 +97,22 @@ export function RecipeCookingView({ recipe, originalServings }: { recipe: Recipe
             {recipe.tags.length > 0 ? ` · ${recipe.tags.join(", ")}` : ""}
           </p>
         </div>
-        <Link
-          href={`/recipes/${recipe.id}/edit`}
-          className="min-h-[44px] shrink-0 rounded-md border border-cocoa/40 px-4 py-2 text-sm font-medium text-ink"
-        >
-          Edit
-        </Link>
+        <div className="flex shrink-0 gap-2">
+          <button
+            type="button"
+            onClick={handleDuplicate}
+            disabled={duplicating}
+            className="min-h-[44px] rounded-md border border-cocoa/40 px-4 py-2 text-sm font-medium text-ink disabled:opacity-50"
+          >
+            {duplicating ? "Duplicating…" : "Duplicate"}
+          </button>
+          <Link
+            href={`/recipes/${recipe.id}/edit`}
+            className="flex min-h-[44px] items-center rounded-md border border-cocoa/40 px-4 py-2 text-sm font-medium text-ink"
+          >
+            Edit
+          </Link>
+        </div>
       </div>
 
       <div className="card flex flex-col gap-2 p-4">
