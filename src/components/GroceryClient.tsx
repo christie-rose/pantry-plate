@@ -19,6 +19,9 @@ export function GroceryClient({
   const [filterTag, setFilterTag] = useState<string | null>(null);
   const [editingTagId, setEditingTagId] = useState<string | null>(null);
   const skipBlurRef = useRef(false);
+  const [editingItemId, setEditingItemId] = useState<string | null>(null);
+  const [editDraft, setEditDraft] = useState("");
+  const skipItemBlurRef = useRef(false);
   const [tagDraft, setTagDraft] = useState("");
   const [copied, setCopied] = useState(false);
   const [copyFailed, setCopyFailed] = useState(false);
@@ -97,11 +100,67 @@ export function GroceryClient({
 
   async function persist(next: GroceryItem[]) {
     setItems(next);
+    // A line you're still typing into (blank) lives only on screen until it has text.
     await fetch("/api/grocery", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ items: next }),
+      body: JSON.stringify({ items: next.filter((i) => i.name.trim()) }),
     });
+  }
+
+  // Items are shown as "name — note"; editing that single line and splitting it back keeps both editable.
+  function lineFor(item: GroceryItem): string {
+    return item.note ? `${item.name} \u2014 ${item.note}` : item.name;
+  }
+
+  function parseLine(text: string): { name: string; note: string | null } {
+    const idx = text.indexOf(" \u2014 ");
+    if (idx === -1) return { name: text.trim(), note: null };
+    return { name: text.slice(0, idx).trim(), note: text.slice(idx + 3).trim() || null };
+  }
+
+  function startEditingItem(item: GroceryItem) {
+    skipItemBlurRef.current = false;
+    setEditingItemId(item.id);
+    setEditDraft(lineFor(item));
+  }
+
+  // Saves the line being edited. With addNext (Enter), also opens a fresh line right below it.
+  function finishItemEdit(id: string, addNext: boolean) {
+    const item = items.find((i) => i.id === id);
+    if (!item) {
+      setEditingItemId(null);
+      return;
+    }
+    const text = editDraft.trim();
+
+    if (!text) {
+      // Nothing typed: a brand-new blank line is dropped; an existing item just keeps its old text.
+      setEditingItemId(null);
+      if (!item.name.trim()) persist(items.filter((i) => i.id !== id));
+      return;
+    }
+
+    const { name, note } = parseLine(text);
+    let next = items.map((i) => (i.id === id ? { ...i, name, note } : i));
+
+    if (addNext) {
+      // The new line inherits the tag, so it stays visible under an active tag filter.
+      const blank: GroceryItem = { id: crypto.randomUUID(), name: "", tag: item.tag ?? null };
+      const at = next.findIndex((i) => i.id === id);
+      next = [...next.slice(0, at + 1), blank, ...next.slice(at + 1)];
+      setEditingItemId(blank.id);
+      setEditDraft("");
+    } else {
+      setEditingItemId(null);
+    }
+    persist(next);
+  }
+
+  function cancelItemEdit(id: string) {
+    const item = items.find((i) => i.id === id);
+    setEditingItemId(null);
+    if (item && !item.name.trim()) persist(items.filter((i) => i.id !== id));
   }
 
   function handleAdd() {
@@ -296,18 +355,55 @@ export function GroceryClient({
         <ul className="flex flex-col divide-y divide-cocoa/20 rounded-md border border-cocoa/30 bg-white">
           {visibleItems.map((item) => (
             <li key={item.id} className="flex items-center gap-2 pr-3">
-              <label className="flex min-h-[48px] min-w-0 flex-1 cursor-pointer items-center gap-3 p-3">
+              <div className="flex min-h-[48px] min-w-0 flex-1 items-center gap-3 p-3">
                 <input
                   type="checkbox"
                   checked={Boolean(item.checked)}
                   onChange={() => toggleChecked(item.id)}
-                  className="h-5 w-5 shrink-0 accent-sage"
+                  aria-label={`Check off ${item.name || "item"}`}
+                  className="h-5 w-5 shrink-0 cursor-pointer accent-sage"
                 />
-                <span className={item.checked ? "text-cocoa line-through" : "text-ink"}>
-                  {item.name}
-                  {item.note && <span className="text-cocoa"> — {item.note}</span>}
-                </span>
-              </label>
+                {editingItemId === item.id ? (
+                  <input
+                    autoFocus
+                    value={editDraft}
+                    onChange={(e) => setEditDraft(e.target.value)}
+                    onKeyDown={(e) => {
+                      // The field unmounting can fire a blur; skip it so Enter/Escape only act once.
+                      if (e.key === "Enter") {
+                        skipItemBlurRef.current = true;
+                        finishItemEdit(item.id, true);
+                      }
+                      if (e.key === "Escape") {
+                        skipItemBlurRef.current = true;
+                        cancelItemEdit(item.id);
+                      }
+                    }}
+                    onBlur={() => {
+                      if (skipItemBlurRef.current) {
+                        skipItemBlurRef.current = false;
+                        return;
+                      }
+                      finishItemEdit(item.id, false);
+                    }}
+                    placeholder="Add an item…"
+                    aria-label="Edit item"
+                    className="h-9 min-w-0 flex-1 rounded-md border border-cocoa/40 bg-white px-2 text-sm text-ink"
+                  />
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => startEditingItem(item)}
+                    title="Click to edit"
+                    className={`min-w-0 flex-1 cursor-text break-words text-left ${
+                      item.checked ? "text-cocoa line-through" : "text-ink"
+                    }`}
+                  >
+                    {item.name}
+                    {item.note && <span className="text-cocoa"> — {item.note}</span>}
+                  </button>
+                )}
+              </div>
 
               {editingTagId === item.id ? (
                 <input
