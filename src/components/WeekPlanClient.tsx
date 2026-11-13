@@ -245,7 +245,7 @@ export function WeekPlanClient({ initialPlan, recipes }: { initialPlan: Plan; re
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 p-4 pb-24">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="text-3xl text-brick">Plan</h1>
+        <h1 className="text-3xl text-brick">Meal Plan</h1>
         <div className="flex flex-wrap items-center gap-2 text-sm">
           {plan.weekKey !== currentWeekKey && (
             <Link href={`/plan?week=${currentWeekKey}`} className="flex min-h-[44px] items-center rounded-md border border-cocoa/40 px-2 font-medium text-brick">

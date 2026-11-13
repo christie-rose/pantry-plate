@@ -337,9 +337,9 @@ export function GroceryClient({
         <p className="text-sm text-cocoa">
           No items on the list yet. Tap + to add one, or go to{" "}
           <Link href="/plan" className="underline">
-            Plan
+            Meal Plan
           </Link>{" "}
-          and add a recipe&apos;s ingredients to this week&apos;s list.
+          and add a recipe&apos;s ingredients to your list.
         </p>
       )}
 
