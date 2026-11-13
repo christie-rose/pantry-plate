@@ -44,7 +44,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <nav className="hidden w-56 shrink-0 flex-col border-r border-cocoa/20 bg-white md:sticky md:top-0 md:flex md:h-screen">
         <div className="flex flex-1 flex-col gap-1 overflow-y-auto p-4">
           <Link href="/" className="mb-4 text-xl text-brick">
-            Pantry & Plate
+            A Tavola
           </Link>
           {NAV_ITEMS.map((item) => (
             <Link
@@ -83,7 +83,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       {/* Mobile top bar: title + hamburger */}
       <header className="sticky top-0 z-30 flex min-h-[56px] items-center justify-between border-b border-cocoa/20 bg-white px-4 md:hidden">
         <Link href="/" className="text-lg text-brick">
-          Pantry & Plate
+          A Tavola
         </Link>
         <button
           type="button"

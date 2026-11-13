@@ -1,4 +1,4 @@
-// Pantry & Plate — Prisma schema
+// A Tavola — Prisma schema
 // See pantry-and-plate-spec.md §3 for the source of truth on this model.
 
 generator client {

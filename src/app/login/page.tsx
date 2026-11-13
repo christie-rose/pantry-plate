@@ -38,7 +38,7 @@ export default function LoginPage() {
         onSubmit={handleSubmit}
         className="card w-full max-w-sm p-8 flex flex-col gap-4"
       >
-        <h1 className="text-2xl text-brick">Pantry & Plate</h1>
+        <h1 className="text-2xl text-brick">A Tavola</h1>
         <p className="text-sm text-cocoa">Enter the household password to continue.</p>
 
         <input

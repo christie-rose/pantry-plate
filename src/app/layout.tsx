@@ -14,13 +14,13 @@ const karla = Karla({
 });
 
 export const metadata: Metadata = {
-  title: "Pantry & Plate",
+  title: "A Tavola",
   description: "Recipes, weekly meal planning, and grocery lists.",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "Pantry & Plate",
+    title: "A Tavola",
   },
   icons: {
     icon: [

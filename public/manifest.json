@@ -1,6 +1,6 @@
 {
-  "name": "Pantry & Plate",
-  "short_name": "Pantry & Plate",
+  "name": "A Tavola",
+  "short_name": "A Tavola",
   "description": "Recipes, weekly meal planning, and grocery lists.",
   "start_url": "/",
   "display": "standalone",

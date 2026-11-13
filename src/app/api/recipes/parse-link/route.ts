@@ -95,7 +95,7 @@ export async function POST(request: NextRequest) {
   let html: string;
   try {
     const pageResponse = await fetch(parsedUrl.toString(), {
-      headers: { "User-Agent": "Mozilla/5.0 (compatible; PantryAndPlate/1.0)" },
+      headers: { "User-Agent": "Mozilla/5.0 (compatible; ATavola/1.0)" },
     });
     if (!pageResponse.ok) {
       return NextResponse.json({ error: `Could not fetch that page (${pageResponse.status})` }, { status: 422 });
