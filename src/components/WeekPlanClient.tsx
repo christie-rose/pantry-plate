@@ -235,7 +235,7 @@ export function WeekPlanClient({ initialPlan, recipes }: { initialPlan: Plan; re
   const canGoToNextWeek = plan.weekKey < maxWeekKey;
 
   return (
-    <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 p-4 pb-24">
+    <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 p-4 pb-24">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <h1 className="text-3xl text-brick">Meal Plan</h1>
         <div className="flex flex-wrap items-center gap-2 text-sm">
@@ -271,7 +271,7 @@ export function WeekPlanClient({ initialPlan, recipes }: { initialPlan: Plan; re
 
       {saving && <p className="text-xs text-cocoa">Saving…</p>}
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
+      <div className="flex flex-col gap-3">
         {DAYS.map((day, dayIndex) => {
           const location: Location = { kind: "day", day };
           return (
@@ -352,7 +352,7 @@ export function WeekPlanClient({ initialPlan, recipes }: { initialPlan: Plan; re
       </div>
 
       <h2 className="text-2xl text-brick">Breakfast / Lunch / Snack / Other</h2>
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="flex flex-col gap-3">
         {WEEKLY_MEAL_TYPES.map((mealType) => {
           const location: Location = { kind: "weekly", mealType };
           return (
@@ -426,7 +426,7 @@ export function WeekPlanClient({ initialPlan, recipes }: { initialPlan: Plan; re
       {prepRecipes.length > 0 && (
         <>
           <h2 className="text-2xl text-brick">Prep</h2>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="flex flex-col gap-3">
             {prepRecipes.map((recipe) => {
               const locations = Array.from(usageByRecipeId.get(recipe.id) ?? []);
               return (

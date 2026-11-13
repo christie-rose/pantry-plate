@@ -41,7 +41,7 @@ export function MealEntryAdder({
 
   if (!open) {
     return (
-      <button type="button" onClick={() => setOpen(true)} className="text-xs text-sage underline">
+      <button type="button" onClick={() => setOpen(true)} className="self-start text-xs text-sage underline">
         + Add
       </button>
     );
