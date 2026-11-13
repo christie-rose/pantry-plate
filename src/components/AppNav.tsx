@@ -15,8 +15,8 @@ import {
 
 const NAV_ITEMS = [
   { href: "/recipes", label: "Recipes", Icon: RiBookOpenLine },
-  { href: "/plan", label: "Plan", Icon: RiCalendarLine },
   { href: "/grocery", label: "Grocery", Icon: RiShoppingCartLine },
+  { href: "/plan", label: "Plan", Icon: RiCalendarLine },
 ] as const;
 
 export function AppShell({ children }: { children: React.ReactNode }) {
