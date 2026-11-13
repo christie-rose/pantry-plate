@@ -49,6 +49,9 @@ export function addDaysToKey(weekKey: string, days: number): string {
   return mondayKeyFor(date);
 }
 
+/** How many weeks past the current one the Plan can be opened and edited. */
+export const MAX_WEEKS_AHEAD = 4;
+
 /** Formats the calendar date for a day within the week starting at `weekKey` (0 = Monday ... 6 = Sunday). */
 export function formatDayDate(weekKey: string, dayIndex: number): string {
   const date = new Date(`${weekKey}T00:00:00`);

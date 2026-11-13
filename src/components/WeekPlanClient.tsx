@@ -11,6 +11,7 @@ import {
   addDaysToKey,
   formatDayDate,
   formatWeekLabel,
+  MAX_WEEKS_AHEAD,
   mondayKeyFor,
   type Day,
   type DayTag,
@@ -238,6 +239,8 @@ export function WeekPlanClient({ initialPlan, recipes }: { initialPlan: Plan; re
 
   const currentWeekKey = mondayKeyFor(new Date());
   const canGoToPrevWeek = plan.weekKey > currentWeekKey;
+  const maxWeekKey = addDaysToKey(currentWeekKey, MAX_WEEKS_AHEAD * 7);
+  const canGoToNextWeek = plan.weekKey < maxWeekKey;
 
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 p-4 pb-24">
@@ -259,9 +262,18 @@ export function WeekPlanClient({ initialPlan, recipes }: { initialPlan: Plan; re
             </span>
           )}
           <span className="font-medium text-ink">{formatWeekLabel(plan.weekKey)}</span>
-          <Link href={`/plan?week=${addDaysToKey(plan.weekKey, 7)}`} className="flex min-h-[44px] items-center rounded-md border border-cocoa/40 px-2">
-            Next →
-          </Link>
+          {canGoToNextWeek ? (
+            <Link href={`/plan?week=${addDaysToKey(plan.weekKey, 7)}`} className="flex min-h-[44px] items-center rounded-md border border-cocoa/40 px-2">
+              Next →
+            </Link>
+          ) : (
+            <span
+              title={`You can plan up to ${MAX_WEEKS_AHEAD} weeks ahead`}
+              className="flex min-h-[44px] items-center rounded-md border border-cocoa/20 px-2 text-cocoa/40"
+            >
+              Next →
+            </span>
+          )}
         </div>
       </div>
 
