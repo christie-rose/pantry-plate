@@ -12,6 +12,7 @@ export function GroceryClient({ weekKey, initialItems }: { weekKey: string; init
   const [newStore, setNewStore] = useState<Store>("Costco");
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [copyFailedKey, setCopyFailedKey] = useState<string | null>(null);
+  const [confirmingClear, setConfirmingClear] = useState(false);
 
   function formatItemLine(item: GroceryItem): string {
     return item.note ? `${item.name} (${item.note})` : item.name;
@@ -91,6 +92,11 @@ export function GroceryClient({ weekKey, initialItems }: { weekKey: string; init
     persist(items.map((item) => (item.id === id ? { ...item, store } : item)));
   }
 
+  function clearList() {
+    persist([]);
+    setConfirmingClear(false);
+  }
+
   function deleteItem(id: string) {
     persist(items.filter((item) => item.id !== id));
   }
@@ -115,7 +121,7 @@ export function GroceryClient({ weekKey, initialItems }: { weekKey: string; init
       </div>
 
       {groups.length > 0 && (
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
             onClick={copyAllLists}
@@ -123,7 +129,33 @@ export function GroceryClient({ weekKey, initialItems }: { weekKey: string; init
           >
             {copiedKey === "all" ? "Copied!" : "Copy full list"}
           </button>
-          <p className="text-xs text-cocoa">
+          {confirmingClear ? (
+            <>
+              <button
+                type="button"
+                onClick={clearList}
+                className="min-h-[44px] rounded-md bg-brick px-3 text-sm font-medium text-white"
+              >
+                Yes, clear {items.length} {items.length === 1 ? "item" : "items"}
+              </button>
+              <button
+                type="button"
+                onClick={() => setConfirmingClear(false)}
+                className="min-h-[44px] rounded-md border border-cocoa/40 px-3 text-sm text-ink"
+              >
+                Cancel
+              </button>
+            </>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setConfirmingClear(true)}
+              className="min-h-[44px] rounded-md border border-brick/50 px-3 text-sm text-brick"
+            >
+              Clear list
+            </button>
+          )}
+          <p className="w-full text-xs text-cocoa">
             {copyFailedKey === "all"
               ? "Couldn't copy automatically — select the list text manually."
               : "Paste into Instacart or your store's pickup app to search each item."}
