@@ -2,29 +2,27 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { STORES, type Store } from "@/lib/stores";
 import { addDaysToKey, formatWeekLabel } from "@/lib/weekplan";
 import type { GroceryItem } from "@/lib/grocery";
 
 export function GroceryClient({ weekKey, initialItems }: { weekKey: string; initialItems: GroceryItem[] }) {
   const [items, setItems] = useState<GroceryItem[]>(initialItems);
   const [newName, setNewName] = useState("");
-  const [newStore, setNewStore] = useState<Store>("Costco");
-  const [copiedKey, setCopiedKey] = useState<string | null>(null);
-  const [copyFailedKey, setCopyFailedKey] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+  const [copyFailed, setCopyFailed] = useState(false);
   const [confirmingClear, setConfirmingClear] = useState(false);
 
   function formatItemLine(item: GroceryItem): string {
     return item.note ? `${item.name} (${item.note})` : item.name;
   }
 
-  function showCopied(key: string) {
-    setCopyFailedKey(null);
-    setCopiedKey(key);
-    setTimeout(() => setCopiedKey((k) => (k === key ? null : k)), 2000);
+  function showCopied() {
+    setCopyFailed(false);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   }
 
-  function fallbackCopy(text: string, key: string) {
+  function fallbackCopy(text: string) {
     try {
       const textarea = document.createElement("textarea");
       textarea.value = text;
@@ -35,34 +33,20 @@ export function GroceryClient({ weekKey, initialItems }: { weekKey: string; init
       textarea.select();
       const ok = document.execCommand("copy");
       document.body.removeChild(textarea);
-      if (ok) {
-        showCopied(key);
-      } else {
-        setCopyFailedKey(key);
-      }
+      if (ok) showCopied();
+      else setCopyFailed(true);
     } catch {
-      setCopyFailedKey(key);
+      setCopyFailed(true);
     }
   }
 
-  function copyText(text: string, key: string) {
+  function copyList() {
+    const text = items.map(formatItemLine).join("\n");
     if (navigator.clipboard?.writeText) {
-      navigator.clipboard.writeText(text).then(
-        () => showCopied(key),
-        () => fallbackCopy(text, key),
-      );
+      navigator.clipboard.writeText(text).then(showCopied, () => fallbackCopy(text));
     } else {
-      fallbackCopy(text, key);
+      fallbackCopy(text);
     }
-  }
-
-  function copyStoreList(store: string, storeItems: GroceryItem[]) {
-    copyText(storeItems.map(formatItemLine).join("\n"), store);
-  }
-
-  function copyAllLists() {
-    const text = groups.map(({ store, items: si }) => `${store}\n${si.map(formatItemLine).join("\n")}`).join("\n\n");
-    copyText(text, "all");
   }
 
   async function persist(next: GroceryItem[]) {
@@ -79,17 +63,13 @@ export function GroceryClient({ weekKey, initialItems }: { weekKey: string; init
     const res = await fetch("/api/grocery/add-item", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ weekKey, name: newName.trim(), store: newStore }),
+      body: JSON.stringify({ weekKey, name: newName.trim() }),
     });
     if (res.ok) {
       const list = await res.json();
       setItems(list.items);
       setNewName("");
     }
-  }
-
-  function updateStore(id: string, store: string) {
-    persist(items.map((item) => (item.id === id ? { ...item, store } : item)));
   }
 
   function clearList() {
@@ -100,10 +80,6 @@ export function GroceryClient({ weekKey, initialItems }: { weekKey: string; init
   function deleteItem(id: string) {
     persist(items.filter((item) => item.id !== id));
   }
-
-  const groups = STORES.map((store) => ({ store, items: items.filter((i) => i.store === store) })).filter(
-    (g) => g.items.length > 0,
-  );
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 p-4 pb-24">
@@ -120,14 +96,14 @@ export function GroceryClient({ weekKey, initialItems }: { weekKey: string; init
         </div>
       </div>
 
-      {groups.length > 0 && (
+      {items.length > 0 && (
         <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
-            onClick={copyAllLists}
+            onClick={copyList}
             className="min-h-[44px] rounded-md border border-cocoa/40 px-3 text-sm text-ink"
           >
-            {copiedKey === "all" ? "Copied!" : "Copy full list"}
+            {copied ? "Copied!" : "Copy list"}
           </button>
           {confirmingClear ? (
             <>
@@ -156,7 +132,7 @@ export function GroceryClient({ weekKey, initialItems }: { weekKey: string; init
             </button>
           )}
           <p className="w-full text-xs text-cocoa">
-            {copyFailedKey === "all"
+            {copyFailed
               ? "Couldn't copy automatically — select the list text manually."
               : "Paste into Instacart or your store's pickup app to search each item."}
           </p>
@@ -172,17 +148,6 @@ export function GroceryClient({ weekKey, initialItems }: { weekKey: string; init
             className="min-h-[44px] w-full rounded-md border border-cocoa/40 bg-white px-2 text-sm"
           />
         </div>
-        <select
-          value={newStore}
-          onChange={(e) => setNewStore(e.target.value as Store)}
-          className="min-h-[44px] rounded-md border border-cocoa/40 bg-white px-2 text-sm"
-        >
-          {STORES.map((s) => (
-            <option key={s} value={s}>
-              {s}
-            </option>
-          ))}
-        </select>
         <button
           type="button"
           onClick={handleAdd}
@@ -193,7 +158,7 @@ export function GroceryClient({ weekKey, initialItems }: { weekKey: string; init
         </button>
       </div>
 
-      {groups.length === 0 && (
+      {items.length === 0 && (
         <p className="text-sm text-cocoa">
           No items on the list yet. Add items above, or go to{" "}
           <Link href="/plan" className="underline">
@@ -203,55 +168,25 @@ export function GroceryClient({ weekKey, initialItems }: { weekKey: string; init
         </p>
       )}
 
-      {groups.map(({ store, items: storeItems }) => (
-        <div key={store} className="flex flex-col gap-2">
-          <div className="flex items-center justify-between gap-2">
-            <h2 className="text-xl text-brick">{store}</h2>
-            <div className="flex shrink-0 items-center gap-2">
+      {items.length > 0 && (
+        <ul className="flex flex-col divide-y divide-cocoa/20 rounded-md border border-cocoa/30 bg-white">
+          {items.map((item) => (
+            <li key={item.id} className="flex items-center justify-between gap-2 p-3">
+              <span className="text-ink">
+                {item.name}
+                {item.note && <span className="text-cocoa"> — {item.note}</span>}
+              </span>
               <button
                 type="button"
-                onClick={() => copyStoreList(store, storeItems)}
-                className="min-h-[44px] rounded-md border border-cocoa/40 px-3 text-sm"
+                onClick={() => deleteItem(item.id)}
+                className="min-h-[44px] shrink-0 rounded-md border border-brick/50 px-2 text-xs text-brick"
               >
-                {copiedKey === store ? "Copied!" : "Copy list"}
+                Delete
               </button>
-            </div>
-          </div>
-          {copyFailedKey === store && (
-            <p className="text-xs text-brick">Couldn&apos;t copy automatically — select the list text manually.</p>
-          )}
-          <ul className="flex flex-col divide-y divide-cocoa/20 rounded-md border border-cocoa/30 bg-white">
-            {storeItems.map((item) => (
-              <li key={item.id} className="flex items-center justify-between gap-2 p-3">
-                <span className="text-ink">
-                  {item.name}
-                  {item.note && <span className="text-cocoa"> — {item.note}</span>}
-                </span>
-                <div className="flex shrink-0 items-center gap-2">
-                  <select
-                    value={item.store}
-                    onChange={(e) => updateStore(item.id, e.target.value)}
-                    className="min-h-[44px] rounded-md border border-cocoa/40 bg-white px-2 text-xs"
-                  >
-                    {STORES.map((s) => (
-                      <option key={s} value={s}>
-                        {s}
-                      </option>
-                    ))}
-                  </select>
-                  <button
-                    type="button"
-                    onClick={() => deleteItem(item.id)}
-                    className="min-h-[44px] rounded-md border border-brick/50 px-2 text-xs text-brick"
-                  >
-                    Delete
-                  </button>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </div>
-      ))}
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }

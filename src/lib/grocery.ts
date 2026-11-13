@@ -4,7 +4,6 @@ import { formatAmountAsFraction, scaleAmount } from "@/lib/recipes";
 export type GroceryItem = {
   id: string;
   name: string;
-  store: string;
   note?: string | null;
 };
 
@@ -42,7 +41,6 @@ export async function addRecipeToGroceryList(
     items.push({
       id: crypto.randomUUID(),
       name: ingredient.name,
-      store: "Other",
       note: formatQuantity(scaledAmount, ingredient.unit),
     });
     added.push(ingredient.name);
