@@ -95,10 +95,6 @@ export function GroceryClient({ weekKey, initialItems }: { weekKey: string; init
     persist(items.filter((item) => item.id !== id));
   }
 
-  function markStoreShopped(store: string) {
-    persist(items.filter((item) => item.store !== store));
-  }
-
   const groups = STORES.map((store) => ({ store, items: items.filter((i) => i.store === store) })).filter(
     (g) => g.items.length > 0,
   );
@@ -186,13 +182,6 @@ export function GroceryClient({ weekKey, initialItems }: { weekKey: string; init
                 className="min-h-[44px] rounded-md border border-cocoa/40 px-3 text-sm"
               >
                 {copiedKey === store ? "Copied!" : "Copy list"}
-              </button>
-              <button
-                type="button"
-                onClick={() => markStoreShopped(store)}
-                className="min-h-[44px] rounded-md border border-cocoa/40 px-3 text-sm"
-              >
-                Mark all shopped
               </button>
             </div>
           </div>
