@@ -19,6 +19,7 @@ export function GroceryClient({
   const [filterTag, setFilterTag] = useState<string | null>(null);
   const [editingTagId, setEditingTagId] = useState<string | null>(null);
   const skipBlurRef = useRef(false);
+  const [tagHighlight, setTagHighlight] = useState(-1);
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
   const [editDraft, setEditDraft] = useState("");
   const skipItemBlurRef = useRef(false);
@@ -55,6 +56,12 @@ export function GroceryClient({
     if (!trimmed) return undefined;
     const existing = suggestionTags.find((t) => t.toLowerCase() === trimmed.toLowerCase());
     return existing ?? trimmed;
+  }
+
+  // Existing tags that match what's been typed so far (all of them when the box is empty).
+  function tagOptions(draft: string): string[] {
+    const q = draft.trim().toLowerCase();
+    return suggestionTags.filter((t) => t.toLowerCase() !== q && (!q || t.toLowerCase().includes(q)));
   }
 
   function formatItemLine(item: GroceryItem): string {
@@ -184,12 +191,13 @@ export function GroceryClient({
 
   function startEditingTag(item: GroceryItem) {
     skipBlurRef.current = false;
+    setTagHighlight(-1);
     setEditingTagId(item.id);
     setTagDraft(item.tag ?? "");
   }
 
-  function commitTag(id: string) {
-    const tag = canonicalTag(tagDraft);
+  function commitTag(id: string, picked?: string) {
+    const tag = canonicalTag(picked ?? tagDraft);
     setEditingTagId(null);
     persist(items.map((item) => (item.id === id ? { ...item, tag: tag ?? null } : item)));
   }
@@ -208,12 +216,6 @@ export function GroceryClient({
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 p-4 pb-24">
       <h1 className="text-3xl text-brick">Grocery List</h1>
-
-      <datalist id="grocery-tag-options">
-        {suggestionTags.map((t) => (
-          <option key={t} value={t} />
-        ))}
-      </datalist>
 
       {items.length > 0 && (
         <div className="flex flex-col gap-2">
@@ -404,33 +406,71 @@ export function GroceryClient({
               </div>
 
               {editingTagId === item.id ? (
-                <input
-                  autoFocus
-                  list="grocery-tag-options"
-                  value={tagDraft}
-                  onChange={(e) => setTagDraft(e.target.value)}
-                  onKeyDown={(e) => {
-                    // The field unmounting can fire a blur; skip it so Enter/Escape only act once.
-                    if (e.key === "Enter") {
-                      skipBlurRef.current = true;
+                <div className="relative shrink-0">
+                  <input
+                    autoFocus
+                    value={tagDraft}
+                    onChange={(e) => {
+                      setTagDraft(e.target.value);
+                      setTagHighlight(-1);
+                    }}
+                    onKeyDown={(e) => {
+                      const options = tagOptions(tagDraft);
+                      if (e.key === "ArrowDown" && options.length > 0) {
+                        e.preventDefault();
+                        setTagHighlight((h) => (h + 1) % options.length);
+                      } else if (e.key === "ArrowUp" && options.length > 0) {
+                        e.preventDefault();
+                        setTagHighlight((h) => (h <= 0 ? options.length - 1 : h - 1));
+                      } else if (e.key === "Enter") {
+                        // The field unmounting can fire a blur; skip it so Enter/Escape only act once.
+                        skipBlurRef.current = true;
+                        commitTag(item.id, tagHighlight >= 0 ? options[tagHighlight] : undefined);
+                      } else if (e.key === "Escape") {
+                        skipBlurRef.current = true;
+                        setEditingTagId(null);
+                      }
+                    }}
+                    onBlur={() => {
+                      if (skipBlurRef.current) {
+                        skipBlurRef.current = false;
+                        return;
+                      }
                       commitTag(item.id);
-                    }
-                    if (e.key === "Escape") {
-                      skipBlurRef.current = true;
-                      setEditingTagId(null);
-                    }
-                  }}
-                  onBlur={() => {
-                    if (skipBlurRef.current) {
-                      skipBlurRef.current = false;
-                      return;
-                    }
-                    commitTag(item.id);
-                  }}
-                  placeholder="Tag (e.g. store)"
-                  aria-label="Tag"
-                  className="h-9 w-36 shrink-0 rounded-md border border-cocoa/40 bg-white px-2 text-sm text-ink"
-                />
+                    }}
+                    placeholder="Tag (e.g. store)"
+                    aria-label="Tag"
+                    autoComplete="off"
+                    className="h-9 w-36 rounded-md border border-cocoa/40 bg-white px-2 text-sm text-ink"
+                  />
+                  {tagOptions(tagDraft).length > 0 && (
+                    <div
+                      role="listbox"
+                      aria-label="Tag suggestions"
+                      className="absolute right-0 top-full z-20 mt-1 max-h-48 w-44 overflow-auto rounded-md border border-cocoa/40 bg-white py-1 shadow-md"
+                    >
+                      {tagOptions(tagDraft).map((t, i) => (
+                        <button
+                          key={t}
+                          type="button"
+                          role="option"
+                          aria-selected={i === tagHighlight}
+                          // mousedown (not click) so it lands before the field loses focus and saves
+                          onMouseDown={(e) => {
+                            e.preventDefault();
+                            skipBlurRef.current = true;
+                            commitTag(item.id, t);
+                          }}
+                          className={`block w-full px-3 py-2 text-left text-sm text-ink ${
+                            i === tagHighlight ? "bg-paper-alt" : "hover:bg-paper-alt"
+                          }`}
+                        >
+                          {t}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
               ) : item.tag ? (
                 <button
                   type="button"
