@@ -14,20 +14,14 @@ export async function POST(request: NextRequest) {
   const result = await addRecipeToGroceryList(
     body.recipeId,
     (existing?.items as unknown as GroceryItem[]) ?? [],
-    existing?.claimedPantryItemIds ?? [],
     targetServings,
   );
 
   const list = await prisma.groceryList.upsert({
     where: { weekKey: body.weekKey },
-    create: { weekKey: body.weekKey, items: result.items, claimedPantryItemIds: result.claimedPantryItemIds },
-    update: { items: result.items, claimedPantryItemIds: result.claimedPantryItemIds },
+    create: { weekKey: body.weekKey, items: result.items },
+    update: { items: result.items },
   });
 
-  return NextResponse.json({
-    list,
-    added: result.added,
-    skippedStaples: result.skippedStaples,
-    skippedOnHand: result.skippedOnHand,
-  });
+  return NextResponse.json({ list, added: result.added });
 }

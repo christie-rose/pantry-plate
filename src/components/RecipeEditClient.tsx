@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { RiSparklingLine } from "@remixicon/react";
 import { RecipeForm, recipeFormToInput, type RecipeFormState } from "@/components/RecipeForm";
-import { IngredientMatchPanel } from "@/components/IngredientMatchPanel";
 import { scaleAmount, type Cuisine, type RecipeCategory } from "@/lib/recipes";
 
 type RecipeIngredient = {
@@ -13,7 +12,6 @@ type RecipeIngredient = {
   name: string;
   amount: number | null;
   unit: string | null;
-  reviewed: boolean;
 };
 
 type Recipe = {
@@ -29,13 +27,7 @@ type Recipe = {
   ingredients: RecipeIngredient[];
 };
 
-export function RecipeEditClient({
-  recipe,
-  pantryItems,
-}: {
-  recipe: Recipe;
-  pantryItems: { id: string; name: string }[];
-}) {
+export function RecipeEditClient({ recipe }: { recipe: Recipe }) {
   const router = useRouter();
   const [form, setForm] = useState<RecipeFormState>({
     title: recipe.title,
@@ -54,7 +46,6 @@ export function RecipeEditClient({
         }))
       : [{ name: "", amount: "", unit: "" }],
   });
-  const [unreviewed, setUnreviewed] = useState(recipe.ingredients.filter((i) => !i.reviewed));
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [savedOnce, setSavedOnce] = useState(false);
@@ -206,8 +197,6 @@ export function RecipeEditClient({
       return;
     }
 
-    const updated = await res.json();
-    setUnreviewed(updated.ingredients.filter((i: RecipeIngredient) => !i.reviewed));
     setSavedOnce(true);
   }
 
@@ -276,13 +265,6 @@ export function RecipeEditClient({
         )}
       </div>
 
-      {unreviewed.length > 0 && (
-        <IngredientMatchPanel
-          ingredients={unreviewed}
-          pantryItems={pantryItems}
-          onResolved={(id) => setUnreviewed((prev) => prev.filter((i) => i.id !== id))}
-        />
-      )}
     </div>
   );
 }

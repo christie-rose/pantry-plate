@@ -1,18 +1,13 @@
 "use client";
 
 import { useRef, useState } from "react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { RiCameraLine, RiSparklingLine } from "@remixicon/react";
 import { RecipeForm, emptyRecipeForm, recipeFormToInput, type RecipeFormState } from "@/components/RecipeForm";
-import { IngredientMatchPanel } from "@/components/IngredientMatchPanel";
 import type { RecipeSource } from "@/lib/recipes";
 
-type SavedRecipe = {
-  id: string;
-  ingredients: { id: string; name: string; reviewed: boolean }[];
-};
-
 export default function NewRecipePage() {
+  const router = useRouter();
   const [form, setForm] = useState<RecipeFormState>(emptyRecipeForm);
   const [source, setSource] = useState<RecipeSource>("manual");
   const [sourceUrl, setSourceUrl] = useState<string | null>(null);
@@ -24,8 +19,6 @@ export default function NewRecipePage() {
   const [importError, setImportError] = useState<string | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
-  const [saved, setSaved] = useState<SavedRecipe | null>(null);
-  const [pantryItems, setPantryItems] = useState<{ id: string; name: string }[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   function applyParsed(parsed: {
@@ -157,43 +150,8 @@ export default function NewRecipePage() {
       return;
     }
 
-    const recipe: SavedRecipe = await res.json();
-    setSaved(recipe);
-
-    const pantryRes = await fetch("/api/pantry");
-    setPantryItems(await pantryRes.json());
-  }
-
-  if (saved) {
-    const unmatched = saved.ingredients.filter((i) => !i.reviewed);
-    return (
-      <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 p-4 pb-24">
-        <h1 className="text-3xl text-brick">Recipe saved</h1>
-        {unmatched.length > 0 && (
-          <IngredientMatchPanel
-            ingredients={unmatched}
-            pantryItems={pantryItems}
-            onResolved={() =>
-              setSaved((s) => (s ? { ...s, ingredients: s.ingredients.map((i) => ({ ...i, reviewed: true })) } : s))
-            }
-          />
-        )}
-        <div className="flex gap-3">
-          <Link
-            href={`/recipes/${saved.id}`}
-            className="min-h-[44px] flex items-center rounded-md bg-brick px-4 text-sm font-medium text-white"
-          >
-            View recipe
-          </Link>
-          <Link
-            href="/recipes"
-            className="min-h-[44px] flex items-center rounded-md border border-cocoa/40 px-4 text-sm"
-          >
-            Back to recipes
-          </Link>
-        </div>
-      </div>
-    );
+    const recipe: { id: string } = await res.json();
+    router.push(`/recipes/${recipe.id}`);
   }
 
   return (

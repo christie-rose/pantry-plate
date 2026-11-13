@@ -4,11 +4,9 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
-  RiFridgeLine,
   RiBookOpenLine,
   RiCalendarLine,
   RiShoppingCartLine,
-  RiWalletLine,
   RiSettings3Line,
   RiLogoutBoxRLine,
   RiMenuLine,
@@ -16,11 +14,9 @@ import {
 } from "@remixicon/react";
 
 const NAV_ITEMS = [
-  { href: "/pantry", label: "Pantry", Icon: RiFridgeLine },
   { href: "/recipes", label: "Recipes", Icon: RiBookOpenLine },
   { href: "/plan", label: "Plan", Icon: RiCalendarLine },
   { href: "/grocery", label: "Grocery", Icon: RiShoppingCartLine },
-  { href: "/budget", label: "Budget", Icon: RiWalletLine },
 ] as const;
 
 export function AppShell({ children }: { children: React.ReactNode }) {

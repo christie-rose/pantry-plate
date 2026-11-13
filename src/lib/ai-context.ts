@@ -6,17 +6,6 @@ export function parseJsonResponse(text: string): unknown {
   return JSON.parse(fenced ? fenced[1] : text);
 }
 
-export async function buildPantrySummary(): Promise<string> {
-  const items = await prisma.pantryItem.findMany();
-  if (items.length === 0) return "The pantry is currently empty.";
-  return items
-    .map((item) => {
-      const status = item.isStaple ? item.stapleStatus : item.quantity || "some on hand";
-      return `- ${item.name} (${item.location}, ${status})`;
-    })
-    .join("\n");
-}
-
 export async function buildDietarySummary(respectDietary: boolean): Promise<string> {
   if (!respectDietary) return "No dietary restrictions need to be respected for this request.";
   const entries = await prisma.dietaryEntry.findMany();

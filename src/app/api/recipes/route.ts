@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { detectProteins, matchIngredientToPantry, validateRecipeInput, PROTEIN_TYPES, type ProteinType } from "@/lib/recipes";
+import { detectProteins, validateRecipeInput, PROTEIN_TYPES, type ProteinType } from "@/lib/recipes";
 import type { Prisma } from "@prisma/client";
 
 export async function GET(request: NextRequest) {
@@ -56,18 +56,11 @@ export async function POST(request: NextRequest) {
       source: result.source,
       sourceUrl: result.sourceUrl,
       ingredients: {
-        create: await Promise.all(
-          result.ingredients.map(async (ingredient) => {
-            const match = await matchIngredientToPantry(ingredient.name);
-            return {
-              name: ingredient.name,
-              amount: ingredient.amount,
-              unit: ingredient.unit,
-              pantryItemId: match?.id ?? null,
-              reviewed: Boolean(match),
-            };
-          }),
-        ),
+        create: result.ingredients.map((ingredient) => ({
+          name: ingredient.name,
+          amount: ingredient.amount,
+          unit: ingredient.unit,
+        })),
       },
     },
     include: { ingredients: true },

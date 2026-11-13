@@ -1,5 +1,3 @@
-import { prisma } from "@/lib/prisma";
-
 export const RECIPE_SOURCES = ["manual", "ai", "photo", "link"] as const;
 export type RecipeSource = (typeof RECIPE_SOURCES)[number];
 
@@ -181,16 +179,4 @@ export function formatAmountAsFraction(amount: number): string {
 
   const rounded = Math.round(amount * 100) / 100;
   return String(rounded);
-}
-
-/** Matches a candidate ingredient name against pantry item names (case-insensitive, either-direction substring). */
-export async function matchIngredientToPantry(name: string) {
-  const lower = name.toLowerCase();
-  const pantryItems = await prisma.pantryItem.findMany();
-  return pantryItems.find(
-    (item) =>
-      item.name.toLowerCase() === lower ||
-      lower.includes(item.name.toLowerCase()) ||
-      item.name.toLowerCase().includes(lower),
-  );
 }

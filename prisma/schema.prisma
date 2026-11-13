@@ -10,19 +10,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model PantryItem {
-  id              String             @id @default(cuid())
-  name            String
-  location        String // "Pantry" | "Fridge" | "Freezer" | "Household Supplies"
-  preferredStore  String // "Costco" | "Albertsons" | "WinCo" | "Other"
-  isStaple        Boolean            @default(false)
-  stapleStatus    String? // "In stock" | "Low" | "Out" — used when isStaple = true
-  quantity        String? // free text, e.g. "2 lb" — used when isStaple = false
-  createdAt       DateTime           @default(now())
-  updatedAt       DateTime           @updatedAt
-  ingredientLinks RecipeIngredient[]
-}
-
 model Recipe {
   id           String             @id @default(cuid())
   title        String
@@ -40,15 +27,12 @@ model Recipe {
 }
 
 model RecipeIngredient {
-  id           String      @id @default(cuid())
-  recipeId     String
-  recipe       Recipe      @relation(fields: [recipeId], references: [id], onDelete: Cascade)
-  name         String
-  amount       Float?
-  unit         String?
-  pantryItemId String?
-  pantryItem   PantryItem? @relation(fields: [pantryItemId], references: [id])
-  reviewed     Boolean     @default(false) // false = still needs pantry-matching pass
+  id       String  @id @default(cuid())
+  recipeId String
+  recipe   Recipe  @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  name     String
+  amount   Float?
+  unit     String?
 }
 
 model DietaryEntry {
@@ -67,24 +51,7 @@ model WeekPlan {
 }
 
 model GroceryList {
-  id                   String   @id @default(cuid())
-  weekKey              String   @unique
-  items                Json // array of grocery item objects — see §7
-  claimedPantryItemIds String[] @default([]) // non-staple pantry items whose on-hand stock is already spoken for by a recipe added to this list
-}
-
-model Budget {
-  id            String    @id @default(cuid())
-  monthlyBudget Float     @default(0)
-  expenses      Expense[]
-}
-
-model Expense {
-  id       String   @id @default(cuid())
-  budgetId String
-  budget   Budget   @relation(fields: [budgetId], references: [id])
-  date     DateTime
-  amount   Float
-  store    String
-  note     String?
+  id      String @id @default(cuid())
+  weekKey String @unique
+  items   Json // array of grocery item objects — see §7
 }

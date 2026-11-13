@@ -15,7 +15,7 @@ const karla = Karla({
 
 export const metadata: Metadata = {
   title: "Pantry & Plate",
-  description: "Household pantry, recipes, meal planning, and grocery budgeting.",
+  description: "Recipes, weekly meal planning, and grocery lists.",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,

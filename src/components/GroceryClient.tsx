@@ -1,19 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
-import { STORES, type Store } from "@/lib/pantry";
+import { STORES, type Store } from "@/lib/stores";
 import { addDaysToKey, formatWeekLabel } from "@/lib/weekplan";
 import type { GroceryItem } from "@/lib/grocery";
-
-type PantryMatch = { id: string; name: string; preferredStore: string };
 
 export function GroceryClient({ weekKey, initialItems }: { weekKey: string; initialItems: GroceryItem[] }) {
   const [items, setItems] = useState<GroceryItem[]>(initialItems);
   const [newName, setNewName] = useState("");
   const [newStore, setNewStore] = useState<Store>("Costco");
-  const [matches, setMatches] = useState<PantryMatch[]>([]);
-  const [showSuggestions, setShowSuggestions] = useState(false);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [copyFailedKey, setCopyFailedKey] = useState<string | null>(null);
 
@@ -68,25 +64,6 @@ export function GroceryClient({ weekKey, initialItems }: { weekKey: string; init
     copyText(text, "all");
   }
 
-  useEffect(() => {
-    const query = newName.trim();
-    const controller = new AbortController();
-    const timeout = setTimeout(() => {
-      if (!query) {
-        setMatches([]);
-        return;
-      }
-      fetch(`/api/pantry?search=${encodeURIComponent(query)}`, { signal: controller.signal })
-        .then((res) => res.json())
-        .then((results: PantryMatch[]) => setMatches(results.slice(0, 6)))
-        .catch(() => {});
-    }, 150);
-    return () => {
-      controller.abort();
-      clearTimeout(timeout);
-    };
-  }, [newName]);
-
   async function persist(next: GroceryItem[]) {
     setItems(next);
     await fetch("/api/grocery", {
@@ -94,13 +71,6 @@ export function GroceryClient({ weekKey, initialItems }: { weekKey: string; init
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ weekKey, items: next }),
     });
-  }
-
-  function selectMatch(match: PantryMatch) {
-    setNewName(match.name);
-    setNewStore(match.preferredStore as Store);
-    setMatches([]);
-    setShowSuggestions(false);
   }
 
   async function handleAdd() {
@@ -114,8 +84,6 @@ export function GroceryClient({ weekKey, initialItems }: { weekKey: string; init
       const list = await res.json();
       setItems(list.items);
       setNewName("");
-      setMatches([]);
-      setShowSuggestions(false);
     }
   }
 
@@ -123,34 +91,16 @@ export function GroceryClient({ weekKey, initialItems }: { weekKey: string; init
     persist(items.map((item) => (item.id === id ? { ...item, store } : item)));
   }
 
-  async function markShopped(id: string) {
-    setItems((prev) => prev.filter((item) => item.id !== id));
-    const res = await fetch("/api/grocery/mark-shopped", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ weekKey, itemId: id }),
-    });
-    if (res.ok) {
-      const list = await res.json();
-      setItems(list.items);
-    }
+  function markShopped(id: string) {
+    persist(items.filter((item) => item.id !== id));
   }
 
   function deleteItem(id: string) {
     persist(items.filter((item) => item.id !== id));
   }
 
-  async function markStoreShopped(store: string) {
-    setItems((prev) => prev.filter((item) => item.store !== store));
-    const res = await fetch("/api/grocery/mark-store-shopped", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ weekKey, store }),
-    });
-    if (res.ok) {
-      const list = await res.json();
-      setItems(list.items);
-    }
+  function markStoreShopped(store: string) {
+    persist(items.filter((item) => item.store !== store));
   }
 
   const groups = STORES.map((store) => ({ store, items: items.filter((i) => i.store === store) })).filter(
@@ -194,27 +144,9 @@ export function GroceryClient({ weekKey, initialItems }: { weekKey: string; init
           <input
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
-            onFocus={() => setShowSuggestions(true)}
-            onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
             placeholder="Add an item…"
             className="min-h-[44px] w-full rounded-md border border-cocoa/40 bg-white px-2 text-sm"
           />
-          {showSuggestions && matches.length > 0 && (
-            <ul className="absolute z-10 mt-1 w-full rounded-md border border-cocoa/40 bg-white text-sm shadow-md">
-              {matches.map((match) => (
-                <li key={match.id}>
-                  <button
-                    type="button"
-                    onMouseDown={() => selectMatch(match)}
-                    className="flex w-full items-center justify-between gap-2 px-3 py-2 text-left hover:bg-paper-alt"
-                  >
-                    <span className="text-ink">{match.name}</span>
-                    <span className="text-xs text-cocoa">In pantry · {match.preferredStore}</span>
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
         </div>
         <select
           value={newStore}

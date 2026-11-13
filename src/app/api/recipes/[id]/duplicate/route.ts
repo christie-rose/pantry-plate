@@ -26,8 +26,6 @@ export async function POST(
           name: i.name,
           amount: i.amount,
           unit: i.unit,
-          pantryItemId: i.pantryItemId,
-          reviewed: i.reviewed,
         })),
       },
     },

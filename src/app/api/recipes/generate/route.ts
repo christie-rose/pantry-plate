@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
-import { buildDietarySummary, buildPantrySummary, parseJsonResponse } from "@/lib/ai-context";
+import { buildDietarySummary, parseJsonResponse } from "@/lib/ai-context";
 
 function buildSystemPrompt(includePrepAhead: boolean): string {
   return `You are a home-cooking recipe writer for a household meal-planning app.
@@ -13,9 +13,8 @@ Respond with only a JSON object, no other text, in this exact shape:
   ${includePrepAhead ? `"prepAhead": [string, ...],\n  ` : ""}"notes": string | null
 }
 Write clear, approachable, weeknight-friendly instructions. Keep ingredient names simple and generic
-(e.g. "chicken breast", not "2 lb boneless skinless chicken breast"). The household's pantry is given
-only as a hint for ingredients that are convenient to use — it is not a constraint. Use whatever
-ingredients make the best recipe for the request, including ones not in the pantry.${
+(e.g. "chicken breast", not "2 lb boneless skinless chicken breast"). Use whatever ingredients make
+the best recipe for the request.${
     includePrepAhead
       ? `\nAlso include a "prepAhead" array of steps for preparing parts of this recipe earlier in the
 week (e.g. marinating, chopping, pre-cooking components) so it comes together quickly on the day
@@ -40,16 +39,9 @@ export async function POST(request: NextRequest) {
   const respectDietary = Boolean(body.respectDietary);
   const includePrepAhead = Boolean(body.includePrepAhead);
 
-  const [pantrySummary, dietarySummary] = await Promise.all([
-    buildPantrySummary(),
-    buildDietarySummary(respectDietary),
-  ]);
+  const dietarySummary = await buildDietarySummary(respectDietary);
 
   const userMessage = `Request: ${body.prompt.trim()}
-
-Household pantry (a hint, not a constraint — use it as a tiebreaker when it fits, but freely use
-other ingredients the request needs):
-${pantrySummary}
 
 Household dietary restrictions to respect:
 ${dietarySummary}`;

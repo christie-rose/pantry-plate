@@ -3,11 +3,9 @@ import Anthropic from "@anthropic-ai/sdk";
 import { prisma } from "@/lib/prisma";
 import {
   buildDietarySummary,
-  buildPantrySummary,
   buildRecipeLibrarySummary,
   parseJsonResponse,
 } from "@/lib/ai-context";
-import { matchIngredientToPantry } from "@/lib/recipes";
 import { DAYS, defaultDinners, type Day, type DayTags, type MealEntry } from "@/lib/weekplan";
 
 function buildSystemPrompt(includePrepAhead: boolean): string {
@@ -22,10 +20,6 @@ Rules:
 - Vary things across the whole week, not just consecutive days: do not use the same primary protein
   (e.g. chicken, beef, pork, fish, tofu) more than twice across all seven dinners, and avoid repeating
   the same cuisine back-to-back.
-- Prefer recipes and new ideas that use ingredients already on hand in the pantry, but variety across
-  the week matters more than pantry use — don't default to the same on-hand protein every night just
-  because it's available. The pantry is a hint, not a constraint: freely use other ingredients a new
-  recipe needs, including ones not on hand.
 - Respect the household's dietary restrictions exactly as given.${
     includePrepAhead
       ? `\n- For any brand-new recipe you propose, also include a "prepAhead" array of steps for preparing
@@ -77,8 +71,7 @@ export async function POST(request: NextRequest) {
   const respectDietary = Boolean(body.respectDietary);
   const includePrepAhead = Boolean(body.includePrepAhead);
 
-  const [pantrySummary, dietarySummary, librarySummary] = await Promise.all([
-    buildPantrySummary(),
+  const [dietarySummary, librarySummary] = await Promise.all([
     buildDietarySummary(respectDietary),
     buildRecipeLibrarySummary(),
   ]);
@@ -88,9 +81,6 @@ ${DAYS.map((day) => `- ${day}: ${dayTags[day]}`).join("\n")}
 
 Recipe library:
 ${librarySummary}
-
-Household pantry:
-${pantrySummary}
 
 Household dietary restrictions to respect:
 ${dietarySummary}`;
@@ -147,18 +137,11 @@ ${dietarySummary}`;
           prepAhead: choice.prepAhead?.length ? choice.prepAhead : [],
           source: "ai",
           ingredients: {
-            create: await Promise.all(
-              (choice.ingredients ?? []).map(async (ingredient) => {
-                const match = await matchIngredientToPantry(ingredient.name);
-                return {
-                  name: ingredient.name,
-                  amount: ingredient.amount,
-                  unit: ingredient.unit,
-                  pantryItemId: match?.id ?? null,
-                  reviewed: Boolean(match),
-                };
-              }),
-            ),
+            create: (choice.ingredients ?? []).map((ingredient) => ({
+              name: ingredient.name,
+              amount: ingredient.amount,
+              unit: ingredient.unit,
+            })),
           },
         },
       });

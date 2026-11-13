@@ -1,7 +1,7 @@
 {
   "name": "Pantry & Plate",
   "short_name": "Pantry & Plate",
-  "description": "Household pantry, recipes, meal planning, and grocery budgeting.",
+  "description": "Recipes, weekly meal planning, and grocery lists.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#F6EFDD",

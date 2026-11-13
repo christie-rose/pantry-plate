@@ -7,7 +7,5 @@ export default async function EditRecipePage({ params }: { params: Promise<{ id:
   const recipe = await prisma.recipe.findUnique({ where: { id }, include: { ingredients: true } });
   if (!recipe) notFound();
 
-  const pantryItems = await prisma.pantryItem.findMany({ orderBy: { name: "asc" } });
-
-  return <RecipeEditClient recipe={recipe} pantryItems={pantryItems} />;
+  return <RecipeEditClient recipe={recipe} />;
 }
