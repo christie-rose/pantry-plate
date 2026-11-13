@@ -15,7 +15,7 @@ export function GroceryClient({
 }) {
   const [items, setItems] = useState<GroceryItem[]>(initialItems);
   const [newName, setNewName] = useState("");
-  const [hideChecked, setHideChecked] = useState(false);
+  const [hideChecked, setHideChecked] = useState(true);
   const [filterTag, setFilterTag] = useState<string | null>(null);
   const [editingTagId, setEditingTagId] = useState<string | null>(null);
   const skipBlurRef = useRef(false);
@@ -162,7 +162,7 @@ export function GroceryClient({
             <button
               type="button"
               onClick={() => setHideChecked((h) => !h)}
-              disabled={checkedCount === 0 && !hideChecked}
+              disabled={checkedCount === 0}
               className="min-h-[44px] rounded-md border border-cocoa/40 px-3 text-sm text-ink disabled:opacity-40"
             >
               {hideChecked ? `Show checked (${checkedCount})` : "Hide checked"}
