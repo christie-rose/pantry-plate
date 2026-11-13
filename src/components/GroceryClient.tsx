@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import Link from "next/link";
+import { RiAddLine } from "@remixicon/react";
 import type { GroceryItem } from "@/lib/grocery";
 
 const UNTAGGED = "__untagged__";
@@ -14,7 +15,6 @@ export function GroceryClient({
   knownTags: string[];
 }) {
   const [items, setItems] = useState<GroceryItem[]>(initialItems);
-  const [newName, setNewName] = useState("");
   const [hideChecked, setHideChecked] = useState(true);
   const [filterTag, setFilterTag] = useState<string | null>(null);
   const [editingTagId, setEditingTagId] = useState<string | null>(null);
@@ -163,11 +163,18 @@ export function GroceryClient({
     if (item && !item.name.trim()) persist(items.filter((i) => i.id !== id));
   }
 
-  function handleAdd() {
-    const name = newName.trim();
-    if (!name) return;
-    persist([...items, { id: crypto.randomUUID(), name }]);
-    setNewName("");
+  // Adds a blank line at the end and starts editing it. It isn't saved until it has text.
+  // Under a tag filter it takes that tag so it doesn't vanish from view.
+  function addLine() {
+    const blank: GroceryItem = {
+      id: crypto.randomUUID(),
+      name: "",
+      tag: activeFilter && activeFilter !== UNTAGGED ? activeFilter : null,
+    };
+    skipItemBlurRef.current = false;
+    setItems([...items, blank]);
+    setEditingItemId(blank.id);
+    setEditDraft("");
   }
 
   function toggleChecked(id: string) {
@@ -313,29 +320,9 @@ export function GroceryClient({
         </div>
       )}
 
-      <div className="card flex flex-wrap items-center gap-2 p-3">
-        <input
-          value={newName}
-          onChange={(e) => setNewName(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") handleAdd();
-          }}
-          placeholder="Add an item…"
-          className="min-h-[44px] min-w-[140px] flex-1 rounded-md border border-cocoa/40 bg-white px-2 text-sm"
-        />
-        <button
-          type="button"
-          onClick={handleAdd}
-          disabled={!newName.trim()}
-          className="min-h-[44px] rounded-md bg-sage px-3 text-sm font-medium text-white disabled:opacity-50"
-        >
-          Add
-        </button>
-      </div>
-
       {items.length === 0 && (
         <p className="text-sm text-cocoa">
-          No items on the list yet. Add items above, or go to{" "}
+          No items on the list yet. Tap + to add one, or go to{" "}
           <Link href="/plan" className="underline">
             Plan
           </Link>{" "}
@@ -455,6 +442,16 @@ export function GroceryClient({
           ))}
         </ul>
       )}
+
+      <button
+        type="button"
+        onClick={addLine}
+        aria-label="Add item"
+        title="Add item"
+        className="flex h-12 w-12 items-center justify-center self-start rounded-full bg-sage text-white shadow-sm"
+      >
+        <RiAddLine size={24} aria-hidden />
+      </button>
     </div>
   );
 }
