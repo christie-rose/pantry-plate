@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { defaultDayTags, defaultDinners, defaultWeeklyMeals } from "@/lib/weekplan";
+import { defaultDinners, defaultWeeklyMeals } from "@/lib/weekplan";
 
 export async function GET(request: NextRequest) {
   const weekKey = request.nextUrl.searchParams.get("weekKey");
@@ -13,7 +13,6 @@ export async function GET(request: NextRequest) {
   if (!plan) {
     return NextResponse.json({
       weekKey,
-      dayTags: defaultDayTags(),
       dinners: defaultDinners(),
       weeklyMeals: defaultWeeklyMeals(),
     });
@@ -29,7 +28,6 @@ export async function PUT(request: NextRequest) {
     typeof body !== "object" ||
     body === null ||
     typeof body.weekKey !== "string" ||
-    typeof body.dayTags !== "object" ||
     typeof body.dinners !== "object" ||
     typeof body.weeklyMeals !== "object"
   ) {
@@ -40,12 +38,10 @@ export async function PUT(request: NextRequest) {
     where: { weekKey: body.weekKey },
     create: {
       weekKey: body.weekKey,
-      dayTags: body.dayTags,
       dinners: body.dinners,
       weeklyMeals: body.weeklyMeals,
     },
     update: {
-      dayTags: body.dayTags,
       dinners: body.dinners,
       weeklyMeals: body.weeklyMeals,
     },

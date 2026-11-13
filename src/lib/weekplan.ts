@@ -1,9 +1,6 @@
 export const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"] as const;
 export type Day = (typeof DAYS)[number];
 
-export const DAY_TAGS = ["Normal", "Busy or quick", "Eating out", "Have extra time"] as const;
-export type DayTag = (typeof DAY_TAGS)[number];
-
 export const WEEKLY_MEAL_TYPES = ["breakfast", "lunch", "snack", "other"] as const;
 export type WeeklyMealType = (typeof WEEKLY_MEAL_TYPES)[number];
 
@@ -15,13 +12,8 @@ export type MealEntry = {
   servings?: number;
 };
 
-export type DayTags = Record<Day, DayTag>;
 export type Dinners = Record<Day, MealEntry[]>;
 export type WeeklyMeals = Record<WeeklyMealType, MealEntry[]>;
-
-export function defaultDayTags(): DayTags {
-  return { Mon: "Normal", Tue: "Normal", Wed: "Normal", Thu: "Normal", Fri: "Normal", Sat: "Normal", Sun: "Normal" };
-}
 
 export function defaultDinners(): Dinners {
   return { Mon: [], Tue: [], Wed: [], Thu: [], Fri: [], Sat: [], Sun: [] };

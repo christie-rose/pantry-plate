@@ -45,7 +45,6 @@ model DietaryEntry {
 model WeekPlan {
   id          String @id @default(cuid())
   weekKey     String @unique // ISO date of that week's Monday
-  dayTags     Json // { Mon: "busy", Tue: "normal", Wed: "eating-out", ... }
   dinners     Json // { Mon: [entry, entry], Tue: [...], ... } — see §6 for entry shape
   weeklyMeals Json // { breakfast: [entry...], lunch: [...], snack: [...] }
 }

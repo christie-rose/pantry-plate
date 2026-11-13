@@ -6,7 +6,6 @@ import { RiCheckLine, RiDraggable } from "@remixicon/react";
 import { EntryActionsMenu } from "@/components/EntryActionsMenu";
 import {
   DAYS,
-  DAY_TAGS,
   WEEKLY_MEAL_TYPES,
   addDaysToKey,
   formatDayDate,
@@ -14,8 +13,6 @@ import {
   MAX_WEEKS_AHEAD,
   mondayKeyFor,
   type Day,
-  type DayTag,
-  type DayTags,
   type Dinners,
   type MealEntry,
   type WeeklyMealType,
@@ -36,7 +33,6 @@ type Recipe = PlanRecipeOption;
 
 type Plan = {
   weekKey: string;
-  dayTags: DayTags;
   dinners: Dinners;
   weeklyMeals: WeeklyMeals;
 };
@@ -102,10 +98,6 @@ export function WeekPlanClient({ initialPlan, recipes }: { initialPlan: Plan; re
       body: JSON.stringify(next),
     });
     setSaving(false);
-  }
-
-  function setDayTag(day: Day, tag: DayTag) {
-    persist({ ...plan, dayTags: { ...plan.dayTags, [day]: tag } });
   }
 
   function addDinner(day: Day, entry: MealEntry) {
@@ -300,18 +292,6 @@ export function WeekPlanClient({ initialPlan, recipes }: { initialPlan: Plan; re
               <h3 className="text-lg text-ink">{day}</h3>
               <span className="text-xs text-cocoa">{formatDayDate(plan.weekKey, dayIndex)}</span>
             </div>
-            <select
-              value={plan.dayTags[day]}
-              onChange={(e) => setDayTag(day, e.target.value as DayTag)}
-              className="rounded-md border border-cocoa/40 bg-white px-1 py-1 text-xs"
-            >
-              {DAY_TAGS.map((tag) => (
-                <option key={tag} value={tag}>
-                  {tag}
-                </option>
-              ))}
-            </select>
-
             <ul className="flex flex-col gap-1">
               {plan.dinners[day].map((entry) => (
                 <li

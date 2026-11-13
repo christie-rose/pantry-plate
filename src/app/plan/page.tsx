@@ -4,12 +4,11 @@ import { WeekPlanClient } from "@/components/WeekPlanClient";
 import {
   MAX_WEEKS_AHEAD,
   addDaysToKey,
-  defaultDayTags,
   defaultDinners,
   defaultWeeklyMeals,
   mondayKeyFor,
 } from "@/lib/weekplan";
-import type { DayTags, Dinners, WeeklyMeals } from "@/lib/weekplan";
+import type { Dinners, WeeklyMeals } from "@/lib/weekplan";
 
 export const dynamic = "force-dynamic";
 
@@ -47,7 +46,6 @@ export default async function PlanPage({
   const plan = existing
     ? {
         weekKey: existing.weekKey,
-        dayTags: existing.dayTags as unknown as DayTags,
         dinners: existing.dinners as unknown as Dinners,
         // Merge over defaults so plans saved before a new weekly-meal slot was added (e.g. "other")
         // still have every key populated.
@@ -55,7 +53,6 @@ export default async function PlanPage({
       }
     : {
         weekKey,
-        dayTags: defaultDayTags(),
         dinners: defaultDinners(),
         weeklyMeals: defaultWeeklyMeals(),
       };
