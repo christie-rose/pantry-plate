@@ -8,9 +8,13 @@ import type { GroceryItem } from "@/lib/grocery";
 export function GroceryClient({ weekKey, initialItems }: { weekKey: string; initialItems: GroceryItem[] }) {
   const [items, setItems] = useState<GroceryItem[]>(initialItems);
   const [newName, setNewName] = useState("");
+  const [hideChecked, setHideChecked] = useState(false);
   const [copied, setCopied] = useState(false);
   const [copyFailed, setCopyFailed] = useState(false);
-  const [confirmingClear, setConfirmingClear] = useState(false);
+  const [confirming, setConfirming] = useState<"checked" | "all" | null>(null);
+
+  const checkedCount = items.filter((i) => i.checked).length;
+  const visibleItems = hideChecked ? items.filter((i) => !i.checked) : items;
 
   function formatItemLine(item: GroceryItem): string {
     return item.note ? `${item.name} (${item.note})` : item.name;
@@ -40,8 +44,12 @@ export function GroceryClient({ weekKey, initialItems }: { weekKey: string; init
     }
   }
 
+  // Copies only what's still needed (unchecked items).
   function copyList() {
-    const text = items.map(formatItemLine).join("\n");
+    const text = items
+      .filter((i) => !i.checked)
+      .map(formatItemLine)
+      .join("\n");
     if (navigator.clipboard?.writeText) {
       navigator.clipboard.writeText(text).then(showCopied, () => fallbackCopy(text));
     } else {
@@ -58,27 +66,25 @@ export function GroceryClient({ weekKey, initialItems }: { weekKey: string; init
     });
   }
 
-  async function handleAdd() {
-    if (!newName.trim()) return;
-    const res = await fetch("/api/grocery/add-item", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ weekKey, name: newName.trim() }),
-    });
-    if (res.ok) {
-      const list = await res.json();
-      setItems(list.items);
-      setNewName("");
-    }
+  function handleAdd() {
+    const name = newName.trim();
+    if (!name) return;
+    persist([...items, { id: crypto.randomUUID(), name }]);
+    setNewName("");
+  }
+
+  function toggleChecked(id: string) {
+    persist(items.map((item) => (item.id === id ? { ...item, checked: !item.checked } : item)));
+  }
+
+  function deleteChecked() {
+    persist(items.filter((item) => !item.checked));
+    setConfirming(null);
   }
 
   function clearList() {
     persist([]);
-    setConfirmingClear(false);
-  }
-
-  function deleteItem(id: string) {
-    persist(items.filter((item) => item.id !== id));
+    setConfirming(null);
   }
 
   return (
@@ -97,57 +103,97 @@ export function GroceryClient({ weekKey, initialItems }: { weekKey: string; init
       </div>
 
       {items.length > 0 && (
-        <div className="flex flex-wrap items-center gap-2">
-          <button
-            type="button"
-            onClick={copyList}
-            className="min-h-[44px] rounded-md border border-cocoa/40 px-3 text-sm text-ink"
-          >
-            {copied ? "Copied!" : "Copy list"}
-          </button>
-          {confirmingClear ? (
-            <>
-              <button
-                type="button"
-                onClick={clearList}
-                className="min-h-[44px] rounded-md bg-brick px-3 text-sm font-medium text-white"
-              >
-                Yes, clear {items.length} {items.length === 1 ? "item" : "items"}
-              </button>
-              <button
-                type="button"
-                onClick={() => setConfirmingClear(false)}
-                className="min-h-[44px] rounded-md border border-cocoa/40 px-3 text-sm text-ink"
-              >
-                Cancel
-              </button>
-            </>
-          ) : (
+        <div className="flex flex-col gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <button
               type="button"
-              onClick={() => setConfirmingClear(true)}
-              className="min-h-[44px] rounded-md border border-brick/50 px-3 text-sm text-brick"
+              onClick={copyList}
+              className="min-h-[44px] rounded-md border border-cocoa/40 px-3 text-sm text-ink"
             >
-              Clear list
+              {copied ? "Copied!" : "Copy list"}
             </button>
-          )}
-          <p className="w-full text-xs text-cocoa">
+
+            <button
+              type="button"
+              onClick={() => setHideChecked((h) => !h)}
+              disabled={checkedCount === 0 && !hideChecked}
+              className="min-h-[44px] rounded-md border border-cocoa/40 px-3 text-sm text-ink disabled:opacity-40"
+            >
+              {hideChecked ? `Show checked (${checkedCount})` : "Hide checked"}
+            </button>
+
+            {confirming === "checked" ? (
+              <>
+                <button
+                  type="button"
+                  onClick={deleteChecked}
+                  className="min-h-[44px] rounded-md bg-brick px-3 text-sm font-medium text-white"
+                >
+                  Yes, delete {checkedCount} checked
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setConfirming(null)}
+                  className="min-h-[44px] rounded-md border border-cocoa/40 px-3 text-sm text-ink"
+                >
+                  Cancel
+                </button>
+              </>
+            ) : confirming === "all" ? (
+              <>
+                <button
+                  type="button"
+                  onClick={clearList}
+                  className="min-h-[44px] rounded-md bg-brick px-3 text-sm font-medium text-white"
+                >
+                  Yes, clear {items.length} {items.length === 1 ? "item" : "items"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setConfirming(null)}
+                  className="min-h-[44px] rounded-md border border-cocoa/40 px-3 text-sm text-ink"
+                >
+                  Cancel
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  onClick={() => setConfirming("checked")}
+                  disabled={checkedCount === 0}
+                  className="min-h-[44px] rounded-md border border-brick/50 px-3 text-sm text-brick disabled:opacity-40"
+                >
+                  Delete checked{checkedCount > 0 ? ` (${checkedCount})` : ""}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setConfirming("all")}
+                  className="min-h-[44px] rounded-md border border-brick/50 px-3 text-sm text-brick"
+                >
+                  Clear list
+                </button>
+              </>
+            )}
+          </div>
+          <p className="text-xs text-cocoa">
             {copyFailed
               ? "Couldn't copy automatically — select the list text manually."
-              : "Paste into Instacart or your store's pickup app to search each item."}
+              : "Copy list skips checked items. Paste it into Instacart or your store's pickup app."}
           </p>
         </div>
       )}
 
       <div className="card flex flex-wrap items-center gap-2 p-3">
-        <div className="relative flex-1 min-w-[140px]">
-          <input
-            value={newName}
-            onChange={(e) => setNewName(e.target.value)}
-            placeholder="Add an item…"
-            className="min-h-[44px] w-full rounded-md border border-cocoa/40 bg-white px-2 text-sm"
-          />
-        </div>
+        <input
+          value={newName}
+          onChange={(e) => setNewName(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") handleAdd();
+          }}
+          placeholder="Add an item…"
+          className="min-h-[44px] min-w-[140px] flex-1 rounded-md border border-cocoa/40 bg-white px-2 text-sm"
+        />
         <button
           type="button"
           onClick={handleAdd}
@@ -168,21 +214,26 @@ export function GroceryClient({ weekKey, initialItems }: { weekKey: string; init
         </p>
       )}
 
-      {items.length > 0 && (
+      {items.length > 0 && visibleItems.length === 0 && (
+        <p className="text-sm text-cocoa">All items are checked off. Use &ldquo;Show checked&rdquo; to see them.</p>
+      )}
+
+      {visibleItems.length > 0 && (
         <ul className="flex flex-col divide-y divide-cocoa/20 rounded-md border border-cocoa/30 bg-white">
-          {items.map((item) => (
-            <li key={item.id} className="flex items-center justify-between gap-2 p-3">
-              <span className="text-ink">
-                {item.name}
-                {item.note && <span className="text-cocoa"> — {item.note}</span>}
-              </span>
-              <button
-                type="button"
-                onClick={() => deleteItem(item.id)}
-                className="min-h-[44px] shrink-0 rounded-md border border-brick/50 px-2 text-xs text-brick"
-              >
-                Delete
-              </button>
+          {visibleItems.map((item) => (
+            <li key={item.id}>
+              <label className="flex min-h-[48px] cursor-pointer items-center gap-3 p-3">
+                <input
+                  type="checkbox"
+                  checked={Boolean(item.checked)}
+                  onChange={() => toggleChecked(item.id)}
+                  className="h-5 w-5 shrink-0 accent-sage"
+                />
+                <span className={item.checked ? "text-cocoa line-through" : "text-ink"}>
+                  {item.name}
+                  {item.note && <span className="text-cocoa"> — {item.note}</span>}
+                </span>
+              </label>
             </li>
           ))}
         </ul>

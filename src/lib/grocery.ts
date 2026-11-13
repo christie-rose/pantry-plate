@@ -5,6 +5,7 @@ export type GroceryItem = {
   id: string;
   name: string;
   note?: string | null;
+  checked?: boolean;
 };
 
 function formatQuantity(amount: number | null, unit: string | null): string | null {
