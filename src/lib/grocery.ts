@@ -6,6 +6,8 @@ export type GroceryItem = {
   name: string;
   note?: string | null;
   checked?: boolean;
+  /** Free-form label, e.g. a store name. Created on the fly. */
+  tag?: string | null;
 };
 
 function formatQuantity(amount: number | null, unit: string | null): string | null {

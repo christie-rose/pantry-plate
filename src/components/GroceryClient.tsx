@@ -1,20 +1,61 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
 import { addDaysToKey, formatWeekLabel } from "@/lib/weekplan";
 import type { GroceryItem } from "@/lib/grocery";
 
-export function GroceryClient({ weekKey, initialItems }: { weekKey: string; initialItems: GroceryItem[] }) {
+const UNTAGGED = "__untagged__";
+
+export function GroceryClient({
+  weekKey,
+  initialItems,
+  knownTags,
+}: {
+  weekKey: string;
+  initialItems: GroceryItem[];
+  knownTags: string[];
+}) {
   const [items, setItems] = useState<GroceryItem[]>(initialItems);
   const [newName, setNewName] = useState("");
   const [hideChecked, setHideChecked] = useState(false);
+  const [filterTag, setFilterTag] = useState<string | null>(null);
+  const [editingTagId, setEditingTagId] = useState<string | null>(null);
+  const skipBlurRef = useRef(false);
+  const [tagDraft, setTagDraft] = useState("");
   const [copied, setCopied] = useState(false);
   const [copyFailed, setCopyFailed] = useState(false);
   const [confirming, setConfirming] = useState<"checked" | "all" | null>(null);
 
-  const checkedCount = items.filter((i) => i.checked).length;
-  const visibleItems = hideChecked ? items.filter((i) => !i.checked) : items;
+  // Tags on this week's items, plus any used on other weeks (for suggestions).
+  const listTags = Array.from(new Set(items.map((i) => i.tag).filter((t): t is string => Boolean(t)))).sort((a, b) =>
+    a.localeCompare(b),
+  );
+  const suggestionTags = Array.from(new Set([...listTags, ...knownTags])).sort((a, b) => a.localeCompare(b));
+  const hasUntagged = items.some((i) => !i.tag);
+
+  // If the tag being filtered on no longer exists on any item, fall back to showing everything.
+  const activeFilter =
+    filterTag === null || (filterTag === UNTAGGED ? hasUntagged : listTags.includes(filterTag)) ? filterTag : null;
+
+  const inFilter = (item: GroceryItem) =>
+    activeFilter === null ? true : activeFilter === UNTAGGED ? !item.tag : item.tag === activeFilter;
+  const scopeItems = items.filter(inFilter);
+  const checkedCount = scopeItems.filter((i) => i.checked).length;
+  const visibleItems = hideChecked ? scopeItems.filter((i) => !i.checked) : scopeItems;
+  const filterLabel = activeFilter === null ? null : activeFilter === UNTAGGED ? "untagged" : activeFilter;
+
+  function countFor(tag: string): number {
+    return items.filter((i) => !i.checked && (tag === UNTAGGED ? !i.tag : i.tag === tag)).length;
+  }
+
+  // Reuse an existing tag's spelling when the typed one matches it ignoring case.
+  function canonicalTag(input: string): string | undefined {
+    const trimmed = input.trim();
+    if (!trimmed) return undefined;
+    const existing = suggestionTags.find((t) => t.toLowerCase() === trimmed.toLowerCase());
+    return existing ?? trimmed;
+  }
 
   function formatItemLine(item: GroceryItem): string {
     return item.note ? `${item.name} (${item.note})` : item.name;
@@ -44,9 +85,9 @@ export function GroceryClient({ weekKey, initialItems }: { weekKey: string; init
     }
   }
 
-  // Copies only what's still needed (unchecked items).
+  // Copies what's still needed (unchecked) within the current filter.
   function copyList() {
-    const text = items
+    const text = scopeItems
       .filter((i) => !i.checked)
       .map(formatItemLine)
       .join("\n");
@@ -77,8 +118,21 @@ export function GroceryClient({ weekKey, initialItems }: { weekKey: string; init
     persist(items.map((item) => (item.id === id ? { ...item, checked: !item.checked } : item)));
   }
 
+  function startEditingTag(item: GroceryItem) {
+    skipBlurRef.current = false;
+    setEditingTagId(item.id);
+    setTagDraft(item.tag ?? "");
+  }
+
+  function commitTag(id: string) {
+    const tag = canonicalTag(tagDraft);
+    setEditingTagId(null);
+    persist(items.map((item) => (item.id === id ? { ...item, tag: tag ?? null } : item)));
+  }
+
+  // Deletes ticked items within the current filter, so hidden/other-tag items are never touched.
   function deleteChecked() {
-    persist(items.filter((item) => !item.checked));
+    persist(items.filter((item) => !(inFilter(item) && item.checked)));
     setConfirming(null);
   }
 
@@ -102,6 +156,12 @@ export function GroceryClient({ weekKey, initialItems }: { weekKey: string; init
         </div>
       </div>
 
+      <datalist id="grocery-tag-options">
+        {suggestionTags.map((t) => (
+          <option key={t} value={t} />
+        ))}
+      </datalist>
+
       {items.length > 0 && (
         <div className="flex flex-col gap-2">
           <div className="flex flex-wrap items-center gap-2">
@@ -110,7 +170,7 @@ export function GroceryClient({ weekKey, initialItems }: { weekKey: string; init
               onClick={copyList}
               className="min-h-[44px] rounded-md border border-cocoa/40 px-3 text-sm text-ink"
             >
-              {copied ? "Copied!" : "Copy list"}
+              {copied ? "Copied!" : filterLabel ? `Copy ${filterLabel} list` : "Copy list"}
             </button>
 
             <button
@@ -179,8 +239,32 @@ export function GroceryClient({ weekKey, initialItems }: { weekKey: string; init
           <p className="text-xs text-cocoa">
             {copyFailed
               ? "Couldn't copy automatically — select the list text manually."
-              : "Copy list skips checked items. Paste it into Instacart or your store's pickup app."}
+              : "Copy list skips checked items and follows the tag filter. Paste it into Instacart or your store's pickup app."}
           </p>
+        </div>
+      )}
+
+      {listTags.length > 0 && (
+        <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Filter by tag">
+          {[
+            { value: null as string | null, label: "All" },
+            ...listTags.map((t) => ({ value: t as string | null, label: `${t} (${countFor(t)})` })),
+            ...(hasUntagged ? [{ value: UNTAGGED as string | null, label: `Untagged (${countFor(UNTAGGED)})` }] : []),
+          ].map((chip) => (
+            <button
+              key={chip.value ?? "all"}
+              type="button"
+              onClick={() => setFilterTag(chip.value)}
+              aria-pressed={activeFilter === chip.value}
+              className={`min-h-[36px] rounded-full border px-3 text-sm ${
+                activeFilter === chip.value
+                  ? "border-brick bg-paper-alt font-medium text-brick"
+                  : "border-cocoa/40 text-ink"
+              }`}
+            >
+              {chip.label}
+            </button>
+          ))}
         </div>
       )}
 
@@ -215,14 +299,18 @@ export function GroceryClient({ weekKey, initialItems }: { weekKey: string; init
       )}
 
       {items.length > 0 && visibleItems.length === 0 && (
-        <p className="text-sm text-cocoa">All items are checked off. Use &ldquo;Show checked&rdquo; to see them.</p>
+        <p className="text-sm text-cocoa">
+          {scopeItems.length === 0
+            ? "Nothing here."
+            : "All of these are checked off. Use “Show checked” to see them."}
+        </p>
       )}
 
       {visibleItems.length > 0 && (
         <ul className="flex flex-col divide-y divide-cocoa/20 rounded-md border border-cocoa/30 bg-white">
           {visibleItems.map((item) => (
-            <li key={item.id}>
-              <label className="flex min-h-[48px] cursor-pointer items-center gap-3 p-3">
+            <li key={item.id} className="flex items-center gap-2 pr-3">
+              <label className="flex min-h-[48px] min-w-0 flex-1 cursor-pointer items-center gap-3 p-3">
                 <input
                   type="checkbox"
                   checked={Boolean(item.checked)}
@@ -234,6 +322,53 @@ export function GroceryClient({ weekKey, initialItems }: { weekKey: string; init
                   {item.note && <span className="text-cocoa"> — {item.note}</span>}
                 </span>
               </label>
+
+              {editingTagId === item.id ? (
+                <input
+                  autoFocus
+                  list="grocery-tag-options"
+                  value={tagDraft}
+                  onChange={(e) => setTagDraft(e.target.value)}
+                  onKeyDown={(e) => {
+                    // The field unmounting can fire a blur; skip it so Enter/Escape only act once.
+                    if (e.key === "Enter") {
+                      skipBlurRef.current = true;
+                      commitTag(item.id);
+                    }
+                    if (e.key === "Escape") {
+                      skipBlurRef.current = true;
+                      setEditingTagId(null);
+                    }
+                  }}
+                  onBlur={() => {
+                    if (skipBlurRef.current) {
+                      skipBlurRef.current = false;
+                      return;
+                    }
+                    commitTag(item.id);
+                  }}
+                  placeholder="Tag (e.g. store)"
+                  aria-label="Tag"
+                  className="h-9 w-36 shrink-0 rounded-md border border-cocoa/40 bg-white px-2 text-sm text-ink"
+                />
+              ) : item.tag ? (
+                <button
+                  type="button"
+                  onClick={() => startEditingTag(item)}
+                  title="Change tag"
+                  className="shrink-0 rounded-full bg-sage/20 px-3 py-1 text-xs text-ink"
+                >
+                  {item.tag}
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => startEditingTag(item)}
+                  className="shrink-0 rounded-full border border-dashed border-cocoa/40 px-3 py-1 text-xs text-cocoa"
+                >
+                  + tag
+                </button>
+              )}
             </li>
           ))}
         </ul>

@@ -13,8 +13,21 @@ export default async function GroceryPage({
   const { week } = await searchParams;
   const weekKey = week && /^\d{4}-\d{2}-\d{2}$/.test(week) ? week : mondayKeyFor(new Date());
 
-  const list = await prisma.groceryList.findUnique({ where: { weekKey } });
+  const [list, allLists] = await Promise.all([
+    prisma.groceryList.findUnique({ where: { weekKey } }),
+    prisma.groceryList.findMany({ select: { items: true } }),
+  ]);
   const items = (list?.items as unknown as GroceryItem[]) ?? [];
 
-  return <GroceryClient key={weekKey} weekKey={weekKey} initialItems={items} />;
+  // Every tag ever used on any week's list, so suggestions carry over between weeks.
+  const knownTags = Array.from(
+    new Set(
+      allLists
+        .flatMap((l) => (l.items as unknown as GroceryItem[]) ?? [])
+        .map((i) => i.tag?.trim())
+        .filter((t): t is string => Boolean(t)),
+    ),
+  ).sort((a, b) => a.localeCompare(b));
+
+  return <GroceryClient key={weekKey} weekKey={weekKey} initialItems={items} knownTags={knownTags} />;
 }
