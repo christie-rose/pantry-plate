@@ -91,10 +91,6 @@ export function GroceryClient({ weekKey, initialItems }: { weekKey: string; init
     persist(items.map((item) => (item.id === id ? { ...item, store } : item)));
   }
 
-  function markShopped(id: string) {
-    persist(items.filter((item) => item.id !== id));
-  }
-
   function deleteItem(id: string) {
     persist(items.filter((item) => item.id !== id));
   }
@@ -222,13 +218,6 @@ export function GroceryClient({ weekKey, initialItems }: { weekKey: string; init
                       </option>
                     ))}
                   </select>
-                  <button
-                    type="button"
-                    onClick={() => markShopped(item.id)}
-                    className="min-h-[44px] rounded-md bg-sage px-2 text-xs text-white"
-                  >
-                    Shopped
-                  </button>
                   <button
                     type="button"
                     onClick={() => deleteItem(item.id)}
