@@ -15,7 +15,7 @@ import {
 
 const NAV_ITEMS = [
   { href: "/recipes", label: "Recipes", Icon: RiBookOpenLine },
-  { href: "/grocery", label: "Grocery", Icon: RiShoppingCartLine },
+  { href: "/grocery", label: "Grocery List", Icon: RiShoppingCartLine },
   { href: "/plan", label: "Plan", Icon: RiCalendarLine },
 ] as const;
 
