@@ -14,19 +14,3 @@ export async function buildDietarySummary(respectDietary: boolean): Promise<stri
     .map((entry) => `- [${entry.category}] ${entry.name}${entry.detail ? `: ${entry.detail}` : ""}`)
     .join("\n");
 }
-
-export async function buildRecipeLibrarySummary(): Promise<string> {
-  const recipes = await prisma.recipe.findMany({
-    include: { ingredients: true },
-    orderBy: { title: "asc" },
-  });
-  if (recipes.length === 0) return "The recipe library is currently empty.";
-  return recipes
-    .map(
-      (r) =>
-        `- "${r.title}" (serves ${r.servings}, tags: ${r.tags.join(", ") || "none"}, ingredients: ${r.ingredients
-          .map((i) => i.name)
-          .join(", ")})`,
-    )
-    .join("\n");
-}
