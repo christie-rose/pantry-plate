@@ -191,7 +191,7 @@ export function WeekPlanClient({ initialPlan, recipes }: { initialPlan: Plan; re
     const res = await fetch("/api/grocery/add-recipe", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ weekKey: plan.weekKey, recipeId: entry.recipeId, servings: entry.servings }),
+      body: JSON.stringify({ recipeId: entry.recipeId, servings: entry.servings }),
     });
 
     setAddingToGrocery(null);

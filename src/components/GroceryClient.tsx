@@ -2,17 +2,14 @@
 
 import { useRef, useState } from "react";
 import Link from "next/link";
-import { addDaysToKey, formatWeekLabel } from "@/lib/weekplan";
 import type { GroceryItem } from "@/lib/grocery";
 
 const UNTAGGED = "__untagged__";
 
 export function GroceryClient({
-  weekKey,
   initialItems,
   knownTags,
 }: {
-  weekKey: string;
   initialItems: GroceryItem[];
   knownTags: string[];
 }) {
@@ -103,7 +100,7 @@ export function GroceryClient({
     await fetch("/api/grocery", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ weekKey, items: next }),
+      body: JSON.stringify({ items: next }),
     });
   }
 
@@ -143,18 +140,7 @@ export function GroceryClient({
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 p-4 pb-24">
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="text-3xl text-brick">Grocery List</h1>
-        <div className="flex items-center gap-3 text-sm">
-          <Link href={`/grocery?week=${addDaysToKey(weekKey, -7)}`} className="flex min-h-[44px] items-center rounded-md border border-cocoa/40 px-2">
-            ← Prev
-          </Link>
-          <span className="font-medium text-ink">{formatWeekLabel(weekKey)}</span>
-          <Link href={`/grocery?week=${addDaysToKey(weekKey, 7)}`} className="flex min-h-[44px] items-center rounded-md border border-cocoa/40 px-2">
-            Next →
-          </Link>
-        </div>
-      </div>
+      <h1 className="text-3xl text-brick">Grocery List</h1>
 
       <datalist id="grocery-tag-options">
         {suggestionTags.map((t) => (

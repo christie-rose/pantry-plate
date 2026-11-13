@@ -1,25 +1,14 @@
 import { prisma } from "@/lib/prisma";
 import { GroceryClient } from "@/components/GroceryClient";
-import { mondayKeyFor } from "@/lib/weekplan";
-import type { GroceryItem } from "@/lib/grocery";
+import { loadGroceryItems, type GroceryItem } from "@/lib/grocery";
 
 export const dynamic = "force-dynamic";
 
-export default async function GroceryPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ week?: string }>;
-}) {
-  const { week } = await searchParams;
-  const weekKey = week && /^\d{4}-\d{2}-\d{2}$/.test(week) ? week : mondayKeyFor(new Date());
+export default async function GroceryPage() {
+  const items = await loadGroceryItems();
 
-  const [list, allLists] = await Promise.all([
-    prisma.groceryList.findUnique({ where: { weekKey } }),
-    prisma.groceryList.findMany({ select: { items: true } }),
-  ]);
-  const items = (list?.items as unknown as GroceryItem[]) ?? [];
-
-  // Every tag ever used on any week's list, so suggestions carry over between weeks.
+  // Every tag ever used on any list, so suggestions include tags from before the lists were merged.
+  const allLists = await prisma.groceryList.findMany({ select: { items: true } });
   const knownTags = Array.from(
     new Set(
       allLists
@@ -29,5 +18,5 @@ export default async function GroceryPage({
     ),
   ).sort((a, b) => a.localeCompare(b));
 
-  return <GroceryClient key={weekKey} weekKey={weekKey} initialItems={items} knownTags={knownTags} />;
+  return <GroceryClient initialItems={items} knownTags={knownTags} />;
 }
