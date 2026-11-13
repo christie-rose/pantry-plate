@@ -163,7 +163,8 @@ export function GroceryClient({
     if (item && !item.name.trim()) persist(items.filter((i) => i.id !== id));
   }
 
-  // Adds a blank line at the end and starts editing it. It isn't saved until it has text.
+  // Adds a blank line at the top, right under the + button, and starts editing it. It isn't saved
+  // until it has text.
   // Under a tag filter it takes that tag so it doesn't vanish from view.
   function addLine() {
     const blank: GroceryItem = {
@@ -172,7 +173,7 @@ export function GroceryClient({
       tag: activeFilter && activeFilter !== UNTAGGED ? activeFilter : null,
     };
     skipItemBlurRef.current = false;
-    setItems([...items, blank]);
+    setItems([blank, ...items]);
     setEditingItemId(blank.id);
     setEditDraft("");
   }
@@ -320,6 +321,16 @@ export function GroceryClient({
         </div>
       )}
 
+      <button
+        type="button"
+        onClick={addLine}
+        aria-label="Add item"
+        title="Add item"
+        className="flex h-12 w-12 items-center justify-center self-start rounded-full bg-sage text-white shadow-sm"
+      >
+        <RiAddLine size={24} aria-hidden />
+      </button>
+
       {items.length === 0 && (
         <p className="text-sm text-cocoa">
           No items on the list yet. Tap + to add one, or go to{" "}
@@ -442,16 +453,6 @@ export function GroceryClient({
           ))}
         </ul>
       )}
-
-      <button
-        type="button"
-        onClick={addLine}
-        aria-label="Add item"
-        title="Add item"
-        className="flex h-12 w-12 items-center justify-center self-start rounded-full bg-sage text-white shadow-sm"
-      >
-        <RiAddLine size={24} aria-hidden />
-      </button>
     </div>
   );
 }
