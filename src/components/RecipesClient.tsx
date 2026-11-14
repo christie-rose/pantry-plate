@@ -30,16 +30,16 @@ export function RecipesClient({ initialRecipes }: { initialRecipes: Recipe[] }) 
   const [recipes, setRecipes] = useState(initialRecipes);
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
-  const [proteinFilter, setProteinFilter] = useState("");
-  const [cuisineFilter, setCuisineFilter] = useState("");
+  const [proteinFilter, setProteinFilter] = useState<string[]>([]);
+  const [cuisineFilter, setCuisineFilter] = useState<string[]>([]);
   const [filtersOpen, setFiltersOpen] = useState(false);
 
   const queryString = useMemo(() => {
     const params = new URLSearchParams();
     if (search) params.set("search", search);
     if (categoryFilter) params.set("category", categoryFilter);
-    if (proteinFilter) params.set("protein", proteinFilter);
-    if (cuisineFilter) params.set("cuisine", cuisineFilter);
+    if (proteinFilter.length) params.set("protein", proteinFilter.join(","));
+    if (cuisineFilter.length) params.set("cuisine", cuisineFilter.join(","));
     return params.toString();
   }, [search, categoryFilter, proteinFilter, cuisineFilter]);
 
@@ -52,9 +52,12 @@ export function RecipesClient({ initialRecipes }: { initialRecipes: Recipe[] }) 
     return () => controller.abort();
   }, [queryString]);
 
-  const hasActiveFilters = Boolean(search || categoryFilter || proteinFilter || cuisineFilter);
+  const hasActiveFilters = Boolean(search || categoryFilter || proteinFilter.length || cuisineFilter.length);
 
-  const filterCount = [proteinFilter, cuisineFilter].filter(Boolean).length;
+  const filterCount = proteinFilter.length + cuisineFilter.length;
+
+  const toggle = (list: string[], value: string) =>
+    list.includes(value) ? list.filter((v) => v !== value) : [...list, value];
 
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 p-4 pb-24">
@@ -97,22 +100,28 @@ export function RecipesClient({ initialRecipes }: { initialRecipes: Recipe[] }) 
         <FilterSheet
           onClose={() => setFiltersOpen(false)}
           onClear={() => {
-            setProteinFilter("");
-            setCuisineFilter("");
+            setProteinFilter([]);
+            setCuisineFilter([]);
           }}
           doneLabel={`Show ${recipes.length} ${recipes.length === 1 ? "recipe" : "recipes"}`}
         >
           <FilterGroup label="Protein">
-            {["", ...PROTEIN_TYPES].map((p) => (
-              <FilterChip key={p || "all"} selected={proteinFilter === p} onClick={() => setProteinFilter(p)}>
-                {p || "All"}
+            <FilterChip selected={proteinFilter.length === 0} onClick={() => setProteinFilter([])}>
+              All
+            </FilterChip>
+            {PROTEIN_TYPES.map((p) => (
+              <FilterChip key={p} selected={proteinFilter.includes(p)} onClick={() => setProteinFilter(toggle(proteinFilter, p))}>
+                {p}
               </FilterChip>
             ))}
           </FilterGroup>
           <FilterGroup label="Cuisine">
-            {["", ...CUISINES].map((c) => (
-              <FilterChip key={c || "all"} selected={cuisineFilter === c} onClick={() => setCuisineFilter(c)}>
-                {c || "All"}
+            <FilterChip selected={cuisineFilter.length === 0} onClick={() => setCuisineFilter([])}>
+              All
+            </FilterChip>
+            {CUISINES.map((c) => (
+              <FilterChip key={c} selected={cuisineFilter.includes(c)} onClick={() => setCuisineFilter(toggle(cuisineFilter, c))}>
+                {c}
               </FilterChip>
             ))}
           </FilterGroup>

@@ -8,8 +8,9 @@ export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl;
   const search = searchParams.get("search")?.trim() ?? "";
   const category = searchParams.get("category");
-  const protein = searchParams.get("protein");
-  const cuisine = searchParams.get("cuisine");
+  // Protein and cuisine accept several values, comma separated; a recipe matches if it has any of them.
+  const proteins = (searchParams.get("protein") ?? "").split(",").filter((p): p is ProteinType => PROTEIN_TYPES.includes(p as ProteinType));
+  const cuisines = (searchParams.get("cuisine") ?? "").split(",").filter(Boolean);
 
   const where: Prisma.RecipeWhereInput = {};
   if (search) {
@@ -18,8 +19,8 @@ export async function GET(request: NextRequest) {
   if (category) {
     where.categories = { has: category };
   }
-  if (cuisine) {
-    where.cuisine = cuisine;
+  if (cuisines.length > 0) {
+    where.cuisine = { in: cuisines };
   }
 
   const recipes = await prisma.recipe.findMany({
@@ -29,8 +30,11 @@ export async function GET(request: NextRequest) {
   });
 
   const filtered =
-    protein && PROTEIN_TYPES.includes(protein as ProteinType)
-      ? recipes.filter((r) => detectProteins(r.ingredients.map((i) => i.name)).includes(protein as ProteinType))
+    proteins.length > 0
+      ? recipes.filter((r) => {
+          const found = detectProteins(r.ingredients.map((i) => i.name));
+          return proteins.some((p) => found.includes(p));
+        })
       : recipes;
 
   return NextResponse.json(filtered);
