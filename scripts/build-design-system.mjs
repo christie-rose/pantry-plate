@@ -27,7 +27,8 @@ for (const f of files) {
 }
 const hand = fs.readFileSync("scripts/design-system/handwritten.js", "utf8");
 names.push(...[...hand.matchAll(/(\w+): \1[,\s}]/g)].map((m) => m[1]).filter((n) => /^[A-Z]/.test(n)));
-const header = `/* @ds-bundle: ${JSON.stringify({ format: 4, namespace: "ATavola", components: names.map((name) => ({ name })) })} */\n`;
+const INTERNAL = new Set(["DisabledButton"]);
+const header = `/* @ds-bundle: ${JSON.stringify({ format: 4, namespace: "ATavola", components: names.filter((n) => !INTERNAL.has(n)).map((name) => ({ name })) })} */\n`;
 const bundle = `${header}(function(){\n  var __m = {};\n  var React = window.React;\n  var require = function(n){ if (n === "react") return React; throw new Error(n); };\n${body}\n  window.ATavola = Object.assign(window.ATavola || {}, __m);\n})();\n${hand}`;
 
 // CSS: compile Tailwind over src/ui with the app's tokens.

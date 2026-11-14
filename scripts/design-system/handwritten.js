@@ -17,6 +17,13 @@
     return h("svg", { width: p.size || 20, height: p.size || 20, viewBox: "0 0 24 24", fill: "currentColor", "aria-hidden": true }, h("path", { d: PATHS[p.name] }));
   }
   function Card(p) { return h("div", { className: cx("at-card", p.className) }, p.title ? h("h3", null, p.title) : null, p.children); }
+  function GroceryRow(p) {
+    return h("li", { className: cx("at-row", p.checked && "at-done") },
+      h("div", { className: "at-row-main" },
+        h("input", { type: "checkbox", checked: !!p.checked, onChange: p.onToggle, "aria-label": "Check off " + p.name }),
+        h("button", { type: "button", className: "at-text", title: "Click to edit", onClick: p.onEdit }, p.name)),
+      p.tag ? h(window.ATavola.TagChip, null, p.tag) : null);
+  }
   function GroceryList(p) { return h("ul", { className: "at-list" }, p.children); }
   function AddButton(p) { return h("button", { type: "button", className: "at-add", "aria-label": "Add item", onClick: p.onClick }, h(Icon, { name: "add", size: 24 })); }
   function ActionsMenu(p) {
