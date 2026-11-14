@@ -278,8 +278,8 @@ export function WeekPlanClient({ initialPlan, recipes }: { initialPlan: Plan; re
                     draggedFrom?.entryId === entry.id ? "opacity-40" : ""
                   }`}
                 >
-                  <div className="flex items-start justify-between gap-1">
-                    <div className="flex items-start gap-1">
+                  <div className="flex items-center justify-between gap-1">
+                    <div className="flex items-center gap-1">
                       <span
                         draggable
                         onDragStart={() => handleDragStart(location, entry.id)}
@@ -351,8 +351,8 @@ export function WeekPlanClient({ initialPlan, recipes }: { initialPlan: Plan; re
             <ul className="flex flex-col gap-1">
               {plan.weeklyMeals[mealType].map((entry) => (
                 <li key={entry.id} className="flex flex-col gap-1.5 rounded-md bg-paper-alt p-2 text-xs">
-                  <div className="flex items-start justify-between gap-1">
-                    <div className="flex items-start gap-1">
+                  <div className="flex items-center justify-between gap-1">
+                    <div className="flex items-center gap-1">
                       <span
                         draggable
                         onDragStart={() => handleDragStart(location, entry.id)}
