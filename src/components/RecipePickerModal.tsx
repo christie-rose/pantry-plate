@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { DividedList, Modal } from "@/ui";
+import { DividedList, EmptyState, Modal } from "@/ui";
 import { CUISINES, PROTEIN_TYPES, RECIPE_CATEGORIES, detectProteins } from "@/lib/recipes";
 import type { PlanRecipeOption } from "@/components/WeekPlanClient";
 
@@ -102,7 +102,7 @@ export function RecipePickerModal({
 
         <div className="flex flex-1 flex-col overflow-y-auto rounded-md border border-cocoa/20">
           {filtered.length === 0 ? (
-            <p className="p-3 text-sm text-cocoa">No recipes match.</p>
+            <EmptyState art="lemon" title="No recipes match" compact />
           ) : (
             <DividedList>
               {filtered.map((recipe) => (

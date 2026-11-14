@@ -1,6 +1,6 @@
 "use client";
 
-import { PageTitle } from "@/ui";
+import { EmptyState, PageTitle } from "@/ui";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { CUISINES, detectProteins, PROTEIN_TYPES, RECIPE_CATEGORIES } from "@/lib/recipes";
@@ -119,9 +119,15 @@ export function RecipesClient({ initialRecipes }: { initialRecipes: Recipe[] }) 
       </div>
 
       {recipes.length === 0 ? (
-        <p className="text-sm text-cocoa">
-          {hasActiveFilters ? "No recipes match." : "No recipes yet — add your first one."}
-        </p>
+        hasActiveFilters ? (
+          <EmptyState art="lemon" title="No recipes match">
+            Try a different search, or clear the filters.
+          </EmptyState>
+        ) : (
+          <EmptyState art="bowl" title="No recipes yet">
+            Add your first one with the button above.
+          </EmptyState>
+        )
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {recipes.map((recipe) => {

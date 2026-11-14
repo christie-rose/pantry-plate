@@ -1,6 +1,6 @@
 "use client";
 
-import { DividedList, PageTitle } from "@/ui";
+import { DividedList, EmptyState, PageTitle } from "@/ui";
 import { useState } from "react";
 import { DIETARY_CATEGORIES, type DietaryCategory } from "@/lib/dietary";
 
@@ -87,7 +87,11 @@ export function DietaryClient({ initialEntries }: { initialEntries: DietaryEntry
       </form>
 
       <DividedList className="rounded-md border border-cocoa/30 bg-white">
-        {entries.length === 0 && <li className="p-4 text-sm text-cocoa">No dietary entries yet.</li>}
+        {entries.length === 0 && (
+          <li>
+            <EmptyState art="basil" title="No dietary entries yet" compact />
+          </li>
+        )}
         {entries.map((entry) => (
           <li key={entry.id} className="flex items-center justify-between p-3">
             <div>

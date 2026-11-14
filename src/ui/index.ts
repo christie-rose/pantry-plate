@@ -12,3 +12,5 @@ export { CheckCircle, CheckMark } from "./CheckCircle";
 export { PageTitle } from "./PageTitle";
 export { SectionHeading } from "./SectionHeading";
 export { DividedList } from "./DividedList";
+export { Illustration } from "./Illustration";
+export { EmptyState } from "./EmptyState";

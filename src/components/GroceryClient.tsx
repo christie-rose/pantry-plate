@@ -1,6 +1,6 @@
 "use client";
 
-import { AddButton, Button, FilterChip, GroceryList, GroceryRow, PageTitle, TagChip } from "@/ui";
+import { AddButton, Button, EmptyState, FilterChip, GroceryList, GroceryRow, PageTitle, TagChip } from "@/ui";
 import { useRef, useState } from "react";
 import Link from "next/link";
 import type { GroceryItem } from "@/lib/grocery";
@@ -284,22 +284,25 @@ export function GroceryClient({
       <AddButton onClick={addLine} />
 
       {items.length === 0 && (
-        <p className="text-sm text-cocoa">
-          No items on the list yet. Tap + to add one, or go to{" "}
+        <EmptyState art="tomato" title="Nothing on the list yet">
+          Tap + to add an item, or add a recipe from your{" "}
           <Link href="/plan" className="underline">
             Meal Plan
-          </Link>{" "}
-          and add a recipe&apos;s ingredients to your list.
-        </p>
+          </Link>
+          .
+        </EmptyState>
       )}
 
-      {items.length > 0 && visibleItems.length === 0 && (
-        <p className="text-sm text-cocoa">
-          {scopeItems.length === 0
-            ? "Nothing here."
-            : "All of these are checked off. Use “Show checked” to see them."}
-        </p>
-      )}
+      {items.length > 0 && visibleItems.length === 0 &&
+        (scopeItems.length === 0 ? (
+          <EmptyState art="basil" title="Nothing here" compact>
+            No items match this tag.
+          </EmptyState>
+        ) : (
+          <EmptyState art="basil" title="All checked off" compact>
+            Use “Show checked” to see them again.
+          </EmptyState>
+        ))}
 
       {visibleItems.length > 0 && (
         <GroceryList>
