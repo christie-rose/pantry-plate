@@ -74,7 +74,7 @@ export function RecipesClient({ initialRecipes }: { initialRecipes: Recipe[] }) 
             key={c || "all"}
             type="button"
             onClick={() => setCategoryFilter(c)}
-            className={`grow rounded-t-md border border-b-2 px-2.5 py-2 md:grow-0 text-sm ${
+            className={`rounded-t-md border border-b-2 px-2.5 py-2 text-sm ${
               categoryFilter === c
                 ? "border-brick bg-paper-alt font-medium text-brick"
                 : "border-cocoa/30 text-cocoa hover:text-ink"
@@ -83,8 +83,6 @@ export function RecipesClient({ initialRecipes }: { initialRecipes: Recipe[] }) 
             {c || "All"}
           </button>
         ))}
-        {/* Carries the baseline across the rest of the last row */}
-        <span aria-hidden className="grow self-stretch border-b-2 border-cocoa/30" />
       </div>
 
       <div className="flex items-center gap-2">
