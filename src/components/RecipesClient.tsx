@@ -12,7 +12,13 @@ import {
 } from "@/ui";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { CUISINES, detectProteins, PROTEIN_TYPES, RECIPE_CATEGORIES } from "@/lib/recipes";
+import { RecipeCardMenu } from "@/components/RecipeCardMenu";
+import {
+  CUISINES,
+  detectProteins,
+  PROTEIN_TYPES,
+  RECIPE_CATEGORIES,
+} from "@/lib/recipes";
 
 type Recipe = {
   id: string;
@@ -26,7 +32,11 @@ type Recipe = {
   image?: { updatedAt: string | Date } | null;
 };
 
-export function RecipesClient({ initialRecipes }: { initialRecipes: Recipe[] }) {
+export function RecipesClient({
+  initialRecipes,
+}: {
+  initialRecipes: Recipe[];
+}) {
   const [recipes, setRecipes] = useState(initialRecipes);
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
@@ -52,7 +62,9 @@ export function RecipesClient({ initialRecipes }: { initialRecipes: Recipe[] }) 
     return () => controller.abort();
   }, [queryString]);
 
-  const hasActiveFilters = Boolean(search || categoryFilter || proteinFilter.length || cuisineFilter.length);
+  const hasActiveFilters = Boolean(
+    search || categoryFilter || proteinFilter.length || cuisineFilter.length,
+  );
 
   const filterCount = proteinFilter.length + cuisineFilter.length;
 
@@ -63,7 +75,10 @@ export function RecipesClient({ initialRecipes }: { initialRecipes: Recipe[] }) 
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 p-4 pb-24">
       <div className="flex items-center justify-between">
         <PageTitle>Recipes</PageTitle>
-        <Link href="/recipes/new" className="min-h-[44px] flex items-center rounded-md bg-brick px-4 text-sm font-medium text-white">
+        <Link
+          href="/recipes/new"
+          className="min-h-[44px] flex items-center rounded-md bg-brick px-4 text-sm font-medium text-white"
+        >
           Add recipe
         </Link>
       </div>
@@ -93,7 +108,10 @@ export function RecipesClient({ initialRecipes }: { initialRecipes: Recipe[] }) 
           aria-label="Search recipes"
           className="min-h-[44px] min-w-0 flex-1 rounded-md border border-cocoa/40 bg-white px-3 py-2 text-sm text-ink"
         />
-        <FilterButton count={filterCount} onClick={() => setFiltersOpen(true)} />
+        <FilterButton
+          count={filterCount}
+          onClick={() => setFiltersOpen(true)}
+        />
       </div>
 
       {filtersOpen && (
@@ -106,21 +124,35 @@ export function RecipesClient({ initialRecipes }: { initialRecipes: Recipe[] }) 
           doneLabel={`Show ${recipes.length} ${recipes.length === 1 ? "recipe" : "recipes"}`}
         >
           <FilterGroup label="Protein">
-            <FilterChip selected={proteinFilter.length === 0} onClick={() => setProteinFilter([])}>
+            <FilterChip
+              selected={proteinFilter.length === 0}
+              onClick={() => setProteinFilter([])}
+            >
               All
             </FilterChip>
             {PROTEIN_TYPES.map((p) => (
-              <FilterChip key={p} selected={proteinFilter.includes(p)} onClick={() => setProteinFilter(toggle(proteinFilter, p))}>
+              <FilterChip
+                key={p}
+                selected={proteinFilter.includes(p)}
+                onClick={() => setProteinFilter(toggle(proteinFilter, p))}
+              >
                 {p}
               </FilterChip>
             ))}
           </FilterGroup>
           <FilterGroup label="Cuisine">
-            <FilterChip selected={cuisineFilter.length === 0} onClick={() => setCuisineFilter([])}>
+            <FilterChip
+              selected={cuisineFilter.length === 0}
+              onClick={() => setCuisineFilter([])}
+            >
               All
             </FilterChip>
             {CUISINES.map((c) => (
-              <FilterChip key={c} selected={cuisineFilter.includes(c)} onClick={() => setCuisineFilter(toggle(cuisineFilter, c))}>
+              <FilterChip
+                key={c}
+                selected={cuisineFilter.includes(c)}
+                onClick={() => setCuisineFilter(toggle(cuisineFilter, c))}
+              >
                 {c}
               </FilterChip>
             ))}
@@ -141,43 +173,77 @@ export function RecipesClient({ initialRecipes }: { initialRecipes: Recipe[] }) 
       ) : (
         <MasonryGrid weights={recipes.map((recipe) => (recipe.image ? 3 : 1))}>
           {recipes.map((recipe) => {
-            const proteins = detectProteins(recipe.ingredients.map((i) => i.name));
+            const proteins = detectProteins(
+              recipe.ingredients.map((i) => i.name),
+            );
             return (
-              <Link key={recipe.id} href={`/recipes/${recipe.id}`} className="card flex flex-col gap-2 p-4">
-                {recipe.image && (
-                  <RecipeImage
-                    size="thumb"
-                    alt=""
-                    src={`/api/recipes/${recipe.id}/image?v=${new Date(recipe.image.updatedAt).getTime()}`}
+              <div key={recipe.id} className="card relative">
+                <div className="absolute right-6 top-6 z-10 rounded-md bg-white/85 shadow-sm">
+                  <RecipeCardMenu
+                    id={recipe.id}
+                    title={recipe.title}
+                    onDeleted={(id) =>
+                      setRecipes((list) => list.filter((r) => r.id !== id))
+                    }
                   />
-                )}
-                <h2 className="font-title text-2xl leading-tight text-ink">{recipe.title}</h2>
-                <p className="text-xs text-cocoa">
-                  Serves {recipe.servings} · {recipe.source}
-                </p>
-                {(recipe.categories.length > 0 || recipe.cuisine || proteins.length > 0 || recipe.tags.length > 0) && (
-                  <div className="flex flex-wrap gap-1">
-                    {recipe.cuisine && (
-                      <span className="rounded-full bg-butter/40 px-2 py-0.5 text-xs text-ink">{recipe.cuisine}</span>
-                    )}
-                    {recipe.categories.map((category) => (
-                      <span key={category} className="rounded-full bg-sage/20 px-2 py-0.5 text-xs text-ink">
-                        {category}
-                      </span>
-                    ))}
-                    {proteins.map((protein) => (
-                      <span key={protein} className="rounded-full bg-brick/10 px-2 py-0.5 text-xs text-brick">
-                        {protein}
-                      </span>
-                    ))}
-                    {recipe.tags.map((tag) => (
-                      <span key={tag} className="rounded-full bg-paper-alt px-2 py-0.5 text-xs text-cocoa">
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </Link>
+                </div>
+                <Link
+                  href={`/recipes/${recipe.id}`}
+                  className="flex flex-col gap-2 p-4"
+                >
+                  {recipe.image && (
+                    <RecipeImage
+                      size="thumb"
+                      alt=""
+                      src={`/api/recipes/${recipe.id}/image?v=${new Date(recipe.image.updatedAt).getTime()}`}
+                    />
+                  )}
+                  <h2
+                    className={`font-title text-2xl leading-tight text-ink ${recipe.image ? "" : "pr-10"}`}
+                  >
+                    {recipe.title}
+                  </h2>
+                  <p className="text-xs text-cocoa">
+                    Serves {recipe.servings} · {recipe.source}
+                  </p>
+                  {(recipe.categories.length > 0 ||
+                    recipe.cuisine ||
+                    proteins.length > 0 ||
+                    recipe.tags.length > 0) && (
+                    <div className="flex flex-wrap gap-1">
+                      {recipe.cuisine && (
+                        <span className="rounded-full bg-butter/40 px-2 py-0.5 text-xs text-ink">
+                          {recipe.cuisine}
+                        </span>
+                      )}
+                      {recipe.categories.map((category) => (
+                        <span
+                          key={category}
+                          className="rounded-full bg-sage/20 px-2 py-0.5 text-xs text-ink"
+                        >
+                          {category}
+                        </span>
+                      ))}
+                      {proteins.map((protein) => (
+                        <span
+                          key={protein}
+                          className="rounded-full bg-brick/10 px-2 py-0.5 text-xs text-brick"
+                        >
+                          {protein}
+                        </span>
+                      ))}
+                      {recipe.tags.map((tag) => (
+                        <span
+                          key={tag}
+                          className="rounded-full bg-paper-alt px-2 py-0.5 text-xs text-cocoa"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </Link>
+              </div>
             );
           })}
         </MasonryGrid>
