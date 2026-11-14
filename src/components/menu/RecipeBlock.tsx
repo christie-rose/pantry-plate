@@ -3,15 +3,56 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Node, mergeAttributes } from "@tiptap/core";
-import { NodeViewWrapper, ReactNodeViewRenderer, type NodeViewProps } from "@tiptap/react";
-import { RiAddLine, RiCloseLine, RiDraggable, RiShoppingCartLine, RiSubtractLine } from "@remixicon/react";
+import {
+  NodeViewWrapper,
+  ReactNodeViewRenderer,
+  type NodeViewProps,
+} from "@tiptap/react";
+import {
+  RiAddLine,
+  RiArrowDownSLine,
+  RiArrowUpSLine,
+  RiCloseLine,
+  RiDraggable,
+  RiShoppingCartLine,
+  RiSubtractLine,
+} from "@remixicon/react";
 
 /** A recipe placed in a menu: shows its name (linking to the recipe), servings, and a grocery list button. */
-function RecipeBlockView({ node, updateAttributes, deleteNode, editor }: NodeViewProps) {
-  const { recipeId, title, servings } = node.attrs as { recipeId: string; title: string; servings: number | null };
+function RecipeBlockView({
+  node,
+  updateAttributes,
+  deleteNode,
+  editor,
+  getPos,
+}: NodeViewProps) {
+  const { recipeId, title, servings } = node.attrs as {
+    recipeId: string;
+    title: string;
+    servings: number | null;
+  };
   const [status, setStatus] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
   const editable = editor.isEditable;
+
+  // Moves this block one step up or down among its siblings (for touch screens, where dragging isn't available).
+  function move(direction: -1 | 1) {
+    const pos = getPos();
+    if (pos === undefined) return;
+    const { state, view } = editor;
+    const $pos = state.doc.resolve(pos);
+    const index = $pos.index();
+    const sibling = $pos.parent.maybeChild(index + direction);
+    if (!sibling) return;
+    const target =
+      direction === -1 ? pos - sibling.nodeSize : pos + sibling.nodeSize;
+    view.dispatch(
+      state.tr
+        .delete(pos, pos + node.nodeSize)
+        .insert(target, node)
+        .scrollIntoView(),
+    );
+  }
 
   async function addToGrocery() {
     setAdding(true);
@@ -57,7 +98,9 @@ function RecipeBlockView({ node, updateAttributes, deleteNode, editor }: NodeVie
               {editable && (
                 <button
                   type="button"
-                  onClick={() => updateAttributes({ servings: Math.max(1, servings - 1) })}
+                  onClick={() =>
+                    updateAttributes({ servings: Math.max(1, servings - 1) })
+                  }
                   aria-label="Fewer servings"
                   className="flex h-6 w-6 items-center justify-center rounded-md border border-cocoa/40 text-ink"
                 >
@@ -76,6 +119,28 @@ function RecipeBlockView({ node, updateAttributes, deleteNode, editor }: NodeVie
                 </button>
               )}
             </>
+          )}
+          {editable && (
+            <span className="ml-1 flex md:hidden">
+              <button
+                type="button"
+                onClick={() => move(-1)}
+                aria-label={`Move ${title} up`}
+                title="Move up"
+                className="flex h-7 w-7 items-center justify-center rounded-md border border-cocoa/40 bg-white text-ink"
+              >
+                <RiArrowUpSLine size={16} aria-hidden />
+              </button>
+              <button
+                type="button"
+                onClick={() => move(1)}
+                aria-label={`Move ${title} down`}
+                title="Move down"
+                className="ml-1 flex h-7 w-7 items-center justify-center rounded-md border border-cocoa/40 bg-white text-ink"
+              >
+                <RiArrowDownSLine size={16} aria-hidden />
+              </button>
+            </span>
           )}
           <button
             type="button"
@@ -129,7 +194,10 @@ export const RecipeBlock = Node.create({
   },
 
   renderHTML({ HTMLAttributes }) {
-    return ["div", mergeAttributes(HTMLAttributes, { "data-recipe-block": "" })];
+    return [
+      "div",
+      mergeAttributes(HTMLAttributes, { "data-recipe-block": "" }),
+    ];
   },
 
   addNodeView() {
