@@ -1,6 +1,6 @@
 "use client";
 
-import { CardTitle, DividedList, PageTitle, SectionHeading, WavyFrame, WeekSelector } from "@/ui";
+import { CardTitle, DividedList, PageTitle, SectionHeading, SketchFrame, WeekSelector } from "@/ui";
 import { useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { RiCheckLine, RiDraggable } from "@remixicon/react";
@@ -270,7 +270,7 @@ export function WeekPlanClient({ initialPlan, recipes }: { initialPlan: Plan; re
           const location: Location = { kind: "day", day };
           const isToday = todayKey === dayKey(dayIndex);
           return (
-          <WavyFrame key={day} active={isToday}>
+          <SketchFrame key={day} active={isToday}>
           <div
             onDragOver={(e) => {
               e.preventDefault();
@@ -281,7 +281,7 @@ export function WeekPlanClient({ initialPlan, recipes }: { initialPlan: Plan; re
               e.preventDefault();
               handleDropOnLocation(location);
             }}
-            className={`card flex flex-col gap-2 p-3 ${isToday ? "border-transparent!" : ""} ${dragOverLocation && sameLocation(dragOverLocation, location) ? "ring-2 ring-sage" : ""}`}
+            className={`card flex flex-col gap-2 p-3 ${dragOverLocation && sameLocation(dragOverLocation, location) ? "ring-2 ring-sage" : ""}`}
           >
             <CardTitle aside={formatDayDate(plan.weekKey, dayIndex)}>{day}</CardTitle>
             <ul className="flex flex-col gap-1">
@@ -339,7 +339,7 @@ export function WeekPlanClient({ initialPlan, recipes }: { initialPlan: Plan; re
 
             <MealEntryAdder recipes={recipeOptions} onAdd={(entry) => addDinner(day, entry)} />
           </div>
-          </WavyFrame>
+          </SketchFrame>
           );
         })}
       </div>
