@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { NavLink } from "@/ui";
 import { usePathname, useRouter } from "next/navigation";
 import {
   RiBookOpenLine,
@@ -47,36 +48,21 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             A Tavola
           </Link>
           {NAV_ITEMS.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`flex min-h-[44px] items-center gap-3 rounded-md px-3 text-sm ${
-                isActive(item.href) ? "bg-paper-alt font-medium text-brick" : "text-ink"
-              }`}
-            >
+            <NavLink as={Link} key={item.href} href={item.href} active={isActive(item.href)}>
               <item.Icon size={20} aria-hidden />
               {item.label}
-            </Link>
+            </NavLink>
           ))}
         </div>
         <div className="flex shrink-0 flex-col gap-1 border-t border-cocoa/20 bg-white p-4 pt-2">
-          <Link
-            href="/dietary"
-            className={`flex min-h-[44px] items-center gap-3 rounded-md px-3 text-sm ${
-              isActive("/dietary") ? "bg-paper-alt font-medium text-brick" : "text-ink"
-            }`}
-          >
+          <NavLink as={Link} href="/dietary" active={isActive("/dietary")}>
             <RiSettings3Line size={20} aria-hidden />
             Household settings
-          </Link>
-          <button
-            type="button"
-            onClick={handleLogout}
-            className="flex min-h-[44px] items-center gap-3 rounded-md px-3 text-left text-sm text-cocoa"
-          >
+          </NavLink>
+          <NavLink as="button" muted onClick={handleLogout}>
             <RiLogoutBoxRLine size={20} aria-hidden />
             Log out
-          </button>
+          </NavLink>
         </div>
       </nav>
 
@@ -101,40 +87,27 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <div className="absolute inset-0 bg-ink/40" onClick={() => setMobileMenuOpen(false)} />
           <nav className="absolute inset-x-0 top-[56px] flex flex-col gap-1 border-b border-cocoa/20 bg-white p-4 shadow-lg">
             {NAV_ITEMS.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={() => setMobileMenuOpen(false)}
-                className={`flex min-h-[44px] items-center gap-3 rounded-md px-3 text-sm ${
-                  isActive(item.href) ? "bg-paper-alt font-medium text-brick" : "text-ink"
-                }`}
-              >
+              <NavLink as={Link} key={item.href} href={item.href} active={isActive(item.href)} onClick={() => setMobileMenuOpen(false)}>
                 <item.Icon size={20} aria-hidden />
                 {item.label}
-              </Link>
+              </NavLink>
             ))}
             <div className="mt-2 flex flex-col gap-1 border-t border-cocoa/20 pt-2">
-              <Link
-                href="/dietary"
-                onClick={() => setMobileMenuOpen(false)}
-                className={`flex min-h-[44px] items-center gap-3 rounded-md px-3 text-sm ${
-                  isActive("/dietary") ? "bg-paper-alt font-medium text-brick" : "text-ink"
-                }`}
-              >
+              <NavLink as={Link} href="/dietary" active={isActive("/dietary")} onClick={() => setMobileMenuOpen(false)}>
                 <RiSettings3Line size={20} aria-hidden />
                 Household settings
-              </Link>
-              <button
-                type="button"
+              </NavLink>
+              <NavLink
+                as="button"
+                muted
                 onClick={() => {
                   setMobileMenuOpen(false);
                   handleLogout();
                 }}
-                className="flex min-h-[44px] items-center gap-3 rounded-md px-3 text-left text-sm text-cocoa"
               >
                 <RiLogoutBoxRLine size={20} aria-hidden />
                 Log out
-              </button>
+              </NavLink>
             </div>
           </nav>
         </div>

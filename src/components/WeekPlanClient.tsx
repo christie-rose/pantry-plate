@@ -1,5 +1,6 @@
 "use client";
 
+import { Button, DisabledButton } from "@/ui";
 import { useState } from "react";
 import Link from "next/link";
 import { RiCheckLine, RiDraggable } from "@remixicon/react";
@@ -240,31 +241,24 @@ export function WeekPlanClient({ initialPlan, recipes }: { initialPlan: Plan; re
         <h1 className="text-3xl text-brick">Meal Plan</h1>
         <div className="flex flex-wrap items-center gap-2 text-sm">
           {plan.weekKey !== currentWeekKey && (
-            <Link href={`/plan?week=${currentWeekKey}`} className="flex min-h-[44px] items-center rounded-md border border-cocoa/40 px-2 font-medium text-brick">
+            <Button as={Link} variant="secondary" compact href={`/plan?week=${currentWeekKey}`} className="font-medium text-brick">
               This week
-            </Link>
+            </Button>
           )}
           {canGoToPrevWeek ? (
-            <Link href={`/plan?week=${addDaysToKey(plan.weekKey, -7)}`} className="flex min-h-[44px] items-center rounded-md border border-cocoa/40 px-2">
+            <Button as={Link} variant="secondary" compact href={`/plan?week=${addDaysToKey(plan.weekKey, -7)}`}>
               ← Prev
-            </Link>
+            </Button>
           ) : (
-            <span className="flex min-h-[44px] items-center rounded-md border border-cocoa/20 px-2 text-cocoa/40">
-              ← Prev
-            </span>
+            <DisabledButton>← Prev</DisabledButton>
           )}
           <span className="font-medium text-ink">{formatWeekLabel(plan.weekKey)}</span>
           {canGoToNextWeek ? (
-            <Link href={`/plan?week=${addDaysToKey(plan.weekKey, 7)}`} className="flex min-h-[44px] items-center rounded-md border border-cocoa/40 px-2">
+            <Button as={Link} variant="secondary" compact href={`/plan?week=${addDaysToKey(plan.weekKey, 7)}`}>
               Next →
-            </Link>
+            </Button>
           ) : (
-            <span
-              title={`You can plan up to ${MAX_WEEKS_AHEAD} weeks ahead`}
-              className="flex min-h-[44px] items-center rounded-md border border-cocoa/20 px-2 text-cocoa/40"
-            >
-              Next →
-            </span>
+            <DisabledButton title={`You can plan up to ${MAX_WEEKS_AHEAD} weeks ahead`}>Next →</DisabledButton>
           )}
         </div>
       </div>

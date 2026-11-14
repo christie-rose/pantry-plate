@@ -1,5 +1,6 @@
 "use client";
 
+import { Button, FilterChip, TagChip } from "@/ui";
 import { useRef, useState } from "react";
 import Link from "next/link";
 import { RiAddLine } from "@remixicon/react";
@@ -220,74 +221,38 @@ export function GroceryClient({
       {items.length > 0 && (
         <div className="flex flex-col gap-2">
           <div className="flex flex-wrap items-center gap-2">
-            <button
-              type="button"
-              onClick={copyList}
-              className="min-h-[44px] rounded-md border border-cocoa/40 px-3 text-sm text-ink"
-            >
+            <Button variant="secondary" onClick={copyList}>
               {copied ? "Copied!" : filterLabel ? `Copy ${filterLabel} list` : "Copy list"}
-            </button>
+            </Button>
 
-            <button
-              type="button"
-              onClick={() => setHideChecked((h) => !h)}
-              disabled={checkedCount === 0}
-              className="min-h-[44px] rounded-md border border-cocoa/40 px-3 text-sm text-ink disabled:opacity-40"
-            >
+            <Button variant="secondary" onClick={() => setHideChecked((h) => !h)} disabled={checkedCount === 0}>
               {hideChecked ? `Show checked (${checkedCount})` : "Hide checked"}
-            </button>
+            </Button>
 
             {confirming === "checked" ? (
               <>
-                <button
-                  type="button"
-                  onClick={deleteChecked}
-                  className="min-h-[44px] rounded-md bg-brick px-3 text-sm font-medium text-white"
-                >
-                  Yes, delete {checkedCount} checked
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setConfirming(null)}
-                  className="min-h-[44px] rounded-md border border-cocoa/40 px-3 text-sm text-ink"
-                >
+                <Button onClick={deleteChecked}>Yes, delete {checkedCount} checked</Button>
+                <Button variant="secondary" onClick={() => setConfirming(null)}>
                   Cancel
-                </button>
+                </Button>
               </>
             ) : confirming === "all" ? (
               <>
-                <button
-                  type="button"
-                  onClick={clearList}
-                  className="min-h-[44px] rounded-md bg-brick px-3 text-sm font-medium text-white"
-                >
+                <Button onClick={clearList}>
                   Yes, clear {items.length} {items.length === 1 ? "item" : "items"}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setConfirming(null)}
-                  className="min-h-[44px] rounded-md border border-cocoa/40 px-3 text-sm text-ink"
-                >
+                </Button>
+                <Button variant="secondary" onClick={() => setConfirming(null)}>
                   Cancel
-                </button>
+                </Button>
               </>
             ) : (
               <>
-                <button
-                  type="button"
-                  onClick={() => setConfirming("checked")}
-                  disabled={checkedCount === 0}
-                  className="min-h-[44px] rounded-md border border-brick/50 px-3 text-sm text-brick disabled:opacity-40"
-                >
+                <Button variant="danger" onClick={() => setConfirming("checked")} disabled={checkedCount === 0}>
                   Delete checked{checkedCount > 0 ? ` (${checkedCount})` : ""}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setConfirming("all")}
-                  className="min-h-[44px] rounded-md border border-brick/50 px-3 text-sm text-brick"
-                >
+                </Button>
+                <Button variant="danger" onClick={() => setConfirming("all")}>
                   Clear list
-                </button>
+                </Button>
               </>
             )}
           </div>
@@ -306,19 +271,13 @@ export function GroceryClient({
             ...listTags.map((t) => ({ value: t as string | null, label: `${t} (${countFor(t)})` })),
             ...(hasUntagged ? [{ value: UNTAGGED as string | null, label: `Untagged (${countFor(UNTAGGED)})` }] : []),
           ].map((chip) => (
-            <button
+            <FilterChip
               key={chip.value ?? "all"}
-              type="button"
               onClick={() => setFilterTag(chip.value)}
-              aria-pressed={activeFilter === chip.value}
-              className={`min-h-[36px] rounded-full border px-3 text-sm ${
-                activeFilter === chip.value
-                  ? "border-brick bg-paper-alt font-medium text-brick"
-                  : "border-cocoa/40 text-ink"
-              }`}
+              selected={activeFilter === chip.value}
             >
               {chip.label}
-            </button>
+            </FilterChip>
           ))}
         </div>
       )}
@@ -472,22 +431,13 @@ export function GroceryClient({
                   )}
                 </div>
               ) : item.tag ? (
-                <button
-                  type="button"
-                  onClick={() => startEditingTag(item)}
-                  title="Change tag"
-                  className="shrink-0 rounded-full bg-sage/20 px-3 py-1 text-xs text-ink"
-                >
+                <TagChip onClick={() => startEditingTag(item)} title="Change tag">
                   {item.tag}
-                </button>
+                </TagChip>
               ) : (
-                <button
-                  type="button"
-                  onClick={() => startEditingTag(item)}
-                  className="shrink-0 rounded-full border border-dashed border-cocoa/40 px-3 py-1 text-xs text-cocoa"
-                >
+                <TagChip add onClick={() => startEditingTag(item)}>
                   + tag
-                </button>
+                </TagChip>
               )}
             </li>
           ))}
