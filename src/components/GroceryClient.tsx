@@ -1,6 +1,6 @@
 "use client";
 
-import { RiDeleteBinLine, RiFileCopyLine } from "@remixicon/react";
+import { RiDeleteBinLine, RiEyeLine, RiEyeOffLine, RiFileCopyLine } from "@remixicon/react";
 import {
   ActionsMenu,
   AddButton,
@@ -9,7 +9,6 @@ import {
   FilterChip,
   FilterGroup,
   FilterSheet,
-  FilterToggle,
   GroceryList,
   GroceryRow,
   MenuItem,
@@ -252,10 +251,12 @@ export function GroceryClient({
       <div className="flex items-center gap-2">
         {items.length > 0 && (
           <>
+            {listTags.length > 0 && (
             <FilterButton
-              count={(activeFilter !== null ? 1 : 0) + (hideChecked ? 0 : 1)}
+              count={activeFilter !== null ? 1 : 0}
               onClick={() => setFiltersOpen(true)}
             />
+            )}
             <ActionsMenu size="lg" label="List actions">
               {(close) =>
                 confirming === "checked" ? (
@@ -289,6 +290,17 @@ export function GroceryClient({
                       }}
                     >
                       {filterLabel ? `Copy ${filterLabel} list` : "Copy list"}
+                    </MenuItem>
+                    <MenuItem
+                      tone="ink"
+                      icon={hideChecked ? <RiEyeLine size={16} aria-hidden /> : <RiEyeOffLine size={16} aria-hidden />}
+                      disabled={checkedCount === 0}
+                      onClick={() => {
+                        setHideChecked((h) => !h);
+                        close();
+                      }}
+                    >
+                      {hideChecked ? `Show checked (${checkedCount})` : "Hide checked"}
                     </MenuItem>
                     <MenuItem
                       tone="danger"
@@ -329,7 +341,6 @@ export function GroceryClient({
           onClose={() => setFiltersOpen(false)}
           onClear={() => {
             setFilterTag(null);
-            setHideChecked(true);
           }}
           doneLabel={`Show ${visibleItems.length} ${visibleItems.length === 1 ? "item" : "items"}`}
         >
@@ -350,9 +361,6 @@ export function GroceryClient({
               ))}
             </FilterGroup>
           )}
-          <FilterToggle checked={!hideChecked} onChange={(c) => setHideChecked(!c)}>
-            Show checked items{checkedCount > 0 ? ` (${checkedCount})` : ""}
-          </FilterToggle>
         </FilterSheet>
       )}
 
