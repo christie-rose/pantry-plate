@@ -4,7 +4,7 @@ import { RiAddLine, RiDeleteBinLine } from "@remixicon/react";
 import { CheckCircle } from "./CheckCircle";
 
 export function GroceryList({ children }: { children: ReactNode }) {
-  return <ul className="flex flex-col divide-y-2 divide-dotted divide-cocoa/30 rounded-md border border-cocoa/30 bg-white">{children}</ul>;
+  return <ul className="card flex flex-col divide-y-2 divide-dotted divide-cocoa/30 bg-white">{children}</ul>;
 }
 
 /**
