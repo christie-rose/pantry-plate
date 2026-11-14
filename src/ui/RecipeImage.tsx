@@ -22,7 +22,7 @@ export function RecipeImage({
   const hero = size === "hero";
   return (
     <div
-      className={`relative w-full overflow-hidden rounded-[4px_14px_4px_14px] border border-cocoa/30 bg-paper-alt ${
+      className={`relative w-full overflow-hidden shadow-[var(--shadow-card)] bg-paper-alt ${
         hero ? "aspect-[3/2]" : "aspect-[4/3]"
       }`}
     >

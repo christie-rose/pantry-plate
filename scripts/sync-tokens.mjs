@@ -25,7 +25,11 @@ const radius = Object.fromEntries((tokens.radius?.tokens ?? []).map((t) => [t.na
 for (const k of ["radius-control", "radius-modal", "radius-card-sm", "radius-card-lg"]) {
   if (!/^\d+(\.\d+)?(px|rem)$/.test(radius[k] ?? "")) throw new Error(`Radius token ${k} must be a px or rem length`);
 }
+const shadowToken = tokens.shadow?.tokens?.find((t) => t.name === "shadow-card");
+const shadowValue = typeof shadowToken?.value === "string" ? shadowToken.value : shadowToken?.value?.[theme];
+if (!shadowValue || !/^[0-9a-z\s.,()-]+$/i.test(shadowValue)) throw new Error("shadow-card token is missing or has unsupported characters");
 css = replaceBlock(css, "colors", lines, "  ");
+css = replaceBlock(css, "shadow", [`  --shadow-card: ${shadowValue};`], "  ");
 css = replaceBlock(css, "radius", [`  --radius-md: ${radius["radius-control"]};`, `  --radius-lg: ${radius["radius-modal"]};`], "  ");
 css = replaceBlock(
   css,
@@ -33,8 +37,9 @@ css = replaceBlock(
   [
     ".card {",
     `  border-radius: ${radius["radius-card-sm"]} ${radius["radius-card-lg"]} ${radius["radius-card-sm"]} ${radius["radius-card-lg"]};`,
-    "  border: 1px solid var(--cocoa);",
+    "  border: none;",
     "  background: var(--white);",
+    "  box-shadow: var(--shadow-card);",
     "}",
   ],
   ""
