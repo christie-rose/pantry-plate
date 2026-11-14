@@ -3,7 +3,7 @@ import { RiAddLine } from "@remixicon/react";
 import { CheckCircle } from "./CheckCircle";
 
 export function GroceryList({ children }: { children: ReactNode }) {
-  return <ul className="flex flex-col divide-y divide-cocoa/20 rounded-md border border-cocoa/30 bg-white">{children}</ul>;
+  return <ul className="flex flex-col divide-y-2 divide-dotted divide-cocoa/30 rounded-md border border-cocoa/30 bg-white">{children}</ul>;
 }
 
 /** One line: round check, content (text or an edit field), and an optional aside (the tag). */

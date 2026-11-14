@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Modal } from "@/ui";
+import { DividedList, Modal } from "@/ui";
 import { CUISINES, PROTEIN_TYPES, RECIPE_CATEGORIES, detectProteins } from "@/lib/recipes";
 import type { PlanRecipeOption } from "@/components/WeekPlanClient";
 
@@ -104,7 +104,7 @@ export function RecipePickerModal({
           {filtered.length === 0 ? (
             <p className="p-3 text-sm text-cocoa">No recipes match.</p>
           ) : (
-            <ul className="flex flex-col divide-y divide-cocoa/20">
+            <DividedList>
               {filtered.map((recipe) => (
                 <li key={recipe.id}>
                   <button
@@ -121,7 +121,7 @@ export function RecipePickerModal({
                   </button>
                 </li>
               ))}
-            </ul>
+            </DividedList>
           )}
         </div>
     </Modal>

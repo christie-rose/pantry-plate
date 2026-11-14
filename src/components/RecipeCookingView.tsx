@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { RiCalendarLine } from "@remixicon/react";
-import { CheckMark, PageTitle } from "@/ui";
+import { CheckMark, DividedList, PageTitle, SectionHeading } from "@/ui";
 import { formatAmountAsFraction } from "@/lib/recipes";
 
 type Ingredient = {
@@ -117,8 +117,8 @@ export function RecipeCookingView({ recipe, originalServings }: { recipe: Recipe
       </div>
 
       <div className="card flex flex-col gap-2 p-4">
-        <h2 className="text-xl text-ink">Ingredients</h2>
-        <ul className="flex flex-col divide-y divide-cocoa/20">
+        <SectionHeading>Ingredients</SectionHeading>
+        <DividedList>
           {recipe.ingredients.map((ingredient) => {
             const checked = checkedIngredients.has(ingredient.id);
             return (
@@ -139,16 +139,16 @@ export function RecipeCookingView({ recipe, originalServings }: { recipe: Recipe
               </li>
             );
           })}
-        </ul>
+        </DividedList>
       </div>
 
       {recipe.prepAhead.length > 0 && (
         <div className="card flex flex-col gap-2 p-4">
-          <h2 className="flex items-center gap-2 text-xl text-ink">
+          <SectionHeading>
             <RiCalendarLine size={18} className="text-sage" aria-hidden />
             Prep ahead
-          </h2>
-          <ol className="flex flex-col divide-y divide-cocoa/20">
+          </SectionHeading>
+          <DividedList as="ol">
             {recipe.prepAhead.map((step, index) => {
               const checked = checkedPrepSteps.has(index);
               return (
@@ -168,13 +168,13 @@ export function RecipeCookingView({ recipe, originalServings }: { recipe: Recipe
                 </li>
               );
             })}
-          </ol>
+          </DividedList>
         </div>
       )}
 
       <div className="card flex flex-col gap-2 p-4">
-        <h2 className="text-xl text-ink">Instructions</h2>
-        <ol className="flex flex-col divide-y divide-cocoa/20">
+        <SectionHeading>Instructions</SectionHeading>
+        <DividedList as="ol">
           {recipe.instructions.map((step, index) => {
             const checked = checkedSteps.has(index);
             return (
@@ -194,12 +194,12 @@ export function RecipeCookingView({ recipe, originalServings }: { recipe: Recipe
               </li>
             );
           })}
-        </ol>
+        </DividedList>
       </div>
 
       {recipe.notes && (
         <div className="card flex flex-col gap-1 p-4">
-          <h2 className="text-xl text-ink">Notes</h2>
+          <SectionHeading>Notes</SectionHeading>
           <p className="text-sm text-cocoa">{recipe.notes}</p>
         </div>
       )}

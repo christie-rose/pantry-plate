@@ -1,6 +1,6 @@
 "use client";
 
-import { PageTitle } from "@/ui";
+import { DividedList, PageTitle } from "@/ui";
 import { useState } from "react";
 import { DIETARY_CATEGORIES, type DietaryCategory } from "@/lib/dietary";
 
@@ -86,7 +86,7 @@ export function DietaryClient({ initialEntries }: { initialEntries: DietaryEntry
         </button>
       </form>
 
-      <ul className="flex flex-col divide-y divide-cocoa/20 rounded-md border border-cocoa/30 bg-white">
+      <DividedList className="rounded-md border border-cocoa/30 bg-white">
         {entries.length === 0 && <li className="p-4 text-sm text-cocoa">No dietary entries yet.</li>}
         {entries.map((entry) => (
           <li key={entry.id} className="flex items-center justify-between p-3">
@@ -105,7 +105,7 @@ export function DietaryClient({ initialEntries }: { initialEntries: DietaryEntry
             </button>
           </li>
         ))}
-      </ul>
+      </DividedList>
     </div>
   );
 }

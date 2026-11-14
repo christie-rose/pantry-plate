@@ -10,3 +10,5 @@ export { GroceryList, GroceryRow, AddButton } from "./GroceryList";
 export { SideRail, MobileBar, MobileMenu } from "./Nav";
 export { CheckCircle, CheckMark } from "./CheckCircle";
 export { PageTitle } from "./PageTitle";
+export { SectionHeading } from "./SectionHeading";
+export { DividedList } from "./DividedList";

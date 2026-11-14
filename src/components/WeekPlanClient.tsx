@@ -1,6 +1,6 @@
 "use client";
 
-import { PageTitle, WeekSelector } from "@/ui";
+import { DividedList, PageTitle, SectionHeading, WeekSelector } from "@/ui";
 import { useState } from "react";
 import Link from "next/link";
 import { RiCheckLine, RiDraggable } from "@remixicon/react";
@@ -331,7 +331,7 @@ export function WeekPlanClient({ initialPlan, recipes }: { initialPlan: Plan; re
         })}
       </div>
 
-      <h2 className="text-2xl text-brick">Breakfast / Lunch / Snack / Other</h2>
+      <SectionHeading size="lg" tone="brick">Breakfast / Lunch / Snack / Other</SectionHeading>
       <div className="flex flex-col gap-3">
         {WEEKLY_MEAL_TYPES.map((mealType) => {
           const location: Location = { kind: "weekly", mealType };
@@ -405,7 +405,7 @@ export function WeekPlanClient({ initialPlan, recipes }: { initialPlan: Plan; re
 
       {prepRecipes.length > 0 && (
         <>
-          <h2 className="text-2xl text-brick">Prep</h2>
+          <SectionHeading size="lg" tone="brick">Prep</SectionHeading>
           <div className="flex flex-col gap-3">
             {prepRecipes.map((recipe) => {
               const locations = Array.from(usageByRecipeId.get(recipe.id) ?? []);
@@ -417,7 +417,7 @@ export function WeekPlanClient({ initialPlan, recipes }: { initialPlan: Plan; re
                     </Link>
                     {locations.length > 0 && <p className="text-xs text-cocoa">{locations.join(", ")}</p>}
                   </div>
-                  <ol className="flex flex-col divide-y divide-cocoa/20">
+                  <DividedList as="ol">
                     {recipe.prepAhead.map((step, index) => {
                       const key = `${recipe.id}:${index}`;
                       const checked = checkedPrepSteps.has(key);
@@ -443,7 +443,7 @@ export function WeekPlanClient({ initialPlan, recipes }: { initialPlan: Plan; re
                         </li>
                       );
                     })}
-                  </ol>
+                  </DividedList>
                 </div>
               );
             })}
