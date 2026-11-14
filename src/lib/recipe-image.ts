@@ -73,7 +73,7 @@ async function requestOpenAiImage(prompt: string): Promise<Buffer> {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
     body: JSON.stringify({
-      model: process.env.OPENAI_IMAGE_MODEL || "gpt-image-1",
+      model: process.env.OPENAI_IMAGE_MODEL || "gpt-image-1.5",
       prompt,
       size: "1024x1024",
       quality: "medium",
