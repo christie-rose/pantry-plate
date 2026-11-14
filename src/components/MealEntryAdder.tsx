@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { AddLink } from "@/ui";
 import type { MealEntry } from "@/lib/weekplan";
 import { RecipePickerModal } from "@/components/RecipePickerModal";
 import type { PlanRecipeOption } from "@/components/WeekPlanClient";
@@ -41,9 +42,7 @@ export function MealEntryAdder({
 
   if (!open) {
     return (
-      <button type="button" onClick={() => setOpen(true)} className="self-start text-xs text-sage underline">
-        + Add
-      </button>
+      <AddLink onClick={() => setOpen(true)}>Add</AddLink>
     );
   }
 

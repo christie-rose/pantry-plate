@@ -1,7 +1,7 @@
 "use client";
 
-import { DividedList, PageTitle, SectionHeading, WeekSelector } from "@/ui";
-import { useState } from "react";
+import { CardTitle, DividedList, PageTitle, SectionHeading, WavyFrame, WeekSelector } from "@/ui";
+import { useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { RiCheckLine, RiDraggable } from "@remixicon/react";
 import { EntryActionsMenu } from "@/components/EntryActionsMenu";
@@ -71,8 +71,22 @@ function locationLabel(loc: Location): string {
   return loc.kind === "day" ? loc.day : WEEKLY_MEAL_LABELS[loc.mealType];
 }
 
+const subscribeNever = () => () => {};
+
+function localTodayKey() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
 export function WeekPlanClient({ initialPlan, recipes }: { initialPlan: Plan; recipes: Recipe[] }) {
   const [plan, setPlan] = useState<Plan>(initialPlan);
+  // Today's date in the viewer's own time zone. The server snapshot is null, so server and client markup agree.
+  const todayKey = useSyncExternalStore(subscribeNever, localTodayKey, () => null);
+  function dayKey(dayIndex: number) {
+    const d = new Date(`${plan.weekKey}T00:00:00`);
+    d.setDate(d.getDate() + dayIndex);
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  }
   const recipeOptions = recipes;
   const [saving, setSaving] = useState(false);
   const [groceryStatus, setGroceryStatus] = useState<Record<string, string>>({});
@@ -254,9 +268,10 @@ export function WeekPlanClient({ initialPlan, recipes }: { initialPlan: Plan; re
       <div className="flex flex-col gap-3">
         {DAYS.map((day, dayIndex) => {
           const location: Location = { kind: "day", day };
+          const isToday = todayKey === dayKey(dayIndex);
           return (
+          <WavyFrame key={day} active={isToday}>
           <div
-            key={day}
             onDragOver={(e) => {
               e.preventDefault();
               setDragOverLocation(location);
@@ -266,12 +281,9 @@ export function WeekPlanClient({ initialPlan, recipes }: { initialPlan: Plan; re
               e.preventDefault();
               handleDropOnLocation(location);
             }}
-            className={`card flex flex-col gap-2 p-3 ${dragOverLocation && sameLocation(dragOverLocation, location) ? "ring-2 ring-sage" : ""}`}
+            className={`card flex flex-col gap-2 p-3 ${isToday ? "border-transparent!" : ""} ${dragOverLocation && sameLocation(dragOverLocation, location) ? "ring-2 ring-sage" : ""}`}
           >
-            <div className="flex items-baseline justify-between">
-              <h3 className="text-lg text-ink">{day}</h3>
-              <span className="text-xs text-cocoa">{formatDayDate(plan.weekKey, dayIndex)}</span>
-            </div>
+            <CardTitle aside={formatDayDate(plan.weekKey, dayIndex)}>{day}</CardTitle>
             <ul className="flex flex-col gap-1">
               {plan.dinners[day].map((entry) => (
                 <li
@@ -327,6 +339,7 @@ export function WeekPlanClient({ initialPlan, recipes }: { initialPlan: Plan; re
 
             <MealEntryAdder recipes={recipeOptions} onAdd={(entry) => addDinner(day, entry)} />
           </div>
+          </WavyFrame>
           );
         })}
       </div>
@@ -349,7 +362,7 @@ export function WeekPlanClient({ initialPlan, recipes }: { initialPlan: Plan; re
             }}
             className={`card flex flex-col gap-2 p-3 ${dragOverLocation && sameLocation(dragOverLocation, location) ? "ring-2 ring-sage" : ""}`}
           >
-            <h3 className="text-lg text-ink">{WEEKLY_MEAL_LABELS[mealType]}</h3>
+            <CardTitle>{WEEKLY_MEAL_LABELS[mealType]}</CardTitle>
             <ul className="flex flex-col gap-1">
               {plan.weeklyMeals[mealType].map((entry) => (
                 <li key={entry.id} className="flex flex-col gap-1.5 rounded-md bg-paper-alt p-2 text-xs">

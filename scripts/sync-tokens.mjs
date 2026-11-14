@@ -43,5 +43,26 @@ const titleStack = tokens.type?.families?.title;
 if (!titleStack || !/^"[^"]+",\s*[a-z-]+$/.test(titleStack)) throw new Error('type.families.title must look like "Font Name", cursive');
 const titleFallback = titleStack.split(",").slice(1).join(",").trim();
 css = replaceBlock(css, "title", ["h1,", ".font-title {", `  font-family: var(--font-kaushan), ${titleFallback};`, "}"], "");
+const grain = Number(tokens.texture?.tokens?.find((t) => t.name === "paper-grain")?.value ?? "0");
+if (!(grain >= 0 && grain <= 0.2)) throw new Error("texture paper-grain must be a number from 0 to 0.2");
+const noise =
+  "%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.42 0 0 0 0 0.34 0 0 0 0 0.27 0 0 0 1.4 -0.2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E";
+css = replaceBlock(
+  css,
+  "paper",
+  [
+    "body::before {",
+    '  content: "";',
+    "  position: fixed;",
+    "  inset: 0;",
+    "  z-index: 1000;",
+    "  pointer-events: none;",
+    `  opacity: ${grain};`,
+    `  background-image: url("data:image/svg+xml,${noise}");`,
+    "  mix-blend-mode: multiply;",
+    "}",
+  ],
+  ""
+);
 fs.writeFileSync("src/app/globals.css", css);
 console.log(`Wrote ${lines.length} color tokens and 4 radii`);
