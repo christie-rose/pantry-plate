@@ -44,6 +44,88 @@ type RecipeForPrompt = {
   ingredients: { name: string }[];
 };
 
+// Every photo keeps the app's rustic look and colors, but gets its own setting so the set does not look like it
+// was all shot on one table with one dish.
+const SURFACES = [
+  "a worn, honey-brown wooden table",
+  "a weathered whitewashed plank table",
+  "a creamy plaster or limestone countertop",
+  "a rumpled natural linen tablecloth",
+  "a dark slate slab with a little flour dusted around",
+  "an old farmhouse table painted a muted sage green and softly chipped",
+  "a pale marble pastry slab",
+  "a pale oak counter with a faint grain",
+  "a cool grey zinc counter warmed by a linen cloth",
+];
+
+const PROPS = [
+  "a sprig of fresh herbs beside the dish",
+  "a folded linen napkin",
+  "a small bowl of coarse salt",
+  "a few of the raw ingredients scattered nearby",
+  "a wooden spoon resting next to it",
+  "an old brass spoon",
+  "a small jug of olive oil or cream",
+  "a simple fork and a cloth napkin",
+  "nothing else on the table, a clean minimal composition",
+  "a halved lemon or a few peppercorns for color",
+];
+
+const ANGLES = [
+  "shot from directly overhead",
+  "shot from a 45 degree angle",
+  "shot from a low angle, almost level with the table",
+  "a close, three-quarter view",
+];
+
+const LIGHTS = [
+  "soft diffused window light from the left",
+  "warm late-afternoon sunlight with gentle long shadows",
+  "bright, airy morning light",
+  "moody warm side light with soft shadows",
+];
+
+const GLAZES = [
+  "creamy white",
+  "oatmeal speckled",
+  "soft sage green",
+  "warm grey-beige",
+  "butter yellow",
+  "muted brick red",
+  "pale blue-grey",
+  "natural unglazed clay",
+];
+
+function pick<T>(items: T[]): T {
+  return items[Math.floor(Math.random() * items.length)];
+}
+
+/** Serving ware that suits the dish, with several choices so it varies, and a glaze color for ceramics. */
+function servingWareFor(recipe: RecipeForPrompt): string {
+  const ware = baseServingWare(recipe);
+  return /ceramic|stoneware|earthenware|clay|ramekin|plate|platter|bowl|mug/.test(ware) ? `${ware} in a ${pick(GLAZES)} glaze` : ware;
+}
+
+function baseServingWare(recipe: RecipeForPrompt): string {
+  const text = `${recipe.title} ${recipe.categories.join(" ")}`.toLowerCase();
+  if (/drink|smoothie|lemonade|cocktail|tea|latte/.test(text)) return pick(["a simple glass", "a handmade ceramic mug", "a glass tumbler on a small cloth"]);
+  if (/soup|stew|chili|chowder|curry|broth|ramen/.test(text)) return pick(["a deep handmade stoneware bowl", "a speckled ceramic bowl", "a cast-iron pot with a ladle"]);
+  if (/sauce|dressing|dip|marinade|salsa|jam/.test(text)) return pick(["a small glass jar", "a little ceramic ramekin", "a rustic stoneware bowl with a spoon"]);
+  if (/salad|slaw/.test(text)) return pick(["a wide handmade ceramic bowl", "a shallow wooden serving bowl", "a pale stoneware platter"]);
+  if (/pie|casserole|lasagna|bake|gratin|cobbler/.test(text)) return pick(["a ceramic baking dish", "a stoneware pie dish", "a cast-iron skillet", "a rustic earthenware baking dish"]);
+  if (/cookie|cake|bar|brownie|muffin|dessert|bread|scone/.test(text)) return pick(["a wooden board", "a simple cream plate", "a wire cooling rack on parchment", "a cake stand", "a stoneware plate"]);
+  if (/breakfast|pancake|waffle|egg|oat|toast/.test(text)) return pick(["a stoneware plate", "a cast-iron skillet", "a rustic wooden board", "a speckled ceramic bowl"]);
+  return pick([
+    "a handmade stoneware plate",
+    "a speckled ceramic platter",
+    "a cast-iron skillet",
+    "a shallow ceramic bowl",
+    "a wooden serving board",
+    "a hand-thrown clay plate",
+    "a pale glazed plate",
+  ]);
+}
+
 export function buildImagePrompt(recipe: RecipeForPrompt): string {
   const ingredients = recipe.ingredients
     .map((i) => i.name)
@@ -54,10 +136,11 @@ export function buildImagePrompt(recipe: RecipeForPrompt): string {
     `A rustic, appetizing food photograph of "${recipe.title}", homemade and ready to eat.`,
     ingredients ? `Visible ingredients include ${ingredients}.` : "",
     context ? `Style of dish: ${context}.` : "",
-    // The look of the app: cream paper, brick red, sage green, butter yellow and cocoa brown.
-    "Rustic farmhouse styling on a worn, warm brown wooden table with a handmade stoneware or enamel dish and a natural linen napkin.",
-    "Warm, earthy, slightly muted color palette of cream, terracotta brick red, soft sage green herbs, butter yellow and cocoa brown; avoid bright blues and harsh whites.",
-    "Soft natural window light, shallow depth of field, shot from a 45 degree angle, a calm film-like look.",
+    `Served in ${servingWareFor(recipe)}, on ${pick(SURFACES)}, with ${pick(PROPS)}. Do not use dark-rimmed enamel dishes.`,
+    `${pick(ANGLES)}, with ${pick(LIGHTS)}.`,
+    // The look of the app, kept consistent across every photo: cream, brick red, sage green, butter yellow, cocoa brown.
+    "Rustic, homemade, farmhouse feel with a warm, earthy, slightly muted color palette of cream, brick red, soft sage green, butter yellow and cocoa brown; avoid bright blues and harsh whites.",
+    "A calm, film-like look with shallow depth of field. Make this image distinct in setting and composition from other food photos.",
     "No text, no labels, no hands, no people.",
   ]
     .filter(Boolean)

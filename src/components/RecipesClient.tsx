@@ -130,7 +130,7 @@ export function RecipesClient({ initialRecipes }: { initialRecipes: Recipe[] }) 
           </EmptyState>
         )
       ) : (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 items-start gap-4 sm:grid-cols-2">
           {recipes.map((recipe) => {
             const proteins = detectProteins(recipe.ingredients.map((i) => i.name));
             return (
