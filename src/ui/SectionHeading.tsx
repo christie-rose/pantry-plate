@@ -12,13 +12,13 @@ export function SectionHeading({
   tone?: "ink" | "brick";
 }) {
   return (
-    <h2 className={`w-fit ${size === "lg" ? "text-2xl" : "text-xl"} ${tone === "brick" ? "text-brick" : "text-ink"}`}>
+    <h2 className={`relative w-fit pb-[7px] ${size === "lg" ? "text-2xl" : "text-xl"} ${tone === "brick" ? "text-brick" : "text-ink"}`}>
       <span className="flex items-center gap-2">{children}</span>
       <svg
         viewBox="0 0 200 8"
         preserveAspectRatio="none"
         aria-hidden
-        className="block h-[7px] w-full text-brick"
+        className="absolute bottom-0 left-0 block h-[7px] w-full text-brick"
         fill="none"
         stroke="currentColor"
         strokeWidth="2.4"
