@@ -293,12 +293,12 @@ export function WeekPlanClient({ initialPlan, recipes }: { initialPlan: Plan; re
                       {entry.type === "recipe" && entry.recipeId ? (
                         <Link
                           href={`/recipes/${entry.recipeId}${entry.servings ? `?servings=${entry.servings}` : ""}`}
-                          className="leading-snug underline"
+                          className="text-base leading-snug underline"
                         >
                           {entry.label}
                         </Link>
                       ) : (
-                        <span className="leading-snug">{entry.label}</span>
+                        <span className="text-base leading-snug">{entry.label}</span>
                       )}
                     </div>
                     <EntryActionsMenu
@@ -366,12 +366,12 @@ export function WeekPlanClient({ initialPlan, recipes }: { initialPlan: Plan; re
                       {entry.type === "recipe" && entry.recipeId ? (
                         <Link
                           href={`/recipes/${entry.recipeId}${entry.servings ? `?servings=${entry.servings}` : ""}`}
-                          className="leading-snug underline"
+                          className="text-base leading-snug underline"
                         >
                           {entry.label}
                         </Link>
                       ) : (
-                        <span className="leading-snug">{entry.label}</span>
+                        <span className="text-base leading-snug">{entry.label}</span>
                       )}
                     </div>
                     <EntryActionsMenu
