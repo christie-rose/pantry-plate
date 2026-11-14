@@ -35,7 +35,6 @@ export default async function PlanPage({
         id: true,
         title: true,
         servings: true,
-        prepAhead: true,
         categories: true,
         cuisine: true,
         ingredients: { select: { name: true } },
