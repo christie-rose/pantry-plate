@@ -1,6 +1,17 @@
 export const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"] as const;
 export type Day = (typeof DAYS)[number];
 
+/** Full names for display. The short names above are what gets stored. */
+export const DAY_NAMES: Record<Day, string> = {
+  Mon: "Monday",
+  Tue: "Tuesday",
+  Wed: "Wednesday",
+  Thu: "Thursday",
+  Fri: "Friday",
+  Sat: "Saturday",
+  Sun: "Sunday",
+};
+
 export const WEEKLY_MEAL_TYPES = ["breakfast", "lunch", "snack", "other"] as const;
 export type WeeklyMealType = (typeof WEEKLY_MEAL_TYPES)[number];
 

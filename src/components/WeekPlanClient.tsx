@@ -7,6 +7,7 @@ import { RiCheckLine, RiDraggable } from "@remixicon/react";
 import { EntryActionsMenu } from "@/components/EntryActionsMenu";
 import {
   DAYS,
+  DAY_NAMES,
   WEEKLY_MEAL_TYPES,
   addDaysToKey,
   formatDayDate,
@@ -68,7 +69,7 @@ const ALL_LOCATIONS: Location[] = [
 ];
 
 function locationLabel(loc: Location): string {
-  return loc.kind === "day" ? loc.day : WEEKLY_MEAL_LABELS[loc.mealType];
+  return loc.kind === "day" ? DAY_NAMES[loc.day] : WEEKLY_MEAL_LABELS[loc.mealType];
 }
 
 export function WeekPlanClient({ initialPlan, recipes }: { initialPlan: Plan; recipes: Recipe[] }) {
@@ -268,7 +269,7 @@ export function WeekPlanClient({ initialPlan, recipes }: { initialPlan: Plan; re
             }}
             className={`card flex flex-col gap-2 p-3 ${dragOverLocation && sameLocation(dragOverLocation, location) ? "ring-2 ring-sage" : ""}`}
           >
-            <CardTitle aside={formatDayDate(plan.weekKey, dayIndex)}>{day}</CardTitle>
+            <CardTitle aside={formatDayDate(plan.weekKey, dayIndex)}>{DAY_NAMES[day]}</CardTitle>
             <ul className="flex flex-col gap-1">
               {plan.dinners[day].map((entry) => (
                 <li
