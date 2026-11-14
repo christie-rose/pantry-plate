@@ -492,7 +492,7 @@ export function GroceryClient({
                     }}
                     placeholder="Add an item…"
                     aria-label="Edit item"
-                    className="h-9 min-w-0 flex-1 rounded-md border border-cocoa/40 bg-white px-2 text-sm text-ink"
+                    className="min-w-0 flex-1 border-0 bg-transparent p-0 text-base text-ink outline-none! ring-0 placeholder:text-cocoa/50"
                   />
                 ) : (
                   <button
