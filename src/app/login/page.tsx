@@ -1,5 +1,6 @@
 "use client";
 
+import { Logo } from "@/ui";
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 
@@ -38,7 +39,9 @@ export default function LoginPage() {
         onSubmit={handleSubmit}
         className="card w-full max-w-sm p-8 flex flex-col gap-4"
       >
-        <h1 className="text-2xl text-brick">A Tavola</h1>
+        <h1>
+          <Logo size={34} />
+        </h1>
         <p className="text-sm text-cocoa">Enter the household password to continue.</p>
 
         <input

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { MobileBar, MobileMenu, NavLink, SideRail } from "@/ui";
+import { Logo, MobileBar, MobileMenu, NavLink, SideRail } from "@/ui";
 import { usePathname, useRouter } from "next/navigation";
 import {
   RiBookOpenLine,
@@ -68,15 +68,24 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </NavLink>
     </>
   );
-  const brand = <Link href="/">A Tavola</Link>;
+  const sideBrand = (
+    <Link href="/" aria-label="A Tavola home">
+      <Logo size={26} />
+    </Link>
+  );
+  const barBrand = (
+    <Link href="/" aria-label="A Tavola home">
+      <Logo size={22} />
+    </Link>
+  );
 
   return (
     <div className="flex min-h-full flex-1 flex-col md:flex-row">
-      <SideRail brand={brand} footer={footer}>
+      <SideRail brand={sideBrand} footer={footer}>
         {links}
       </SideRail>
 
-      <MobileBar brand={brand} open={mobileMenuOpen} onToggle={() => setMobileMenuOpen((o) => !o)} />
+      <MobileBar brand={barBrand} open={mobileMenuOpen} onToggle={() => setMobileMenuOpen((o) => !o)} />
 
       {mobileMenuOpen && (
         <MobileMenu onClose={() => setMobileMenuOpen(false)} footer={footer}>
