@@ -270,8 +270,8 @@ export function GroceryClient({
                   />
                 ) : confirming === "all" ? (
                   <ConfirmBox
-                    text={`Clear all ${items.length} ${items.length === 1 ? "item" : "items"}?`}
-                    yes="Clear list"
+                    text={`Delete all ${items.length} ${items.length === 1 ? "item" : "items"}?`}
+                    yes="Delete all"
                     onYes={() => {
                       clearList();
                       close();
@@ -304,7 +304,7 @@ export function GroceryClient({
                       icon={<RiDeleteBinLine size={16} aria-hidden />}
                       onClick={() => setConfirming("all")}
                     >
-                      Clear list
+                      Delete all items
                     </MenuItem>
                   </>
                 )
