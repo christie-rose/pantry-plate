@@ -8,4 +8,4 @@ export { ActionsMenu, MenuItem } from "./ActionsMenu";
 export { WeekSelector } from "./WeekSelector";
 export { GroceryList, GroceryRow, AddButton } from "./GroceryList";
 export { SideRail, MobileBar, MobileMenu } from "./Nav";
-export { CheckCircle } from "./CheckCircle";
+export { CheckCircle, CheckMark } from "./CheckCircle";

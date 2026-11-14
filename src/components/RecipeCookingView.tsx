@@ -3,7 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { RiCheckLine, RiCalendarLine } from "@remixicon/react";
+import { RiCalendarLine } from "@remixicon/react";
+import { CheckMark } from "@/ui";
 import { formatAmountAsFraction } from "@/lib/recipes";
 
 type Ingredient = {
@@ -127,14 +128,7 @@ export function RecipeCookingView({ recipe, originalServings }: { recipe: Recipe
                   onClick={() => toggleIngredient(ingredient.id)}
                   className="flex min-h-[44px] w-full items-center gap-3 py-2 text-left"
                 >
-                  <span
-                    className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 ${
-                      checked ? "border-sage bg-sage text-white" : "border-cocoa/40"
-                    }`}
-                    aria-hidden
-                  >
-                    {checked && <RiCheckLine size={16} aria-hidden />}
-                  </span>
+                  <CheckMark checked={checked} />
                   <span className={`text-base ${checked ? "text-cocoa line-through" : "text-ink"}`}>
                     {formatAmount(ingredient) && (
                       <span className="font-medium">{formatAmount(ingredient)} </span>
@@ -164,14 +158,9 @@ export function RecipeCookingView({ recipe, originalServings }: { recipe: Recipe
                     onClick={() => togglePrepStep(index)}
                     className="flex w-full items-start gap-3 py-3 text-left"
                   >
-                    <span
-                      className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 text-xs font-medium ${
-                        checked ? "border-sage bg-sage text-white" : "border-cocoa/40 text-cocoa"
-                      }`}
-                      aria-hidden
-                    >
-                      {checked ? <RiCheckLine size={16} aria-hidden /> : index + 1}
-                    </span>
+                    <CheckMark checked={checked} className="mt-0.5">
+                      {index + 1}
+                    </CheckMark>
                     <span className={`text-base leading-relaxed ${checked ? "text-cocoa line-through" : "text-ink"}`}>
                       {step}
                     </span>
@@ -195,14 +184,9 @@ export function RecipeCookingView({ recipe, originalServings }: { recipe: Recipe
                   onClick={() => toggleStep(index)}
                   className="flex w-full items-start gap-3 py-3 text-left"
                 >
-                  <span
-                    className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 text-xs font-medium ${
-                      checked ? "border-sage bg-sage text-white" : "border-cocoa/40 text-cocoa"
-                    }`}
-                    aria-hidden
-                  >
-                    {checked ? <RiCheckLine size={16} aria-hidden /> : index + 1}
-                  </span>
+                  <CheckMark checked={checked} className="mt-0.5">
+                    {index + 1}
+                  </CheckMark>
                   <span className={`text-base leading-relaxed ${checked ? "text-cocoa line-through" : "text-ink"}`}>
                     {step}
                   </span>
