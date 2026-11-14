@@ -2,20 +2,20 @@ import type { ReactNode } from "react";
 
 /**
  * A heading with a loose hand-drawn brick underline, like "Ingredients:" in a recipe notebook.
- * `md` is the title of a card (brush script, ink); `lg` is a section heading on a page (Karla medium, brick).
+ * `md` is the title of a card (brush script, cocoa); `lg` is a section heading on a page (Karla medium, brick).
  */
 export function SectionHeading({
   children,
   size = "md",
-  tone = "ink",
+  tone = "cocoa",
 }: {
   children: ReactNode;
   size?: "md" | "lg";
-  tone?: "ink" | "brick";
+  tone?: "cocoa" | "ink" | "brick";
 }) {
   const type = size === "lg" ? "text-xl font-medium" : "font-title text-2xl";
   return (
-    <h2 className={`relative w-fit pb-[7px] ${type} ${tone === "brick" ? "text-brick" : "text-ink"}`}>
+    <h2 className={`relative w-fit pb-[7px] ${type} ${tone === "brick" ? "text-brick" : tone === "ink" ? "text-ink" : "text-cocoa"}`}>
       <span className="flex items-center gap-2">{children}</span>
       <svg
         viewBox="0 0 200 8"
