@@ -34,7 +34,7 @@
   --color-white: var(--white);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-heading: var(--font-fraunces);
+  --font-heading: var(--font-karla);
   --font-sans: var(--font-karla);
 }
 
@@ -42,13 +42,6 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-karla), sans-serif;
-}
-
-h1,
-h2,
-h3,
-h4 {
-  font-family: var(--font-fraunces), serif;
 }
 
 /* ds:paper:start — generated from the design system texture.paper-grain token by scripts/sync-tokens.mjs */

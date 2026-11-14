@@ -27,7 +27,7 @@ export function Modal({
         className="flex max-h-[85vh] w-full max-w-md flex-col gap-3 rounded-lg bg-white p-4 shadow-lg"
       >
         <div className="flex items-center justify-between">
-          <h2 className="text-lg text-brick">{title}</h2>
+          <h2 className="text-lg font-medium text-brick">{title}</h2>
           <button
             type="button"
             onClick={onClose}

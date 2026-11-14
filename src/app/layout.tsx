@@ -1,12 +1,7 @@
 import type { Metadata, Viewport } from "next";
-import { Elsie_Swash_Caps, Fraunces, Karla, Kaushan_Script } from "next/font/google";
+import { Elsie_Swash_Caps, Karla, Kaushan_Script } from "next/font/google";
 import "./globals.css";
 import { AppShell } from "@/components/AppNav";
-
-const fraunces = Fraunces({
-  variable: "--font-fraunces",
-  subsets: ["latin"],
-});
 
 const karla = Karla({
   variable: "--font-karla",
@@ -52,7 +47,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${fraunces.variable} ${karla.variable} ${kaushan.variable} ${elsie.variable} h-full antialiased`}
+      className={`${karla.variable} ${kaushan.variable} ${elsie.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-paper text-ink">
         <AppShell>{children}</AppShell>
