@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { RiCalendarLine, RiEdit2Line, RiFileCopyLine } from "@remixicon/react";
+import { RiCalendarLine, RiDeleteBinLine, RiEdit2Line, RiFileCopyLine } from "@remixicon/react";
 import { ActionsMenu, CheckMark, DividedList, MenuItem, PageTitle, SectionHeading } from "@/ui";
 import { RecipeImageManager } from "@/components/RecipeImageManager";
 import { formatAmountAsFraction } from "@/lib/recipes";
@@ -44,6 +44,8 @@ export function RecipeCookingView({ recipe, originalServings }: { recipe: Recipe
   const [checkedSteps, setCheckedSteps] = useState<Set<number>>(new Set());
   const [checkedPrepSteps, setCheckedPrepSteps] = useState<Set<number>>(new Set());
   const [duplicating, setDuplicating] = useState(false);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const router = useRouter();
 
   async function handleDuplicate() {
@@ -55,6 +57,12 @@ export function RecipeCookingView({ recipe, originalServings }: { recipe: Recipe
     }
     const { id } = await res.json();
     router.push(`/recipes/${id}/edit`);
+  }
+
+  async function handleDelete() {
+    setDeleting(true);
+    await fetch(`/api/recipes/${recipe.id}`, { method: "DELETE" }).catch(() => null);
+    router.push("/recipes");
   }
 
   function toggleIngredient(id: string) {
@@ -101,26 +109,59 @@ export function RecipeCookingView({ recipe, originalServings }: { recipe: Recipe
           </p>
         </div>
         <ActionsMenu size="lg" label="Recipe actions">
-          {() => (
-            <>
-              <MenuItem
-                tone="ink"
-                icon={<RiEdit2Line size={16} aria-hidden />}
-                onClick={() => router.push(`/recipes/${recipe.id}/edit`)}
-              >
-                Edit recipe
-              </MenuItem>
-              {/* The menu stays open while copying so "Duplicating…" shows until the new recipe opens. */}
-              <MenuItem
-                tone="ink"
-                icon={<RiFileCopyLine size={16} aria-hidden />}
-                onClick={handleDuplicate}
-                disabled={duplicating}
-              >
-                {duplicating ? "Duplicating…" : "Duplicate"}
-              </MenuItem>
-            </>
-          )}
+          {(close) =>
+            confirmingDelete ? (
+              <div className="flex flex-col gap-2 p-1">
+                <p className="text-sm text-ink">Delete “{recipe.title}” for good? This can’t be undone.</p>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setConfirmingDelete(false);
+                      close();
+                    }}
+                    className="min-h-[40px] flex-1 rounded-md border border-cocoa/40 px-2 text-sm text-ink"
+                  >
+                    Keep it
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleDelete}
+                    disabled={deleting}
+                    className="min-h-[40px] flex-1 rounded-md bg-brick px-2 text-sm font-medium text-white disabled:opacity-50"
+                  >
+                    {deleting ? "Deleting…" : "Yes, delete"}
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <>
+                <MenuItem
+                  tone="ink"
+                  icon={<RiEdit2Line size={16} aria-hidden />}
+                  onClick={() => router.push(`/recipes/${recipe.id}/edit`)}
+                >
+                  Edit recipe
+                </MenuItem>
+                {/* The menu stays open while copying so "Duplicating…" shows until the new recipe opens. */}
+                <MenuItem
+                  tone="ink"
+                  icon={<RiFileCopyLine size={16} aria-hidden />}
+                  onClick={handleDuplicate}
+                  disabled={duplicating}
+                >
+                  {duplicating ? "Duplicating…" : "Duplicate"}
+                </MenuItem>
+                <MenuItem
+                  tone="danger"
+                  icon={<RiDeleteBinLine size={16} aria-hidden />}
+                  onClick={() => setConfirmingDelete(true)}
+                >
+                  Delete recipe
+                </MenuItem>
+              </>
+            )
+          }
         </ActionsMenu>
       </div>
 
