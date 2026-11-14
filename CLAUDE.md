@@ -1,7 +1,7 @@
-# A Tavola
+# Plenty of Thyme
 
 ## Design system is the source of truth
-The A Tavola Design System artifact (https://claude.ai/artifact/186Vm4ZaQ32Y2doaVoLJFP) drives the app's colors, corner radii and shared components. The user edits it there, then asks "sync the app to the design system".
+The Plenty of Thyme Design System artifact (https://claude.ai/artifact/186Vm4ZaQ32Y2doaVoLJFP) drives the app's colors, corner radii and shared components. The user edits it there, then asks "sync the app to the design system".
 
 To sync:
 1. Read these files from the artifact (Artifact `read` with `paths`, `out_dir` in the scratchpad): `project/tokens.json` and every file in `project/components/src/` (list them with `action: "list", scope: "files"` first, so new files are not missed).

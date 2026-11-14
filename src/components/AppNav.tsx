@@ -69,13 +69,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     </>
   );
   const sideBrand = (
-    <Link href="/" aria-label="A Tavola home">
-      <Logo size={26} />
+    <Link href="/" aria-label="Plenty of Thyme home">
+      <Logo size={25} />
     </Link>
   );
   const barBrand = (
-    <Link href="/" aria-label="A Tavola home">
-      <Logo size={22} />
+    <Link href="/" aria-label="Plenty of Thyme home">
+      <Logo size={24} />
     </Link>
   );
 

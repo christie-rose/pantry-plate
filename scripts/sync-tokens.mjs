@@ -46,6 +46,9 @@ css = replaceBlock(
 );
 const titleStack = tokens.type?.families?.title;
 if (!titleStack || !/^"[^"]+",\s*[a-z-]+$/.test(titleStack)) throw new Error('type.families.title must look like "Font Name", cursive');
+const logoStack = tokens.type?.families?.logo;
+if (!logoStack || !/^"[^"]+",\s*[a-z-]+$/.test(logoStack)) throw new Error('type.families.logo must look like "Font Name", serif');
+css = replaceBlock(css, "logo", [".font-logo {", `  font-family: var(--font-elsie), ${logoStack.split(",").slice(1).join(",").trim()};`, "}"], "");
 const titleFallback = titleStack.split(",").slice(1).join(",").trim();
 css = replaceBlock(css, "title", ["h1,", ".font-title {", `  font-family: var(--font-kaushan), ${titleFallback};`, "}"], "");
 const grain = Number(tokens.texture?.tokens?.find((t) => t.name === "paper-grain")?.value ?? "0");

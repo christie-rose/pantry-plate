@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Fraunces, Karla, Kaushan_Script } from "next/font/google";
+import { Elsie_Swash_Caps, Fraunces, Karla, Kaushan_Script } from "next/font/google";
 import "./globals.css";
 import { AppShell } from "@/components/AppNav";
 
@@ -13,6 +13,12 @@ const karla = Karla({
   subsets: ["latin"],
 });
 
+const elsie = Elsie_Swash_Caps({
+  variable: "--font-elsie",
+  weight: "400",
+  subsets: ["latin"],
+});
+
 const kaushan = Kaushan_Script({
   variable: "--font-kaushan",
   weight: "400",
@@ -20,13 +26,14 @@ const kaushan = Kaushan_Script({
 });
 
 export const metadata: Metadata = {
-  title: "A Tavola",
+  title: "Plenty of Thyme",
   description: "Recipes, weekly meal planning, and grocery lists.",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "A Tavola",
+    // Short enough to fit under the home-screen icon.
+    title: "Thyme",
   },
   icons: {
     icon: [
@@ -45,7 +52,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${fraunces.variable} ${karla.variable} ${kaushan.variable} h-full antialiased`}
+      className={`${fraunces.variable} ${karla.variable} ${kaushan.variable} ${elsie.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-paper text-ink">
         <AppShell>{children}</AppShell>

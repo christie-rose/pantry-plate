@@ -1,22 +1,15 @@
 /**
- * The A Tavola wordmark: a big brush "A" in brick with "Tavola" beside it in ink. `size` is the height of the word
- * "Tavola" in pixels; the "A" is half as large again. Text only, set in the title font token.
+ * The Plenty of Thyme wordmark: the whole name in Elsie Swash Caps, one weight and one color. `size` is the font
+ * size in pixels. `tone="light"` is white, for a brick or dark background. Text only.
  */
-export function Logo({ size = 24, tone = "color" }: { size?: number; tone?: "color" | "light" }) {
-  const a = tone === "light" ? "text-white" : "text-brick";
-  const t = tone === "light" ? "text-white" : "text-ink";
+export function Logo({ size = 24, tone = "ink" }: { size?: number; tone?: "ink" | "light" }) {
   return (
     <span
-      className="inline-flex items-baseline whitespace-nowrap font-title leading-none"
-      style={{ fontSize: size, gap: size * 0.1 }}
-      aria-label="A Tavola"
+      className={`inline-block whitespace-nowrap font-logo leading-none ${tone === "light" ? "text-white" : "text-ink"}`}
+      style={{ fontSize: size }}
+      aria-label="Plenty of Thyme"
     >
-      <span className={a} style={{ fontSize: "1.5em" }} aria-hidden>
-        A
-      </span>
-      <span className={t} aria-hidden>
-        Tavola
-      </span>
+      <span aria-hidden>Plenty of Thyme</span>
     </span>
   );
 }

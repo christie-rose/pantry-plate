@@ -1,6 +1,6 @@
 {
-  "name": "A Tavola",
-  "short_name": "A Tavola",
+  "name": "Plenty of Thyme",
+  "short_name": "Thyme",
   "description": "Recipes, weekly meal planning, and grocery lists.",
   "start_url": "/",
   "display": "standalone",

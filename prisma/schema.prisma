@@ -1,4 +1,4 @@
-// A Tavola — Prisma schema
+// Plenty of Thyme — Prisma schema
 // See pantry-and-plate-spec.md §3 for the source of truth on this model.
 
 generator client {

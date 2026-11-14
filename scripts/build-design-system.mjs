@@ -1,4 +1,4 @@
-// Builds the A Tavola design system's component bundle from the real app files in src/ui.
+// Builds the Plenty of Thyme design system's component bundle from the real app files in src/ui.
 // Usage: node scripts/build-design-system.mjs <output dir>   (writes <dir>/project/components/bundle.js, bundle.css, src/*)
 // Then publish those files to the design system artifact.
 import fs from "node:fs";
@@ -68,7 +68,7 @@ ${body}
 const globals = fs.readFileSync("src/app/globals.css", "utf8");
 const input =
   globals.replace('@import "tailwindcss";', `@import "tailwindcss" source("${uiDir}");`) +
-  "\nbody{font-family:var(--font-body),system-ui,sans-serif;margin:0}h2,h3,h4{font-family:var(--font-display),Georgia,serif}h1,.font-title{font-family:var(--font-title),cursive}\n";
+  "\nbody{font-family:var(--font-body),system-ui,sans-serif;margin:0}h2,h3,h4{font-family:var(--font-display),Georgia,serif}h1,.font-title{font-family:var(--font-title),cursive}.font-logo{font-family:var(--font-logo),serif}\n";
 const css = (await postcss([tailwind()]).process(input, { from: path.resolve("src/app/globals.css") })).css;
 
 const dir = path.join(out, "project/components");

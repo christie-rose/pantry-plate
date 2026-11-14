@@ -1,6 +1,6 @@
 import type { ElementType, ComponentPropsWithoutRef } from "react";
 
-/** Shared button. Mirrored in the A Tavola design system; see scripts/build-design-system.mjs. */
+/** Shared button. Mirrored in the Plenty of Thyme design system; see scripts/build-design-system.mjs. */
 export type ButtonVariant = "primary" | "secondary" | "danger";
 
 const VARIANTS: Record<ButtonVariant, string> = {

@@ -63,6 +63,12 @@ body::before {
 }
 /* ds:paper:end */
 
+/* ds:logo:start — generated from the design system type.families.logo by scripts/sync-tokens.mjs */
+.font-logo {
+  font-family: var(--font-elsie), serif;
+}
+/* ds:logo:end */
+
 /* ds:title:start — generated from the design system type.families.title by scripts/sync-tokens.mjs */
 h1,
 .font-title {

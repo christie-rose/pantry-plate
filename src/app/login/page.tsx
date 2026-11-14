@@ -40,8 +40,9 @@ export default function LoginPage() {
         className="card w-full max-w-sm p-8 flex flex-col gap-4"
       >
         <h1>
-          <Logo size={34} />
+          <Logo size={36} />
         </h1>
+        <p className="-mt-2 font-title text-lg text-cocoa">Pull up a chair.</p>
         <p className="text-sm text-cocoa">Enter the household password to continue.</p>
 
         <input
