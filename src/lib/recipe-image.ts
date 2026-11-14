@@ -51,10 +51,13 @@ export function buildImagePrompt(recipe: RecipeForPrompt): string {
     .join(", ");
   const context = [recipe.cuisine, ...recipe.categories].filter(Boolean).join(", ");
   return [
-    `A realistic, appetizing food photograph of "${recipe.title}", plated and ready to eat.`,
+    `A rustic, appetizing food photograph of "${recipe.title}", homemade and ready to eat.`,
     ingredients ? `Visible ingredients include ${ingredients}.` : "",
     context ? `Style of dish: ${context}.` : "",
-    "Natural window light, shallow depth of field, shot from a 45 degree angle on a simple table.",
+    // The look of the app: cream paper, brick red, sage green, butter yellow and cocoa brown.
+    "Rustic farmhouse styling on a worn, warm brown wooden table with a handmade stoneware or enamel dish and a natural linen napkin.",
+    "Warm, earthy, slightly muted color palette of cream, terracotta brick red, soft sage green herbs, butter yellow and cocoa brown; avoid bright blues and harsh whites.",
+    "Soft natural window light, shallow depth of field, shot from a 45 degree angle, a calm film-like look.",
     "No text, no labels, no hands, no people.",
   ]
     .filter(Boolean)

@@ -3,7 +3,7 @@ import { Illustration } from "./Illustration";
 
 /**
  * A recipe's photo, or a calm placeholder when it has none. `hero` is the large image on a recipe page; `thumb` is
- * the smaller one on a list card. `busy` shows the placeholder as "being made". `action` is placed top right, for
+ * the smaller one on a list card. Every photo, uploaded or AI-made, gets a very light warm tone so the set sits well together. `busy` shows the placeholder as "being made". `action` is placed top right, for
  * the change-image menu.
  */
 export function RecipeImage({
@@ -28,7 +28,7 @@ export function RecipeImage({
     >
       {src ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={src} alt={alt} className="h-full w-full object-cover" />
+        <img src={src} alt={alt} className="h-full w-full object-cover [filter:sepia(0.14)_saturate(0.92)]" />
       ) : (
         <div className="flex h-full flex-col items-center justify-center gap-1 text-center">
           <Illustration name="bowl" size={hero ? 72 : 44} />
