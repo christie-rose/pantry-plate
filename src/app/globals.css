@@ -48,6 +48,12 @@ h4 {
   font-family: var(--font-fraunces), serif;
 }
 
+/* ds:title:start — generated from the design system type.families.title by scripts/sync-tokens.mjs */
+h1 {
+  font-family: var(--font-kaushan), cursive;
+}
+/* ds:title:end */
+
 /* ds:card:start — generated from the design system radius tokens by scripts/sync-tokens.mjs */
 .card {
   border-radius: 4px 14px 4px 14px;

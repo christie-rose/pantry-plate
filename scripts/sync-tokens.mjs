@@ -39,5 +39,8 @@ css = replaceBlock(
   ],
   ""
 );
+const titleStack = tokens.type?.families?.title;
+if (!titleStack || !/^"[^"]+",\s*[a-z-]+$/.test(titleStack)) throw new Error('type.families.title must look like "Font Name", cursive');
+css = replaceBlock(css, "title", ["h1 {", `  font-family: var(--font-kaushan), ${titleStack.split(",").slice(1).join(",").trim()};`, "}"], "");
 fs.writeFileSync("src/app/globals.css", css);
 console.log(`Wrote ${lines.length} color tokens and 4 radii`);

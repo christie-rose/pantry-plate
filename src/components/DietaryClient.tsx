@@ -1,5 +1,6 @@
 "use client";
 
+import { PageTitle } from "@/ui";
 import { useState } from "react";
 import { DIETARY_CATEGORIES, type DietaryCategory } from "@/lib/dietary";
 
@@ -41,7 +42,7 @@ export function DietaryClient({ initialEntries }: { initialEntries: DietaryEntry
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 p-4 pb-24">
-      <h1 className="text-3xl text-brick">Household dietary profile</h1>
+      <PageTitle>Household dietary profile</PageTitle>
       <p className="text-sm text-cocoa">
         Allergies, diets, dislikes, and preferences here inform AI recipe and meal-plan generation
         when you choose to respect household restrictions.

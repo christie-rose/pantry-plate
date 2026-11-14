@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Fraunces, Karla } from "next/font/google";
+import { Fraunces, Karla, Kaushan_Script } from "next/font/google";
 import "./globals.css";
 import { AppShell } from "@/components/AppNav";
 
@@ -10,6 +10,12 @@ const fraunces = Fraunces({
 
 const karla = Karla({
   variable: "--font-karla",
+  subsets: ["latin"],
+});
+
+const kaushan = Kaushan_Script({
+  variable: "--font-kaushan",
+  weight: "400",
   subsets: ["latin"],
 });
 
@@ -39,7 +45,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${fraunces.variable} ${karla.variable} h-full antialiased`}
+      className={`${fraunces.variable} ${karla.variable} ${kaushan.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-paper text-ink">
         <AppShell>{children}</AppShell>

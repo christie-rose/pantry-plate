@@ -1,6 +1,6 @@
 "use client";
 
-import { AddButton, Button, FilterChip, GroceryList, GroceryRow, TagChip } from "@/ui";
+import { AddButton, Button, FilterChip, GroceryList, GroceryRow, PageTitle, TagChip } from "@/ui";
 import { useRef, useState } from "react";
 import Link from "next/link";
 import type { GroceryItem } from "@/lib/grocery";
@@ -215,7 +215,7 @@ export function GroceryClient({
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 p-4 pb-24">
-      <h1 className="text-3xl text-brick">Grocery List</h1>
+      <PageTitle>Grocery List</PageTitle>
 
       {items.length > 0 && (
         <div className="flex flex-col gap-2">

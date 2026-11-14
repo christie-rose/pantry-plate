@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { RiCalendarLine } from "@remixicon/react";
-import { CheckMark } from "@/ui";
+import { CheckMark, PageTitle } from "@/ui";
 import { formatAmountAsFraction } from "@/lib/recipes";
 
 type Ingredient = {
@@ -89,7 +89,7 @@ export function RecipeCookingView({ recipe, originalServings }: { recipe: Recipe
           <Link href="/recipes" className="text-sm text-cocoa underline">
             ‹ Recipes
           </Link>
-          <h1 className="text-3xl text-brick">{recipe.title}</h1>
+          <PageTitle>{recipe.title}</PageTitle>
           <p className="text-sm text-cocoa">
             Serves {recipe.servings}
             {originalServings ? ` (scaled from ${originalServings} in the plan)` : ""}

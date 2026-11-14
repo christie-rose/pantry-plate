@@ -1,5 +1,6 @@
 "use client";
 
+import { PageTitle } from "@/ui";
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { RiCameraLine, RiSparklingLine } from "@remixicon/react";
@@ -156,7 +157,7 @@ export default function NewRecipePage() {
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 p-4 pb-24">
-      <h1 className="text-3xl text-brick">Add recipe</h1>
+      <PageTitle>Add recipe</PageTitle>
 
       <div className="card flex flex-col gap-3 p-4">
         <div className="flex flex-wrap gap-2">

@@ -1,5 +1,6 @@
 "use client";
 
+import { PageTitle } from "@/ui";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
@@ -212,7 +213,7 @@ export function RecipeEditClient({ recipe }: { recipe: Recipe }) {
           <Link href={`/recipes/${recipe.id}`} className="text-sm text-cocoa underline">
             ‹ Cancel
           </Link>
-          <h1 className="text-3xl text-brick">Edit recipe</h1>
+          <PageTitle>Edit recipe</PageTitle>
         </div>
         <button
           type="button"

@@ -1,5 +1,6 @@
 "use client";
 
+import { PageTitle } from "@/ui";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { CUISINES, detectProteins, PROTEIN_TYPES, RECIPE_CATEGORIES } from "@/lib/recipes";
@@ -52,7 +53,7 @@ export function RecipesClient({ initialRecipes }: { initialRecipes: Recipe[] }) 
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 p-4 pb-24">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl text-brick">Recipes</h1>
+        <PageTitle>Recipes</PageTitle>
         <Link href="/recipes/new" className="min-h-[44px] flex items-center rounded-md bg-brick px-4 text-sm font-medium text-white">
           Add recipe
         </Link>

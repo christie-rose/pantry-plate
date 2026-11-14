@@ -1,6 +1,6 @@
 "use client";
 
-import { WeekSelector } from "@/ui";
+import { PageTitle, WeekSelector } from "@/ui";
 import { useState } from "react";
 import Link from "next/link";
 import { RiCheckLine, RiDraggable } from "@remixicon/react";
@@ -238,7 +238,7 @@ export function WeekPlanClient({ initialPlan, recipes }: { initialPlan: Plan; re
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 p-4 pb-24">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="text-3xl text-brick">Meal Plan</h1>
+        <PageTitle>Meal Plan</PageTitle>
         <WeekSelector
           as={Link}
           label={formatWeekLabel(plan.weekKey)}
