@@ -9,6 +9,7 @@ import {
   RiCalendarLine,
   RiShoppingCartLine,
   RiSettings3Line,
+  RiLightbulbLine,
   RiLogoutBoxRLine,
 } from "@remixicon/react";
 
@@ -54,6 +55,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <NavLink as={Link} href="/dietary" active={isActive("/dietary")} onClick={() => setMobileMenuOpen(false)}>
         <RiSettings3Line size={20} aria-hidden />
         Household settings
+      </NavLink>
+      <NavLink as={Link} href="/suggestions" active={isActive("/suggestions")} onClick={() => setMobileMenuOpen(false)}>
+        <RiLightbulbLine size={20} aria-hidden />
+        Suggestions
       </NavLink>
       <NavLink
         as="button"
