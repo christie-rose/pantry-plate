@@ -422,7 +422,7 @@ export function GroceryClient({
                     type="button"
                     onClick={() => startEditingItem(item)}
                     title="Click to edit"
-                    className={`min-w-0 flex-1 cursor-text break-words text-left ${
+                    className={`min-w-0 flex-1 cursor-text break-words text-left text-base ${
                       item.checked ? "text-cocoa line-through" : "text-ink"
                     }`}
                   >

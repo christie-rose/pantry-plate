@@ -1,11 +1,12 @@
 import type { ReactNode } from "react";
 import { RiAddLine } from "@remixicon/react";
+import { CheckCircle } from "./CheckCircle";
 
 export function GroceryList({ children }: { children: ReactNode }) {
   return <ul className="flex flex-col divide-y divide-cocoa/20 rounded-md border border-cocoa/30 bg-white">{children}</ul>;
 }
 
-/** One line: checkbox, content (text or an edit field), and an optional aside (the tag). */
+/** One line: round check, content (text or an edit field), and an optional aside (the tag). */
 export function GroceryRow({
   checked,
   onToggle,
@@ -22,13 +23,7 @@ export function GroceryRow({
   return (
     <li className="flex items-center gap-2 pr-3">
       <div className="flex min-h-[48px] min-w-0 flex-1 items-center gap-3 p-3">
-        <input
-          type="checkbox"
-          checked={checked}
-          onChange={onToggle}
-          aria-label={checkLabel}
-          className="h-5 w-5 shrink-0 cursor-pointer accent-sage"
-        />
+        <CheckCircle checked={checked} onToggle={onToggle} label={checkLabel} />
         {children}
       </div>
       {aside}
