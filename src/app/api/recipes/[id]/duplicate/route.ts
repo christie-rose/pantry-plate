@@ -31,5 +31,12 @@ export async function POST(
     },
   });
 
+  const image = await prisma.recipeImage.findUnique({ where: { recipeId: id } });
+  if (image) {
+    await prisma.recipeImage.create({
+      data: { recipeId: copy.id, data: image.data, mimeType: image.mimeType, source: image.source },
+    });
+  }
+
   return NextResponse.json({ id: copy.id }, { status: 201 });
 }

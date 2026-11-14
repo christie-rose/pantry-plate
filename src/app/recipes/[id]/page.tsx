@@ -14,7 +14,7 @@ export default async function RecipeCookingPage({
 }) {
   const { id } = await params;
   const { servings: servingsParam } = await searchParams;
-  const recipe = await prisma.recipe.findUnique({ where: { id }, include: { ingredients: true } });
+  const recipe = await prisma.recipe.findUnique({ where: { id }, include: { ingredients: true, image: { select: { updatedAt: true } } } });
   if (!recipe) notFound();
 
   const targetServings = servingsParam ? Number(servingsParam) : null;

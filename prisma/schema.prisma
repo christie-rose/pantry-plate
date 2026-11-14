@@ -24,6 +24,18 @@ model Recipe {
   sourceUrl    String?
   createdAt    DateTime           @default(now())
   ingredients  RecipeIngredient[]
+  image        RecipeImage?
+}
+
+// One photo per recipe, kept apart from Recipe so recipe lists never load image bytes.
+model RecipeImage {
+  id        String   @id @default(cuid())
+  recipeId  String   @unique
+  recipe    Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  data      Bytes
+  mimeType  String
+  source    String // "upload" | "ai"
+  updatedAt DateTime @updatedAt
 }
 
 model RecipeIngredient {

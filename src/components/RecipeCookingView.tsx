@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { RiCalendarLine } from "@remixicon/react";
 import { CheckMark, DividedList, PageTitle, SectionHeading } from "@/ui";
+import { RecipeImageManager } from "@/components/RecipeImageManager";
 import { formatAmountAsFraction } from "@/lib/recipes";
 
 type Ingredient = {
@@ -27,6 +28,7 @@ type Recipe = {
   source: string;
   sourceUrl: string | null;
   ingredients: Ingredient[];
+  image: { updatedAt: Date } | null;
 };
 
 function formatAmount(ingredient: Ingredient): string {
@@ -115,6 +117,13 @@ export function RecipeCookingView({ recipe, originalServings }: { recipe: Recipe
           </Link>
         </div>
       </div>
+
+      <RecipeImageManager
+        recipeId={recipe.id}
+        title={recipe.title}
+        initialVersion={recipe.image ? new Date(recipe.image.updatedAt).getTime() : null}
+        expectAiImage={recipe.source === "ai"}
+      />
 
       <div className="card flex flex-col gap-2 p-4">
         <SectionHeading>Ingredients</SectionHeading>

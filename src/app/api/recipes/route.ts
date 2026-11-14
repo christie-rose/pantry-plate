@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { detectProteins, validateRecipeInput, PROTEIN_TYPES, type ProteinType } from "@/lib/recipes";
 import type { Prisma } from "@prisma/client";
+import { generateImageForRecipe } from "@/lib/recipe-image";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl;
@@ -23,7 +24,7 @@ export async function GET(request: NextRequest) {
 
   const recipes = await prisma.recipe.findMany({
     where,
-    include: { ingredients: true },
+    include: { ingredients: true, image: { select: { updatedAt: true } } },
     orderBy: { title: "asc" },
   });
 
@@ -65,6 +66,11 @@ export async function POST(request: NextRequest) {
     },
     include: { ingredients: true },
   });
+
+  // A recipe written by AI gets a photo made for it automatically, in the background.
+  if (recipe.source === "ai" && process.env.OPENAI_API_KEY) {
+    void generateImageForRecipe(recipe.id).catch(() => {});
+  }
 
   return NextResponse.json(recipe, { status: 201 });
 }

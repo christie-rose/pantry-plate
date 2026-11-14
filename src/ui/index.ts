@@ -16,3 +16,4 @@ export { Illustration } from "./Illustration";
 export { EmptyState } from "./EmptyState";
 export { CardTitle } from "./CardTitle";
 export { AddLink } from "./AddLink";
+export { RecipeImage } from "./RecipeImage";

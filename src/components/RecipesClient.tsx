@@ -1,6 +1,6 @@
 "use client";
 
-import { EmptyState, PageTitle } from "@/ui";
+import { EmptyState, PageTitle, RecipeImage } from "@/ui";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { CUISINES, detectProteins, PROTEIN_TYPES, RECIPE_CATEGORIES } from "@/lib/recipes";
@@ -14,6 +14,7 @@ type Recipe = {
   categories: string[];
   cuisine: string | null;
   ingredients: { name: string }[];
+  image?: { updatedAt: string | Date } | null;
 };
 
 export function RecipesClient({ initialRecipes }: { initialRecipes: Recipe[] }) {
@@ -134,6 +135,13 @@ export function RecipesClient({ initialRecipes }: { initialRecipes: Recipe[] }) 
             const proteins = detectProteins(recipe.ingredients.map((i) => i.name));
             return (
               <Link key={recipe.id} href={`/recipes/${recipe.id}`} className="card flex flex-col gap-2 p-4">
+                {recipe.image && (
+                  <RecipeImage
+                    size="thumb"
+                    alt=""
+                    src={`/api/recipes/${recipe.id}/image?v=${new Date(recipe.image.updatedAt).getTime()}`}
+                  />
+                )}
                 <h2 className="text-xl text-ink">{recipe.title}</h2>
                 <p className="text-xs text-cocoa">
                   Serves {recipe.servings} · {recipe.source}

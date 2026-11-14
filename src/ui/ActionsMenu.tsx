@@ -35,16 +35,17 @@ export function ActionsMenu({
   );
 }
 
-/** One action in an ActionsMenu. `tone` colors it: sage for adding, brick for removing. */
+/** One action in an ActionsMenu. `tone` colors it: ink for everyday actions, sage for adding to a list, brick for removing. */
 export function MenuItem({
   tone,
   icon,
   className = "",
   children,
   ...rest
-}: { tone: "sage" | "danger"; icon?: ReactNode } & ButtonHTMLAttributes<HTMLButtonElement>) {
+}: { tone: "sage" | "ink" | "danger"; icon?: ReactNode } & ButtonHTMLAttributes<HTMLButtonElement>) {
   const tones = {
     sage: "text-sage hover:bg-sage/10 disabled:opacity-50",
+    ink: "text-ink hover:bg-paper-alt disabled:opacity-50",
     danger: "text-brick hover:bg-brick/10",
   };
   return (
