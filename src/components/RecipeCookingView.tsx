@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { RiCalendarLine, RiDeleteBinLine, RiEdit2Line, RiFileCopyLine } from "@remixicon/react";
-import { ActionsMenu, CheckMark, DividedList, MenuItem, PageTitle, SectionHeading } from "@/ui";
+import { ActionsMenu, CheckMark, DividedList, MenuItem, RecipeTitle, SectionHeading } from "@/ui";
 import { CookingAssistant } from "@/components/CookingAssistant";
 import { RecipeImageManager } from "@/components/RecipeImageManager";
 import { formatAmountAsFraction } from "@/lib/recipes";
@@ -157,7 +157,7 @@ export function RecipeCookingView({ recipe, originalServings }: { recipe: Recipe
           </ActionsMenu>
         </div>
         <div>
-          <PageTitle>{recipe.title}</PageTitle>
+          <RecipeTitle>{recipe.title}</RecipeTitle>
           <p className="text-sm text-cocoa">
             Serves {recipe.servings}
             {originalServings ? ` (scaled from ${originalServings} in the plan)` : ""}

@@ -70,7 +70,6 @@ body::before {
 /* ds:logo:end */
 
 /* ds:title:start — generated from the design system type.families.title by scripts/sync-tokens.mjs */
-h1,
 .font-title {
   font-family: var(--font-kaushan), cursive;
 }

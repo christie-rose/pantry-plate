@@ -9,7 +9,7 @@ export { WeekSelector } from "./WeekSelector";
 export { GroceryList, GroceryRow, AddButton } from "./GroceryList";
 export { SideRail, MobileBar, MobileMenu } from "./Nav";
 export { CheckCircle, CheckMark } from "./CheckCircle";
-export { PageTitle } from "./PageTitle";
+export { PageTitle, RecipeTitle } from "./PageTitle";
 export { SectionHeading } from "./SectionHeading";
 export { DividedList } from "./DividedList";
 export { Illustration } from "./Illustration";
