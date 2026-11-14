@@ -3,8 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { RiCalendarLine } from "@remixicon/react";
-import { CheckMark, DividedList, PageTitle, SectionHeading } from "@/ui";
+import { RiCalendarLine, RiEdit2Line, RiFileCopyLine } from "@remixicon/react";
+import { ActionsMenu, CheckMark, DividedList, MenuItem, PageTitle, SectionHeading } from "@/ui";
 import { RecipeImageManager } from "@/components/RecipeImageManager";
 import { formatAmountAsFraction } from "@/lib/recipes";
 
@@ -100,22 +100,28 @@ export function RecipeCookingView({ recipe, originalServings }: { recipe: Recipe
             {recipe.tags.length > 0 ? ` · ${recipe.tags.join(", ")}` : ""}
           </p>
         </div>
-        <div className="flex shrink-0 gap-2">
-          <button
-            type="button"
-            onClick={handleDuplicate}
-            disabled={duplicating}
-            className="min-h-[44px] rounded-md border border-cocoa/40 px-4 py-2 text-sm font-medium text-ink disabled:opacity-50"
-          >
-            {duplicating ? "Duplicating…" : "Duplicate"}
-          </button>
-          <Link
-            href={`/recipes/${recipe.id}/edit`}
-            className="flex min-h-[44px] items-center rounded-md border border-cocoa/40 px-4 py-2 text-sm font-medium text-ink"
-          >
-            Edit
-          </Link>
-        </div>
+        <ActionsMenu size="lg" label="Recipe actions">
+          {() => (
+            <>
+              <MenuItem
+                tone="ink"
+                icon={<RiEdit2Line size={16} aria-hidden />}
+                onClick={() => router.push(`/recipes/${recipe.id}/edit`)}
+              >
+                Edit recipe
+              </MenuItem>
+              {/* The menu stays open while copying so "Duplicating…" shows until the new recipe opens. */}
+              <MenuItem
+                tone="ink"
+                icon={<RiFileCopyLine size={16} aria-hidden />}
+                onClick={handleDuplicate}
+                disabled={duplicating}
+              >
+                {duplicating ? "Duplicating…" : "Duplicate"}
+              </MenuItem>
+            </>
+          )}
+        </ActionsMenu>
       </div>
 
       <RecipeImageManager

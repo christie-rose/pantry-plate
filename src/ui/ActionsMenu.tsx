@@ -6,9 +6,15 @@ import { RiMore2Fill } from "@remixicon/react";
 export function ActionsMenu({
   children,
   defaultOpen = false,
+  size = "sm",
+  label = "Actions",
 }: {
   children: (close: () => void) => ReactNode;
   defaultOpen?: boolean;
+  /** sm is the 32px button inside cards; lg is a 44px bordered button for a page header. */
+  size?: "sm" | "lg";
+  /** Accessible name of the button, such as "Recipe actions". */
+  label?: string;
 }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
@@ -16,12 +22,16 @@ export function ActionsMenu({
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="flex h-8 w-8 items-center justify-center rounded-md text-cocoa hover:bg-cocoa/10"
-        aria-label="Actions"
+        className={
+          size === "lg"
+            ? "flex h-11 w-11 items-center justify-center rounded-md border border-cocoa/40 text-ink hover:bg-cocoa/10"
+            : "flex h-8 w-8 items-center justify-center rounded-md text-cocoa hover:bg-cocoa/10"
+        }
+        aria-label={label}
         aria-haspopup="menu"
         aria-expanded={open}
       >
-        <RiMore2Fill size={18} aria-hidden />
+        <RiMore2Fill size={size === "lg" ? 22 : 18} aria-hidden />
       </button>
       {open && (
         <>
