@@ -74,10 +74,10 @@ export function RecipesClient({ initialRecipes }: { initialRecipes: Recipe[] }) 
             key={c || "all"}
             type="button"
             onClick={() => setCategoryFilter(c)}
-            className={`-mb-px rounded-t-md border-b-2 px-3 py-2 text-sm ${
+            className={`-mb-px rounded-t-md border border-b-2 px-3 py-2 text-sm ${
               categoryFilter === c
                 ? "border-brick bg-paper-alt font-medium text-brick"
-                : "border-transparent text-cocoa hover:text-ink"
+                : "border-cocoa/30 border-b-transparent text-cocoa hover:text-ink"
             }`}
           >
             {c || "All"}
