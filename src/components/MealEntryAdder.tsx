@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { AddLink } from "@/ui";
 import type { MealEntry } from "@/lib/weekplan";
 import { RecipePickerModal } from "@/components/RecipePickerModal";
@@ -16,16 +16,19 @@ export function MealEntryAdder({
   const [open, setOpen] = useState(false);
   const [text, setText] = useState("");
   const [showRecipeModal, setShowRecipeModal] = useState(false);
+  const skipBlur = useRef(false);
 
   function reset() {
     setOpen(false);
     setText("");
   }
 
-  function handleAddText() {
-    if (!text.trim()) return;
-    onAdd({ id: crypto.randomUUID(), type: "text", label: text.trim() });
-    reset();
+  // Adds what's been typed as a plain text meal. Enter keeps the line open for another one.
+  function commitText(keepOpen: boolean) {
+    const label = text.trim();
+    if (label) onAdd({ id: crypto.randomUUID(), type: "text", label });
+    setText("");
+    if (!keepOpen) setOpen(false);
   }
 
   function handleSelectRecipe(recipe: PlanRecipeOption) {
@@ -47,32 +50,39 @@ export function MealEntryAdder({
   }
 
   return (
-    <div className="flex flex-col gap-1 rounded-md bg-paper-alt p-2">
-      <div className="flex gap-1 text-xs">
-        <button
-          type="button"
-          onClick={() => setShowRecipeModal(true)}
-          className="rounded border border-cocoa/40 px-2 py-0.5"
-        >
-          Choose recipe…
-        </button>
-      </div>
-
+    <div className="flex items-center gap-2">
+      <span aria-hidden className="h-5 w-5 shrink-0 rounded-full border-2 border-dashed border-brick/60" />
       <input
+        autoFocus
         value={text}
         onChange={(e) => setText(e.target.value)}
-        placeholder="Or type e.g. White rice"
-        className="rounded border border-cocoa/40 bg-white px-2 py-1 text-xs"
+        onKeyDown={(e) => {
+          if (e.key === "Enter") commitText(true);
+          if (e.key === "Escape") {
+            skipBlur.current = true;
+            reset();
+          }
+        }}
+        onBlur={() => {
+          if (skipBlur.current) {
+            skipBlur.current = false;
+            return;
+          }
+          if (!showRecipeModal) commitText(false);
+        }}
+        placeholder="Type a meal…"
+        aria-label="Add a meal"
+        className="min-w-0 flex-1 border-0 bg-transparent p-0 py-1 text-base text-ink outline-none! ring-0 placeholder:text-cocoa/50"
       />
-
-      <div className="flex gap-1">
-        <button type="button" onClick={handleAddText} disabled={!text.trim()} className="rounded bg-sage px-2 py-0.5 text-xs text-white disabled:opacity-50">
-          Add
-        </button>
-        <button type="button" onClick={reset} className="rounded border border-cocoa/40 px-2 py-0.5 text-xs">
-          Cancel
-        </button>
-      </div>
+      {/* mousedown is held back so the field keeps focus and doesn't close before the picker opens */}
+      <button
+        type="button"
+        onMouseDown={(e) => e.preventDefault()}
+        onClick={() => setShowRecipeModal(true)}
+        className="shrink-0 text-xs text-cocoa underline"
+      >
+        Choose recipe…
+      </button>
 
       {showRecipeModal && (
         <RecipePickerModal recipes={recipes} onSelect={handleSelectRecipe} onClose={() => setShowRecipeModal(false)} />
