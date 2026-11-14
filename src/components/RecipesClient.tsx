@@ -68,21 +68,23 @@ export function RecipesClient({ initialRecipes }: { initialRecipes: Recipe[] }) 
         </Link>
       </div>
 
-      <div className="flex flex-wrap gap-x-0.5 gap-y-1 border-b border-cocoa/20">
+      <div className="flex flex-wrap gap-x-0.5">
         {(["", ...RECIPE_CATEGORIES] as const).map((c) => (
           <button
             key={c || "all"}
             type="button"
             onClick={() => setCategoryFilter(c)}
-            className={`-mb-px rounded-t-md border border-b-2 px-2.5 py-2 text-sm ${
+            className={`grow rounded-t-md border border-b-2 px-2.5 py-2 md:grow-0 text-sm ${
               categoryFilter === c
                 ? "border-brick bg-paper-alt font-medium text-brick"
-                : "border-cocoa/30 border-b-transparent text-cocoa hover:text-ink"
+                : "border-cocoa/30 text-cocoa hover:text-ink"
             }`}
           >
             {c || "All"}
           </button>
         ))}
+        {/* Carries the baseline across the rest of the last row */}
+        <span aria-hidden className="grow self-stretch border-b-2 border-cocoa/30" />
       </div>
 
       <div className="flex items-center gap-2">
