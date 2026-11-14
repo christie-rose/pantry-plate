@@ -201,6 +201,8 @@ export function RecipeEditClient({ recipe }: { recipe: Recipe }) {
     setSavedOnce(true);
   }
 
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
+
   async function handleDelete() {
     await fetch(`/api/recipes/${recipe.id}`, { method: "DELETE" });
     router.push("/recipes");
@@ -215,13 +217,35 @@ export function RecipeEditClient({ recipe }: { recipe: Recipe }) {
           </Link>
           <PageTitle>Edit recipe</PageTitle>
         </div>
-        <button
-          type="button"
-          onClick={handleDelete}
-          className="min-h-[44px] rounded-md border border-brick/50 px-3 py-2 text-sm text-brick"
-        >
-          Delete
-        </button>
+        {confirmingDelete ? (
+          <div className="flex max-w-[16rem] flex-col items-end gap-2 text-right">
+            <p className="text-sm text-ink">Delete “{form.title || recipe.title}” for good? This can’t be undone.</p>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setConfirmingDelete(false)}
+                className="min-h-[44px] rounded-md border border-cocoa/40 px-3 py-2 text-sm text-ink"
+              >
+                Keep it
+              </button>
+              <button
+                type="button"
+                onClick={handleDelete}
+                className="min-h-[44px] rounded-md bg-brick px-3 py-2 text-sm font-medium text-white"
+              >
+                Yes, delete
+              </button>
+            </div>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setConfirmingDelete(true)}
+            className="min-h-[44px] rounded-md border border-brick/50 px-3 py-2 text-sm text-brick"
+          >
+            Delete
+          </button>
+        )}
       </div>
 
       <div className="card flex flex-col gap-2 p-4">
