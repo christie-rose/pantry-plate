@@ -1,6 +1,6 @@
 "use client";
 
-import { EmptyState, PageTitle, RecipeImage } from "@/ui";
+import { EmptyState, MasonryGrid, PageTitle, RecipeImage } from "@/ui";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { CUISINES, detectProteins, PROTEIN_TYPES, RECIPE_CATEGORIES } from "@/lib/recipes";
@@ -130,7 +130,7 @@ export function RecipesClient({ initialRecipes }: { initialRecipes: Recipe[] }) 
           </EmptyState>
         )
       ) : (
-        <div className="grid grid-cols-1 items-start gap-4 sm:grid-cols-2">
+        <MasonryGrid weights={recipes.map((recipe) => (recipe.image ? 3 : 1))}>
           {recipes.map((recipe) => {
             const proteins = detectProteins(recipe.ingredients.map((i) => i.name));
             return (
@@ -171,7 +171,7 @@ export function RecipesClient({ initialRecipes }: { initialRecipes: Recipe[] }) 
               </Link>
             );
           })}
-        </div>
+        </MasonryGrid>
       )}
     </div>
   );
