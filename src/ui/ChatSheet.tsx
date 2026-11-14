@@ -16,7 +16,8 @@ export function AskButton({ onClick, inline }: { onClick?: () => void; inline?: 
 }
 
 /**
- * The chat panel: a bottom sheet on phones, a panel in the bottom-right corner on larger screens.
+ * The chat panel: a bottom sheet on phones (sized to the visible screen, with room at the bottom for the home indicator
+ * and rounded corners), a panel in the bottom-right corner on larger screens.
  * `headerAction` sits beside the close button; `footer` holds the message box.
  */
 export function ChatSheet({
@@ -42,7 +43,7 @@ export function ChatSheet({
       className={`${
         inline
           ? "relative h-[440px] w-full max-w-md"
-          : "fixed inset-x-0 bottom-0 z-50 h-[78vh] md:inset-x-auto md:bottom-4 md:right-4 md:h-[36rem] md:w-[26rem]"
+          : "fixed inset-x-0 bottom-0 z-50 h-[78dvh] max-h-[calc(100dvh-4rem)] md:inset-x-auto md:bottom-4 md:right-4 md:h-[36rem] md:max-h-none md:w-[26rem]"
       } flex flex-col bg-white shadow-[var(--shadow-card)]`}
     >
       <header className="flex items-center justify-between gap-2 border-b border-cocoa/20 px-4 py-2">
@@ -60,7 +61,9 @@ export function ChatSheet({
         </div>
       </header>
       <div className="flex flex-1 flex-col gap-3 overflow-y-auto p-4">{children}</div>
-      {footer && <footer className="border-t border-cocoa/20 p-3">{footer}</footer>}
+      {footer && (
+        <footer className="border-t border-cocoa/20 p-3 pb-[calc(1.75rem+env(safe-area-inset-bottom,0px))] md:pb-3">{footer}</footer>
+      )}
     </section>
   );
 }
