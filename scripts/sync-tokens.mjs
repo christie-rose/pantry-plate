@@ -51,7 +51,7 @@ css = replaceBlock(css, "title", ["h1,", ".font-title {", `  font-family: var(--
 const grain = Number(tokens.texture?.tokens?.find((t) => t.name === "paper-grain")?.value ?? "0");
 if (!(grain >= 0 && grain <= 0.3)) throw new Error("texture paper-grain must be a number from 0 to 0.3");
 const noise =
-  "%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.72 0 0 0 0 0.5 0 0 0 0 0.2 0 0 0 3 -0.9'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E";
+  "%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.45 0 0 0 0 0.34 0 0 0 0 0.2 0 0 0 3 -0.9'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E";
 css = replaceBlock(
   css,
   "paper",
@@ -60,11 +60,10 @@ css = replaceBlock(
     '  content: "";',
     "  position: fixed;",
     "  inset: 0;",
-    "  z-index: 1000;",
+    "  z-index: -1;",
     "  pointer-events: none;",
     `  opacity: ${grain};`,
     `  background-image: url("data:image/svg+xml,${noise}");`,
-    "  mix-blend-mode: multiply;",
     "}",
   ],
   ""
