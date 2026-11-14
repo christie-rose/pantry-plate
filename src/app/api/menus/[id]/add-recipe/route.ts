@@ -18,9 +18,9 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
   const doc: MenuDoc = isMenuDoc(menu.content) ? menu.content : emptyMenuDoc();
   const content = [...(doc.content ?? [])];
-  // Replace a lone empty paragraph so the recipe doesn't sit under a blank line.
+  // Replace a trailing empty paragraph so recipes stack neatly without blank lines between them.
   const last = content[content.length - 1];
-  if (content.length === 1 && last?.type === "paragraph" && !last.content?.length) content.pop();
+  if (last?.type === "paragraph" && !last.content?.length) content.pop();
   content.push({
     type: "recipe",
     attrs: { recipeId: recipe.id, title: recipe.title, servings: recipe.servings },
