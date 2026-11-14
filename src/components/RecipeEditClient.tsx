@@ -28,7 +28,7 @@ type Recipe = {
   ingredients: RecipeIngredient[];
 };
 
-export function RecipeEditClient({ recipe }: { recipe: Recipe }) {
+export function RecipeEditClient({ recipe, initialAiInstruction = "" }: { recipe: Recipe; initialAiInstruction?: string }) {
   const router = useRouter();
   const [form, setForm] = useState<RecipeFormState>({
     title: recipe.title,
@@ -52,7 +52,7 @@ export function RecipeEditClient({ recipe }: { recipe: Recipe }) {
   const [savedOnce, setSavedOnce] = useState(false);
   const [scaling, setScaling] = useState(false);
   const [scaleError, setScaleError] = useState<string | null>(null);
-  const [aiInstruction, setAiInstruction] = useState("");
+  const [aiInstruction, setAiInstruction] = useState(initialAiInstruction);
   const [aiEditing, setAiEditing] = useState(false);
   const [aiEditError, setAiEditError] = useState<string | null>(null);
 
@@ -252,6 +252,9 @@ export function RecipeEditClient({ recipe }: { recipe: Recipe }) {
         <label htmlFor="ai-edit-instruction" className="text-sm text-cocoa">
           Edit with AI
         </label>
+        {initialAiInstruction && (
+          <p className="text-xs text-cocoa">Suggested from your cooking session. Change it if you like, then press Apply to see the result before saving.</p>
+        )}
         <textarea
           id="ai-edit-instruction"
           value={aiInstruction}

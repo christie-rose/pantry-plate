@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { RiCalendarLine, RiDeleteBinLine, RiEdit2Line, RiFileCopyLine } from "@remixicon/react";
 import { ActionsMenu, CheckMark, DividedList, MenuItem, PageTitle, SectionHeading } from "@/ui";
+import { CookingAssistant } from "@/components/CookingAssistant";
 import { RecipeImageManager } from "@/components/RecipeImageManager";
 import { formatAmountAsFraction } from "@/lib/recipes";
 
@@ -265,6 +266,15 @@ export function RecipeCookingView({ recipe, originalServings }: { recipe: Recipe
           View original source
         </a>
       )}
+      <CookingAssistant
+        recipeId={recipe.id}
+        servings={recipe.servings}
+        progress={{
+          ingredients: [...checkedIngredients],
+          steps: [...checkedSteps],
+          prep: [...checkedPrepSteps],
+        }}
+      />
     </div>
   );
 }
