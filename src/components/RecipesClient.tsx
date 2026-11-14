@@ -68,13 +68,13 @@ export function RecipesClient({ initialRecipes }: { initialRecipes: Recipe[] }) 
         </Link>
       </div>
 
-      <div className="-mx-1 flex gap-1 overflow-x-auto border-b border-cocoa/20 px-1">
+      <div className="flex flex-wrap gap-x-1 gap-y-1 border-b border-cocoa/20">
         {(["", ...RECIPE_CATEGORIES] as const).map((c) => (
           <button
             key={c || "all"}
             type="button"
             onClick={() => setCategoryFilter(c)}
-            className={`-mb-px shrink-0 whitespace-nowrap rounded-t-md border-b-2 px-3 py-2 text-sm ${
+            className={`-mb-px rounded-t-md border-b-2 px-3 py-2 text-sm ${
               categoryFilter === c
                 ? "border-brick bg-paper-alt font-medium text-brick"
                 : "border-transparent text-cocoa hover:text-ink"
