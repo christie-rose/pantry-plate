@@ -1,7 +1,7 @@
 "use client";
 
-import { CardTitle, DividedList, PageTitle, SectionHeading, SketchFrame, WeekSelector } from "@/ui";
-import { useState, useSyncExternalStore } from "react";
+import { CardTitle, DividedList, PageTitle, SectionHeading, WeekSelector } from "@/ui";
+import { useState } from "react";
 import Link from "next/link";
 import { RiCheckLine, RiDraggable } from "@remixicon/react";
 import { EntryActionsMenu } from "@/components/EntryActionsMenu";
@@ -71,22 +71,8 @@ function locationLabel(loc: Location): string {
   return loc.kind === "day" ? loc.day : WEEKLY_MEAL_LABELS[loc.mealType];
 }
 
-const subscribeNever = () => () => {};
-
-function localTodayKey() {
-  const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-}
-
 export function WeekPlanClient({ initialPlan, recipes }: { initialPlan: Plan; recipes: Recipe[] }) {
   const [plan, setPlan] = useState<Plan>(initialPlan);
-  // Today's date in the viewer's own time zone. The server snapshot is null, so server and client markup agree.
-  const todayKey = useSyncExternalStore(subscribeNever, localTodayKey, () => null);
-  function dayKey(dayIndex: number) {
-    const d = new Date(`${plan.weekKey}T00:00:00`);
-    d.setDate(d.getDate() + dayIndex);
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-  }
   const recipeOptions = recipes;
   const [saving, setSaving] = useState(false);
   const [groceryStatus, setGroceryStatus] = useState<Record<string, string>>({});
@@ -268,10 +254,9 @@ export function WeekPlanClient({ initialPlan, recipes }: { initialPlan: Plan; re
       <div className="flex flex-col gap-3">
         {DAYS.map((day, dayIndex) => {
           const location: Location = { kind: "day", day };
-          const isToday = todayKey === dayKey(dayIndex);
           return (
-          <SketchFrame key={day} active={isToday}>
           <div
+            key={day}
             onDragOver={(e) => {
               e.preventDefault();
               setDragOverLocation(location);
@@ -339,7 +324,6 @@ export function WeekPlanClient({ initialPlan, recipes }: { initialPlan: Plan; re
 
             <MealEntryAdder recipes={recipeOptions} onAdd={(entry) => addDinner(day, entry)} />
           </div>
-          </SketchFrame>
           );
         })}
       </div>

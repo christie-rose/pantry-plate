@@ -14,6 +14,5 @@ export { SectionHeading } from "./SectionHeading";
 export { DividedList } from "./DividedList";
 export { Illustration } from "./Illustration";
 export { EmptyState } from "./EmptyState";
-export { SketchFrame } from "./SketchFrame";
 export { CardTitle } from "./CardTitle";
 export { AddLink } from "./AddLink";
