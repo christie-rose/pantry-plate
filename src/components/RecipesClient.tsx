@@ -182,6 +182,7 @@ export function RecipesClient({
                   <RecipeCardMenu
                     id={recipe.id}
                     title={recipe.title}
+                    servings={recipe.servings}
                     onDeleted={(id) =>
                       setRecipes((list) => list.filter((r) => r.id !== id))
                     }

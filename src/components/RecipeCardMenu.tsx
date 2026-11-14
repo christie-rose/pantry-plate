@@ -3,22 +3,27 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { RiDeleteBinLine, RiEdit2Line, RiFileCopyLine } from "@remixicon/react";
+import { RiCalendarLine } from "@remixicon/react";
 import { ActionsMenu, MenuItem } from "@/ui";
+import { AddToDayMenu } from "@/components/AddToDayMenu";
 
 /** The Edit / Duplicate / Delete menu on a recipe card in the list. */
 export function RecipeCardMenu({
   id,
   title,
+  servings,
   onDeleted,
 }: {
   id: string;
   title: string;
+  servings: number;
   onDeleted: (id: string) => void;
 }) {
   const router = useRouter();
   const [duplicating, setDuplicating] = useState(false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [pickingDay, setPickingDay] = useState(false);
 
   async function handleDuplicate() {
     setDuplicating(true);
@@ -41,7 +46,16 @@ export function RecipeCardMenu({
   return (
     <ActionsMenu label={`Actions for ${title}`}>
       {(close) =>
-        confirmingDelete ? (
+        pickingDay ? (
+          <AddToDayMenu
+            recipe={{ id, title, servings }}
+            onBack={() => setPickingDay(false)}
+            onDone={() => {
+              setPickingDay(false);
+              close();
+            }}
+          />
+        ) : confirmingDelete ? (
           <div className="flex flex-col gap-2 p-1">
             <p className="text-sm text-ink">Delete “{title}” for good? This can’t be undone.</p>
             <div className="flex gap-2">
@@ -67,6 +81,9 @@ export function RecipeCardMenu({
           </div>
         ) : (
           <>
+            <MenuItem tone="ink" icon={<RiCalendarLine size={16} aria-hidden />} onClick={() => setPickingDay(true)}>
+              Add to this week
+            </MenuItem>
             <MenuItem tone="ink" icon={<RiEdit2Line size={16} aria-hidden />} onClick={() => router.push(`/recipes/${id}/edit`)}>
               Edit recipe
             </MenuItem>

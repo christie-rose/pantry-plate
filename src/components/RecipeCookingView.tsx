@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { RiCalendarLine, RiDeleteBinLine, RiEdit2Line, RiFileCopyLine } from "@remixicon/react";
 import { ActionsMenu, CheckMark, DividedList, MenuItem, RecipeTitle, SectionHeading } from "@/ui";
 import { CookingAssistant } from "@/components/CookingAssistant";
+import { AddToDayMenu } from "@/components/AddToDayMenu";
 import { RecipeImageManager } from "@/components/RecipeImageManager";
 import { formatAmountAsFraction } from "@/lib/recipes";
 
@@ -47,6 +48,7 @@ export function RecipeCookingView({ recipe, originalServings }: { recipe: Recipe
   const [duplicating, setDuplicating] = useState(false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [pickingDay, setPickingDay] = useState(false);
   const router = useRouter();
 
   async function handleDuplicate() {
@@ -102,7 +104,16 @@ export function RecipeCookingView({ recipe, originalServings }: { recipe: Recipe
           </Link>
           <ActionsMenu size="lg" label="Recipe actions">
             {(close) =>
-              confirmingDelete ? (
+              pickingDay ? (
+                <AddToDayMenu
+                  recipe={{ id: recipe.id, title: recipe.title, servings: recipe.servings }}
+                  onBack={() => setPickingDay(false)}
+                  onDone={() => {
+                    setPickingDay(false);
+                    close();
+                  }}
+                />
+              ) : confirmingDelete ? (
                 <div className="flex flex-col gap-2 p-1">
                   <p className="text-sm text-ink">Delete “{recipe.title}” for good? This can’t be undone.</p>
                   <div className="flex gap-2">
@@ -128,6 +139,9 @@ export function RecipeCookingView({ recipe, originalServings }: { recipe: Recipe
                 </div>
               ) : (
                 <>
+                  <MenuItem tone="ink" icon={<RiCalendarLine size={16} aria-hidden />} onClick={() => setPickingDay(true)}>
+                    Add to this week
+                  </MenuItem>
                   <MenuItem
                     tone="ink"
                     icon={<RiEdit2Line size={16} aria-hidden />}
