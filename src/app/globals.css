@@ -1,14 +1,16 @@
 @import "tailwindcss";
 
 :root {
+  /* ds:colors:start — generated from the design system tokens.json by scripts/sync-tokens.mjs; edit the design system, not these lines */
   --paper: #f6efdd;
   --paper-alt: #efe6ce;
-  --ink: #2b3b2f;
-  --brick: #a8412f;
-  --butter: #e8b84b;
-  --sage: #7c8a6e;
-  --cocoa: #6b5744;
   --white: #fffdf7;
+  --ink: #2b3b2f;
+  --cocoa: #6b5744;
+  --brick: #a8412f;
+  --sage: #7c8a6e;
+  --butter: #e8b84b;
+  /* ds:colors:end */
 
   --background: var(--paper);
   --foreground: var(--ink);
