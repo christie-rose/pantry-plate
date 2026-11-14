@@ -56,12 +56,6 @@ export function RecipesClient({ initialRecipes }: { initialRecipes: Recipe[] }) 
 
   const filterCount = [proteinFilter, cuisineFilter].filter(Boolean).length;
 
-  function clearFilters() {
-    setCategoryFilter("");
-    setProteinFilter("");
-    setCuisineFilter("");
-  }
-
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 p-4 pb-24">
       <div className="flex items-center justify-between">
