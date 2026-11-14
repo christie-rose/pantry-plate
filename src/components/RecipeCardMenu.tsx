@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { RiDeleteBinLine, RiEdit2Line, RiFileCopyLine } from "@remixicon/react";
 import { RiCalendarLine } from "@remixicon/react";
 import { ActionsMenu, MenuItem } from "@/ui";
-import { AddToDayMenu } from "@/components/AddToDayMenu";
+import { AddToMenuMenu } from "@/components/AddToMenuMenu";
 
 /** The Edit / Duplicate / Delete menu on a recipe card in the list. */
 export function RecipeCardMenu({
@@ -47,7 +47,7 @@ export function RecipeCardMenu({
     <ActionsMenu label={`Actions for ${title}`}>
       {(close) =>
         pickingDay ? (
-          <AddToDayMenu
+          <AddToMenuMenu
             recipe={{ id, title, servings }}
             onBack={() => setPickingDay(false)}
             onDone={() => {
@@ -82,7 +82,7 @@ export function RecipeCardMenu({
         ) : (
           <>
             <MenuItem tone="ink" icon={<RiCalendarLine size={16} aria-hidden />} onClick={() => setPickingDay(true)}>
-              Add to meal plan
+              Add to a menu
             </MenuItem>
             <MenuItem tone="ink" icon={<RiEdit2Line size={16} aria-hidden />} onClick={() => router.push(`/recipes/${id}/edit`)}>
               Edit recipe

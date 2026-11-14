@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { RiCalendarLine, RiDeleteBinLine, RiEdit2Line, RiFileCopyLine } from "@remixicon/react";
 import { ActionsMenu, CheckMark, DividedList, MenuItem, RecipeTitle, SectionHeading } from "@/ui";
 import { CookingAssistant } from "@/components/CookingAssistant";
-import { AddToDayMenu } from "@/components/AddToDayMenu";
+import { AddToMenuMenu } from "@/components/AddToMenuMenu";
 import { RecipeImageManager } from "@/components/RecipeImageManager";
 import { formatAmountAsFraction } from "@/lib/recipes";
 
@@ -105,7 +105,7 @@ export function RecipeCookingView({ recipe, originalServings }: { recipe: Recipe
           <ActionsMenu size="lg" label="Recipe actions">
             {(close) =>
               pickingDay ? (
-                <AddToDayMenu
+                <AddToMenuMenu
                   recipe={{ id: recipe.id, title: recipe.title, servings: recipe.servings }}
                   onBack={() => setPickingDay(false)}
                   onDone={() => {
@@ -140,7 +140,7 @@ export function RecipeCookingView({ recipe, originalServings }: { recipe: Recipe
               ) : (
                 <>
                   <MenuItem tone="ink" icon={<RiCalendarLine size={16} aria-hidden />} onClick={() => setPickingDay(true)}>
-                    Add to meal plan
+                    Add to a menu
                   </MenuItem>
                   <MenuItem
                     tone="ink"
@@ -174,7 +174,7 @@ export function RecipeCookingView({ recipe, originalServings }: { recipe: Recipe
           <RecipeTitle>{recipe.title}</RecipeTitle>
           <p className="text-sm text-cocoa">
             Serves {recipe.servings}
-            {originalServings ? ` (scaled from ${originalServings} in the plan)` : ""}
+            {originalServings ? ` (scaled from ${originalServings} in the menu)` : ""}
             {recipe.cuisine ? ` · ${recipe.cuisine}` : ""}
             {recipe.categories.length > 0 ? ` · ${recipe.categories.join(", ")}` : ""}
             {recipe.tags.length > 0 ? ` · ${recipe.tags.join(", ")}` : ""}

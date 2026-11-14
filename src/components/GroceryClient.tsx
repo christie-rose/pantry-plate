@@ -366,9 +366,9 @@ export function GroceryClient({
 
       {items.length === 0 && (
         <EmptyState art="tomato" title="Nothing on the list yet">
-          Tap + to add an item, or add a recipe from your{" "}
-          <Link href="/plan" className="underline">
-            Meal Plan
+          Tap + to add an item, or add a recipe from a{" "}
+          <Link href="/menus" className="underline">
+            menu
           </Link>
           .
         </EmptyState>

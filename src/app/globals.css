@@ -87,3 +87,21 @@ select {
   background-position: right 0.75rem center;
   background-size: 1rem;
 }
+
+/* Menu editor: a Notion-style page. Headings, body text, lists and recipe blocks. */
+.menu-doc { outline: none; min-height: 14rem; color: var(--ink); font-size: 1rem; line-height: 1.6; }
+.menu-doc > * + * { margin-top: 0.75rem; }
+.menu-doc h2 { font-size: 1.375rem; font-weight: 500; line-height: 1.3; margin-top: 1.5rem; }
+.menu-doc h3 { font-size: 1.125rem; font-weight: 500; line-height: 1.3; margin-top: 1.25rem; color: var(--cocoa); }
+.menu-doc ul { list-style: disc; padding-left: 1.5rem; }
+.menu-doc ol { list-style: decimal; padding-left: 1.5rem; }
+.menu-doc li > p { margin: 0; }
+.menu-doc p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left; height: 0; pointer-events: none; color: color-mix(in srgb, var(--cocoa) 55%, transparent);
+}
+.menu-doc .menu-recipe {
+  background: var(--paper-alt); padding: 0.75rem; border-radius: 0.375rem;
+}
+.menu-doc .menu-recipe.ProseMirror-selectednode { outline: 2px solid var(--brick); }
+.menu-doc > :first-child { margin-top: 0; }

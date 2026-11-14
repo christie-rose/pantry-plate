@@ -3,7 +3,15 @@
 import { useMemo, useState } from "react";
 import { DividedList, EmptyState, Modal } from "@/ui";
 import { CUISINES, PROTEIN_TYPES, RECIPE_CATEGORIES, detectProteins } from "@/lib/recipes";
-import type { PlanRecipeOption } from "@/components/WeekPlanClient";
+
+export type PlanRecipeOption = {
+  id: string;
+  title: string;
+  servings: number;
+  categories: string[];
+  cuisine: string | null;
+  ingredients: { name: string }[];
+};
 
 export function RecipePickerModal({
   recipes,
