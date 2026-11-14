@@ -225,14 +225,18 @@ export function RecipeEditClient({ recipe }: { recipe: Recipe }) {
       </div>
 
       <div className="card flex flex-col gap-2 p-4">
-        <label className="text-sm text-cocoa">Edit with AI</label>
-        <div className="flex flex-wrap items-center gap-2">
-          <input
-            value={aiInstruction}
-            onChange={(e) => setAiInstruction(e.target.value)}
-            placeholder="e.g. make it vegetarian, add a side of rice, make it spicier"
-            className="min-h-[44px] flex-1 min-w-[200px] rounded-md border border-cocoa/40 bg-white px-3 py-2 text-sm text-ink"
-          />
+        <label htmlFor="ai-edit-instruction" className="text-sm text-cocoa">
+          Edit with AI
+        </label>
+        <textarea
+          id="ai-edit-instruction"
+          value={aiInstruction}
+          onChange={(e) => setAiInstruction(e.target.value)}
+          rows={4}
+          placeholder="Describe the changes you want, for example: make it vegetarian, add a side of rice, make it spicier, and cut the cooking time."
+          className="min-h-[104px] w-full resize-y rounded-md border border-cocoa/40 bg-white px-3 py-2 text-sm text-ink"
+        />
+        <div>
           <button
             type="button"
             onClick={handleAiEdit}

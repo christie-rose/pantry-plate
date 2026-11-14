@@ -200,38 +200,47 @@ export default function NewRecipePage() {
           </button>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2 border-t border-cocoa/20 pt-3">
-          <input
+        <div className="flex flex-col gap-2 border-t border-cocoa/20 pt-3">
+          <label htmlFor="ai-generate-prompt" className="text-sm text-cocoa">
+            Generate with AI
+          </label>
+          <textarea
+            id="ai-generate-prompt"
             value={aiPrompt}
             onChange={(e) => setAiPrompt(e.target.value)}
-            placeholder="Generate with AI — e.g. quick vegetarian pasta"
-            className="min-h-[44px] flex-1 rounded-md border border-cocoa/40 bg-white px-3 py-2 text-sm text-ink"
+            rows={4}
+            placeholder="Describe the recipe you want, for example: a quick vegetarian pasta for four with lots of garlic, ready in 30 minutes."
+            className="min-h-[104px] w-full resize-y rounded-md border border-cocoa/40 bg-white px-3 py-2 text-sm text-ink"
           />
-          <label className="flex items-center gap-1 text-xs text-cocoa">
-            <input
-              type="checkbox"
-              checked={respectDietary}
-              onChange={(e) => setRespectDietary(e.target.checked)}
-            />
-            Respect household restrictions
-          </label>
-          <label className="flex items-center gap-1 text-xs text-cocoa">
-            <input
-              type="checkbox"
-              checked={includePrepAhead}
-              onChange={(e) => setIncludePrepAhead(e.target.checked)}
-            />
-            Include prep-ahead steps
-          </label>
-          <button
-            type="button"
-            onClick={handleAiGenerate}
-            disabled={importing || !aiPrompt.trim()}
-            className="min-h-[44px] flex items-center gap-2 rounded-md border border-cocoa/40 px-3 py-2 text-sm disabled:opacity-50"
-          >
-            <RiSparklingLine size={18} aria-hidden />
-            Generate
-          </button>
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+            <label className="flex items-center gap-1 text-xs text-cocoa">
+              <input
+                type="checkbox"
+                checked={respectDietary}
+                onChange={(e) => setRespectDietary(e.target.checked)}
+              />
+              Respect household restrictions
+            </label>
+            <label className="flex items-center gap-1 text-xs text-cocoa">
+              <input
+                type="checkbox"
+                checked={includePrepAhead}
+                onChange={(e) => setIncludePrepAhead(e.target.checked)}
+              />
+              Include prep-ahead steps
+            </label>
+          </div>
+          <div>
+            <button
+              type="button"
+              onClick={handleAiGenerate}
+              disabled={importing || !aiPrompt.trim()}
+              className="flex min-h-[44px] items-center gap-2 rounded-md border border-cocoa/40 px-3 py-2 text-sm disabled:opacity-50"
+            >
+              <RiSparklingLine size={18} aria-hidden />
+              Generate
+            </button>
+          </div>
         </div>
 
         {importing && <p className="text-sm text-cocoa">Reading recipe…</p>}
