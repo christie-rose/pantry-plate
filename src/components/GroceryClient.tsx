@@ -1,8 +1,9 @@
 "use client";
 
+import { RiDeleteBinLine, RiFileCopyLine } from "@remixicon/react";
 import {
+  ActionsMenu,
   AddButton,
-  Button,
   EmptyState,
   FilterButton,
   FilterChip,
@@ -11,6 +12,7 @@ import {
   FilterToggle,
   GroceryList,
   GroceryRow,
+  MenuItem,
   PageTitle,
   TagChip,
 } from "@/ui";
@@ -19,6 +21,22 @@ import Link from "next/link";
 import type { GroceryItem } from "@/lib/grocery";
 
 const UNTAGGED = "__untagged__";
+
+function ConfirmBox({ text, yes, onYes, onNo }: { text: string; yes: string; onYes: () => void; onNo: () => void }) {
+  return (
+    <div className="flex flex-col gap-2 p-1">
+      <p className="text-sm text-ink">{text}</p>
+      <div className="flex gap-2">
+        <button type="button" onClick={onNo} className="min-h-[40px] flex-1 rounded-md border border-cocoa/40 px-2 text-sm text-ink">
+          Cancel
+        </button>
+        <button type="button" onClick={onYes} className="min-h-[40px] flex-1 rounded-md bg-brick px-2 text-sm font-medium text-white">
+          {yes}
+        </button>
+      </div>
+    </div>
+  );
+}
 
 export function GroceryClient({
   initialItems,
@@ -231,48 +249,79 @@ export function GroceryClient({
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 p-4 pb-24">
       <PageTitle>Grocery List</PageTitle>
 
-      {items.length > 0 && (
-        <div className="flex flex-col gap-2">
-          <div className="flex flex-wrap items-center gap-2">
-            <Button variant="secondary" onClick={copyList}>
-              {copied ? "Copied!" : filterLabel ? `Copy ${filterLabel} list` : "Copy list"}
-            </Button>
-
-            <FilterButton count={(activeFilter !== null ? 1 : 0) + (hideChecked ? 0 : 1)} onClick={() => setFiltersOpen(true)} />
-
-            {confirming === "checked" ? (
-              <>
-                <Button onClick={deleteChecked}>Yes, delete {checkedCount} checked</Button>
-                <Button variant="secondary" onClick={() => setConfirming(null)}>
-                  Cancel
-                </Button>
-              </>
-            ) : confirming === "all" ? (
-              <>
-                <Button onClick={clearList}>
-                  Yes, clear {items.length} {items.length === 1 ? "item" : "items"}
-                </Button>
-                <Button variant="secondary" onClick={() => setConfirming(null)}>
-                  Cancel
-                </Button>
-              </>
-            ) : (
-              <>
-                <Button variant="danger" onClick={() => setConfirming("checked")} disabled={checkedCount === 0}>
-                  Delete checked{checkedCount > 0 ? ` (${checkedCount})` : ""}
-                </Button>
-                <Button variant="danger" onClick={() => setConfirming("all")}>
-                  Clear list
-                </Button>
-              </>
-            )}
-          </div>
-          <p className="text-xs text-cocoa">
-            {copyFailed
-              ? "Couldn't copy automatically — select the list text manually."
-              : "Copy list skips checked items and follows the tag filter. Paste it into Instacart or your store's pickup app."}
-          </p>
+      <div className="flex items-center gap-2">
+        {items.length > 0 && (
+          <>
+            <FilterButton
+              count={(activeFilter !== null ? 1 : 0) + (hideChecked ? 0 : 1)}
+              onClick={() => setFiltersOpen(true)}
+            />
+            <ActionsMenu size="lg" label="List actions">
+              {(close) =>
+                confirming === "checked" ? (
+                  <ConfirmBox
+                    text={`Delete ${checkedCount} checked ${checkedCount === 1 ? "item" : "items"}?`}
+                    yes="Delete"
+                    onYes={() => {
+                      deleteChecked();
+                      close();
+                    }}
+                    onNo={() => setConfirming(null)}
+                  />
+                ) : confirming === "all" ? (
+                  <ConfirmBox
+                    text={`Clear all ${items.length} ${items.length === 1 ? "item" : "items"}?`}
+                    yes="Clear list"
+                    onYes={() => {
+                      clearList();
+                      close();
+                    }}
+                    onNo={() => setConfirming(null)}
+                  />
+                ) : (
+                  <>
+                    <MenuItem
+                      tone="ink"
+                      icon={<RiFileCopyLine size={16} aria-hidden />}
+                      onClick={() => {
+                        copyList();
+                        close();
+                      }}
+                    >
+                      {filterLabel ? `Copy ${filterLabel} list` : "Copy list"}
+                    </MenuItem>
+                    <MenuItem
+                      tone="danger"
+                      icon={<RiDeleteBinLine size={16} aria-hidden />}
+                      disabled={checkedCount === 0}
+                      className="disabled:opacity-50"
+                      onClick={() => setConfirming("checked")}
+                    >
+                      Delete checked{checkedCount > 0 ? ` (${checkedCount})` : ""}
+                    </MenuItem>
+                    <MenuItem
+                      tone="danger"
+                      icon={<RiDeleteBinLine size={16} aria-hidden />}
+                      onClick={() => setConfirming("all")}
+                    >
+                      Clear list
+                    </MenuItem>
+                  </>
+                )
+              }
+            </ActionsMenu>
+          </>
+        )}
+        <div className="ml-auto">
+          <AddButton onClick={addLine} />
         </div>
+      </div>
+      {(copied || copyFailed) && (
+        <p className="-mt-3 text-xs text-cocoa" role="status">
+          {copyFailed
+            ? "Couldn't copy automatically — select the list text manually."
+            : "Copied. Checked items are skipped and the tag filter applies."}
+        </p>
       )}
 
       {filtersOpen && (
@@ -306,8 +355,6 @@ export function GroceryClient({
           </FilterToggle>
         </FilterSheet>
       )}
-
-      <AddButton onClick={addLine} />
 
       {items.length === 0 && (
         <EmptyState art="tomato" title="Nothing on the list yet">
