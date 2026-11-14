@@ -461,7 +461,7 @@ export function GroceryClient({
                 </TagChip>
               ) : (
                 <TagChip add onClick={() => startEditingTag(item)}>
-                  + tag
+                  + store
                 </TagChip>
               )}
                 </>
