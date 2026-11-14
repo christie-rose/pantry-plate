@@ -13,7 +13,7 @@ const out = path.resolve(process.argv[2] ?? "design-system-build");
 const uiDir = path.resolve("src/ui");
 const files = fs.readdirSync(uiDir).filter((f) => /\.tsx?$/.test(f) && f !== "index.ts");
 // Parts shown inside another component's preview rather than as their own entry.
-const INTERNAL = new Set(["DisabledButton", "MenuItem", "GroceryList", "AddButton", "ChatBubble"]);
+const INTERNAL = new Set(["DisabledButton", "MenuItem", "GroceryList", "AddButton", "ChatBubble", "FilterGroup", "FilterToggle"]);
 
 // Remix icons: the app's own icon package supplies the real path data.
 const remix = require("@remixicon/react");

@@ -1,6 +1,19 @@
 "use client";
 
-import { AddButton, Button, EmptyState, FilterChip, GroceryList, GroceryRow, PageTitle, TagChip } from "@/ui";
+import {
+  AddButton,
+  Button,
+  EmptyState,
+  FilterButton,
+  FilterChip,
+  FilterGroup,
+  FilterSheet,
+  FilterToggle,
+  GroceryList,
+  GroceryRow,
+  PageTitle,
+  TagChip,
+} from "@/ui";
 import { useRef, useState } from "react";
 import Link from "next/link";
 import type { GroceryItem } from "@/lib/grocery";
@@ -26,6 +39,7 @@ export function GroceryClient({
   const [tagDraft, setTagDraft] = useState("");
   const [copied, setCopied] = useState(false);
   const [copyFailed, setCopyFailed] = useState(false);
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const [confirming, setConfirming] = useState<"checked" | "all" | null>(null);
 
   // Tags on this week's items, plus any used on other weeks (for suggestions).
@@ -224,9 +238,7 @@ export function GroceryClient({
               {copied ? "Copied!" : filterLabel ? `Copy ${filterLabel} list` : "Copy list"}
             </Button>
 
-            <Button variant="secondary" onClick={() => setHideChecked((h) => !h)} disabled={checkedCount === 0}>
-              {hideChecked ? `Show checked (${checkedCount})` : "Hide checked"}
-            </Button>
+            <FilterButton count={(activeFilter !== null ? 1 : 0) + (hideChecked ? 0 : 1)} onClick={() => setFiltersOpen(true)} />
 
             {confirming === "checked" ? (
               <>
@@ -263,22 +275,36 @@ export function GroceryClient({
         </div>
       )}
 
-      {listTags.length > 0 && (
-        <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Filter by tag">
-          {[
-            { value: null as string | null, label: "All" },
-            ...listTags.map((t) => ({ value: t as string | null, label: `${t} (${countFor(t)})` })),
-            ...(hasUntagged ? [{ value: UNTAGGED as string | null, label: `Untagged (${countFor(UNTAGGED)})` }] : []),
-          ].map((chip) => (
-            <FilterChip
-              key={chip.value ?? "all"}
-              onClick={() => setFilterTag(chip.value)}
-              selected={activeFilter === chip.value}
-            >
-              {chip.label}
-            </FilterChip>
-          ))}
-        </div>
+      {filtersOpen && (
+        <FilterSheet
+          onClose={() => setFiltersOpen(false)}
+          onClear={() => {
+            setFilterTag(null);
+            setHideChecked(true);
+          }}
+          doneLabel={`Show ${visibleItems.length} ${visibleItems.length === 1 ? "item" : "items"}`}
+        >
+          {listTags.length > 0 && (
+            <FilterGroup label="Tag">
+              {[
+                { value: null as string | null, label: "All" },
+                ...listTags.map((t) => ({ value: t as string | null, label: `${t} (${countFor(t)})` })),
+                ...(hasUntagged ? [{ value: UNTAGGED as string | null, label: `Untagged (${countFor(UNTAGGED)})` }] : []),
+              ].map((chip) => (
+                <FilterChip
+                  key={chip.value ?? "all"}
+                  onClick={() => setFilterTag(chip.value)}
+                  selected={activeFilter === chip.value}
+                >
+                  {chip.label}
+                </FilterChip>
+              ))}
+            </FilterGroup>
+          )}
+          <FilterToggle checked={!hideChecked} onChange={(c) => setHideChecked(!c)}>
+            Show checked items{checkedCount > 0 ? ` (${checkedCount})` : ""}
+          </FilterToggle>
+        </FilterSheet>
       )}
 
       <AddButton onClick={addLine} />

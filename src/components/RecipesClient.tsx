@@ -1,6 +1,15 @@
 "use client";
 
-import { EmptyState, MasonryGrid, PageTitle, RecipeImage } from "@/ui";
+import {
+  EmptyState,
+  FilterButton,
+  FilterChip,
+  FilterGroup,
+  FilterSheet,
+  MasonryGrid,
+  PageTitle,
+  RecipeImage,
+} from "@/ui";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { CUISINES, detectProteins, PROTEIN_TYPES, RECIPE_CATEGORIES } from "@/lib/recipes";
@@ -23,6 +32,7 @@ export function RecipesClient({ initialRecipes }: { initialRecipes: Recipe[] }) 
   const [categoryFilter, setCategoryFilter] = useState("");
   const [proteinFilter, setProteinFilter] = useState("");
   const [cuisineFilter, setCuisineFilter] = useState("");
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   const queryString = useMemo(() => {
     const params = new URLSearchParams();
@@ -44,8 +54,9 @@ export function RecipesClient({ initialRecipes }: { initialRecipes: Recipe[] }) 
 
   const hasActiveFilters = Boolean(search || categoryFilter || proteinFilter || cuisineFilter);
 
+  const filterCount = [categoryFilter, proteinFilter, cuisineFilter].filter(Boolean).length;
+
   function clearFilters() {
-    setSearch("");
     setCategoryFilter("");
     setProteinFilter("");
     setCuisineFilter("");
@@ -60,64 +71,46 @@ export function RecipesClient({ initialRecipes }: { initialRecipes: Recipe[] }) 
         </Link>
       </div>
 
-      <div className="-mx-1 flex gap-1 overflow-x-auto border-b border-cocoa/20 px-1">
-        {(["", ...RECIPE_CATEGORIES] as const).map((c) => (
-          <button
-            key={c || "all"}
-            type="button"
-            onClick={() => setCategoryFilter(c)}
-            className={`-mb-px shrink-0 whitespace-nowrap rounded-t-md border-b-2 px-3 py-2 text-sm ${
-              categoryFilter === c
-                ? "border-brick bg-paper-alt font-medium text-brick"
-                : "border-transparent text-cocoa hover:text-ink"
-            }`}
-          >
-            {c || "All"}
-          </button>
-        ))}
-      </div>
-
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex items-center gap-2">
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search recipes…"
-          className="min-h-[44px] flex-1 min-w-[140px] rounded-md border border-cocoa/40 bg-white px-3 py-2 text-sm text-ink"
+          aria-label="Search recipes"
+          className="min-h-[44px] min-w-0 flex-1 rounded-md border border-cocoa/40 bg-white px-3 py-2 text-sm text-ink"
         />
-        <select
-          value={proteinFilter}
-          onChange={(e) => setProteinFilter(e.target.value)}
-          className="min-h-[44px] rounded-md border border-cocoa/40 bg-white px-2 py-2 text-sm text-ink"
-        >
-          <option value="">All proteins</option>
-          {PROTEIN_TYPES.map((p) => (
-            <option key={p} value={p}>
-              {p}
-            </option>
-          ))}
-        </select>
-        <select
-          value={cuisineFilter}
-          onChange={(e) => setCuisineFilter(e.target.value)}
-          className="min-h-[44px] rounded-md border border-cocoa/40 bg-white px-2 py-2 text-sm text-ink"
-        >
-          <option value="">All cuisines</option>
-          {CUISINES.map((c) => (
-            <option key={c} value={c}>
-              {c}
-            </option>
-          ))}
-        </select>
-        {hasActiveFilters && (
-          <button
-            type="button"
-            onClick={clearFilters}
-            className="min-h-[44px] rounded-md border border-cocoa/40 px-3 text-sm text-cocoa"
-          >
-            Clear filters
-          </button>
-        )}
+        <FilterButton count={filterCount} onClick={() => setFiltersOpen(true)} />
       </div>
+
+      {filtersOpen && (
+        <FilterSheet
+          onClose={() => setFiltersOpen(false)}
+          onClear={clearFilters}
+          doneLabel={`Show ${recipes.length} ${recipes.length === 1 ? "recipe" : "recipes"}`}
+        >
+          <FilterGroup label="Category">
+            {(["", ...RECIPE_CATEGORIES] as const).map((c) => (
+              <FilterChip key={c || "all"} selected={categoryFilter === c} onClick={() => setCategoryFilter(c)}>
+                {c || "All"}
+              </FilterChip>
+            ))}
+          </FilterGroup>
+          <FilterGroup label="Protein">
+            {["", ...PROTEIN_TYPES].map((p) => (
+              <FilterChip key={p || "all"} selected={proteinFilter === p} onClick={() => setProteinFilter(p)}>
+                {p || "All"}
+              </FilterChip>
+            ))}
+          </FilterGroup>
+          <FilterGroup label="Cuisine">
+            {["", ...CUISINES].map((c) => (
+              <FilterChip key={c || "all"} selected={cuisineFilter === c} onClick={() => setCuisineFilter(c)}>
+                {c || "All"}
+              </FilterChip>
+            ))}
+          </FilterGroup>
+        </FilterSheet>
+      )}
 
       {recipes.length === 0 ? (
         hasActiveFilters ? (
