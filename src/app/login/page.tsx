@@ -1,6 +1,7 @@
 "use client";
 
 import { Logo } from "@/ui";
+import { AddToHomeScreen } from "@/components/AddToHomeScreen";
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 
@@ -34,7 +35,7 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="flex flex-1 items-center justify-center p-6">
+    <main className="flex flex-1 flex-col items-center justify-center gap-2 p-6">
       <form
         onSubmit={handleSubmit}
         className="card w-full max-w-sm p-8 flex flex-col gap-4"
@@ -64,6 +65,7 @@ export default function LoginPage() {
           {submitting ? "Checking…" : "Enter"}
         </button>
       </form>
+      <AddToHomeScreen />
     </main>
   );
 }
