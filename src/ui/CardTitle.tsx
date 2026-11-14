@@ -5,7 +5,7 @@ export function CardTitle({ children, aside }: { children: ReactNode; aside?: Re
   return (
     <div className="flex items-baseline justify-between gap-2">
       <h3 className="font-title text-2xl leading-tight text-ink">{children}</h3>
-      {aside && <span className="text-xs text-cocoa">{aside}</span>}
+      {aside && <span className="relative -top-1 text-xs text-cocoa">{aside}</span>}
     </div>
   );
 }
