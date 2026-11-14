@@ -82,7 +82,7 @@ export function RecipeCardMenu({
         ) : (
           <>
             <MenuItem tone="ink" icon={<RiCalendarLine size={16} aria-hidden />} onClick={() => setPickingDay(true)}>
-              Add to this week
+              Add to meal plan
             </MenuItem>
             <MenuItem tone="ink" icon={<RiEdit2Line size={16} aria-hidden />} onClick={() => router.push(`/recipes/${id}/edit`)}>
               Edit recipe

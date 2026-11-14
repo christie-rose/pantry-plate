@@ -140,7 +140,7 @@ export function RecipeCookingView({ recipe, originalServings }: { recipe: Recipe
               ) : (
                 <>
                   <MenuItem tone="ink" icon={<RiCalendarLine size={16} aria-hidden />} onClick={() => setPickingDay(true)}>
-                    Add to this week
+                    Add to meal plan
                   </MenuItem>
                   <MenuItem
                     tone="ink"
