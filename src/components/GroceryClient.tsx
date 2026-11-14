@@ -385,6 +385,7 @@ export function GroceryClient({
               checked={Boolean(item.checked)}
               onToggle={() => toggleChecked(item.id)}
               checkLabel={`Check off ${item.name || "item"}`}
+              onSwipeDelete={() => persist(items.filter((i) => i.id !== item.id))}
               aside={
                 <>
 
