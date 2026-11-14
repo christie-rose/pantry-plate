@@ -83,6 +83,12 @@ async function requestOpenAiImage(prompt: string): Promise<Buffer> {
   if (!response.ok) {
     const detail = await response.text().catch(() => "");
     console.error("OpenAI image request failed", response.status, detail.slice(0, 300));
+    if (response.status === 401) {
+      throw new ImageGenerationError("The OpenAI key was not accepted. Check OPENAI_API_KEY on the server.");
+    }
+    if (response.status === 429 && detail.includes("insufficient_quota")) {
+      throw new ImageGenerationError("The OpenAI account has no credit left. Add credit in OpenAI billing, then try again.");
+    }
     throw new ImageGenerationError("The image service could not make a picture just now. Try again in a moment.");
   }
   const json = (await response.json()) as { data?: { b64_json?: string }[] };
