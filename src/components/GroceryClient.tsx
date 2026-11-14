@@ -1,9 +1,8 @@
 "use client";
 
-import { Button, FilterChip, TagChip } from "@/ui";
+import { AddButton, Button, FilterChip, GroceryList, GroceryRow, TagChip } from "@/ui";
 import { useRef, useState } from "react";
 import Link from "next/link";
-import { RiAddLine } from "@remixicon/react";
 import type { GroceryItem } from "@/lib/grocery";
 
 const UNTAGGED = "__untagged__";
@@ -282,15 +281,7 @@ export function GroceryClient({
         </div>
       )}
 
-      <button
-        type="button"
-        onClick={addLine}
-        aria-label="Add item"
-        title="Add item"
-        className="flex h-12 w-12 items-center justify-center self-start rounded-full bg-sage text-white shadow-sm"
-      >
-        <RiAddLine size={24} aria-hidden />
-      </button>
+      <AddButton onClick={addLine} />
 
       {items.length === 0 && (
         <p className="text-sm text-cocoa">
@@ -311,58 +302,15 @@ export function GroceryClient({
       )}
 
       {visibleItems.length > 0 && (
-        <ul className="flex flex-col divide-y divide-cocoa/20 rounded-md border border-cocoa/30 bg-white">
+        <GroceryList>
           {visibleItems.map((item) => (
-            <li key={item.id} className="flex items-center gap-2 pr-3">
-              <div className="flex min-h-[48px] min-w-0 flex-1 items-center gap-3 p-3">
-                <input
-                  type="checkbox"
-                  checked={Boolean(item.checked)}
-                  onChange={() => toggleChecked(item.id)}
-                  aria-label={`Check off ${item.name || "item"}`}
-                  className="h-5 w-5 shrink-0 cursor-pointer accent-sage"
-                />
-                {editingItemId === item.id ? (
-                  <input
-                    autoFocus
-                    value={editDraft}
-                    onChange={(e) => setEditDraft(e.target.value)}
-                    onKeyDown={(e) => {
-                      // The field unmounting can fire a blur; skip it so Enter/Escape only act once.
-                      if (e.key === "Enter") {
-                        skipItemBlurRef.current = true;
-                        finishItemEdit(item.id, true);
-                      }
-                      if (e.key === "Escape") {
-                        skipItemBlurRef.current = true;
-                        cancelItemEdit(item.id);
-                      }
-                    }}
-                    onBlur={() => {
-                      if (skipItemBlurRef.current) {
-                        skipItemBlurRef.current = false;
-                        return;
-                      }
-                      finishItemEdit(item.id, false);
-                    }}
-                    placeholder="Add an item…"
-                    aria-label="Edit item"
-                    className="h-9 min-w-0 flex-1 rounded-md border border-cocoa/40 bg-white px-2 text-sm text-ink"
-                  />
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => startEditingItem(item)}
-                    title="Click to edit"
-                    className={`min-w-0 flex-1 cursor-text break-words text-left ${
-                      item.checked ? "text-cocoa line-through" : "text-ink"
-                    }`}
-                  >
-                    {item.name}
-                    {item.note && <span className="text-cocoa"> — {item.note}</span>}
-                  </button>
-                )}
-              </div>
+            <GroceryRow
+              key={item.id}
+              checked={Boolean(item.checked)}
+              onToggle={() => toggleChecked(item.id)}
+              checkLabel={`Check off ${item.name || "item"}`}
+              aside={
+                <>
 
               {editingTagId === item.id ? (
                 <div className="relative shrink-0">
@@ -439,9 +387,52 @@ export function GroceryClient({
                   + tag
                 </TagChip>
               )}
-            </li>
+                </>
+              }
+            >
+                {editingItemId === item.id ? (
+                  <input
+                    autoFocus
+                    value={editDraft}
+                    onChange={(e) => setEditDraft(e.target.value)}
+                    onKeyDown={(e) => {
+                      // The field unmounting can fire a blur; skip it so Enter/Escape only act once.
+                      if (e.key === "Enter") {
+                        skipItemBlurRef.current = true;
+                        finishItemEdit(item.id, true);
+                      }
+                      if (e.key === "Escape") {
+                        skipItemBlurRef.current = true;
+                        cancelItemEdit(item.id);
+                      }
+                    }}
+                    onBlur={() => {
+                      if (skipItemBlurRef.current) {
+                        skipItemBlurRef.current = false;
+                        return;
+                      }
+                      finishItemEdit(item.id, false);
+                    }}
+                    placeholder="Add an item…"
+                    aria-label="Edit item"
+                    className="h-9 min-w-0 flex-1 rounded-md border border-cocoa/40 bg-white px-2 text-sm text-ink"
+                  />
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => startEditingItem(item)}
+                    title="Click to edit"
+                    className={`min-w-0 flex-1 cursor-text break-words text-left ${
+                      item.checked ? "text-cocoa line-through" : "text-ink"
+                    }`}
+                  >
+                    {item.name}
+                    {item.note && <span className="text-cocoa"> — {item.note}</span>}
+                  </button>
+                )}
+            </GroceryRow>
           ))}
-        </ul>
+        </GroceryList>
       )}
     </div>
   );

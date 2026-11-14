@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, DisabledButton } from "@/ui";
+import { WeekSelector } from "@/ui";
 import { useState } from "react";
 import Link from "next/link";
 import { RiCheckLine, RiDraggable } from "@remixicon/react";
@@ -239,28 +239,14 @@ export function WeekPlanClient({ initialPlan, recipes }: { initialPlan: Plan; re
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 p-4 pb-24">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <h1 className="text-3xl text-brick">Meal Plan</h1>
-        <div className="flex flex-wrap items-center gap-2 text-sm">
-          {plan.weekKey !== currentWeekKey && (
-            <Button as={Link} variant="secondary" compact href={`/plan?week=${currentWeekKey}`} className="font-medium text-brick">
-              This week
-            </Button>
-          )}
-          {canGoToPrevWeek ? (
-            <Button as={Link} variant="secondary" compact href={`/plan?week=${addDaysToKey(plan.weekKey, -7)}`}>
-              ← Prev
-            </Button>
-          ) : (
-            <DisabledButton>← Prev</DisabledButton>
-          )}
-          <span className="font-medium text-ink">{formatWeekLabel(plan.weekKey)}</span>
-          {canGoToNextWeek ? (
-            <Button as={Link} variant="secondary" compact href={`/plan?week=${addDaysToKey(plan.weekKey, 7)}`}>
-              Next →
-            </Button>
-          ) : (
-            <DisabledButton title={`You can plan up to ${MAX_WEEKS_AHEAD} weeks ahead`}>Next →</DisabledButton>
-          )}
-        </div>
+        <WeekSelector
+          as={Link}
+          label={formatWeekLabel(plan.weekKey)}
+          thisWeekHref={plan.weekKey !== currentWeekKey ? `/plan?week=${currentWeekKey}` : null}
+          prevHref={canGoToPrevWeek ? `/plan?week=${addDaysToKey(plan.weekKey, -7)}` : null}
+          nextHref={canGoToNextWeek ? `/plan?week=${addDaysToKey(plan.weekKey, 7)}` : null}
+          nextDisabledTitle={`You can plan up to ${MAX_WEEKS_AHEAD} weeks ahead`}
+        />
       </div>
 
       {saving && <p className="text-xs text-cocoa">Saving…</p>}

@@ -9,13 +9,35 @@ const lines = tokens.color.tokens.map((t) => {
   if (!/^#[0-9a-f]{3,8}$/i.test(v)) throw new Error(`Token ${t.name} must be a hex color, got ${v}`);
   return `  --${t.name}: ${v};`;
 });
-const css = fs.readFileSync("src/app/globals.css", "utf8");
-const start = "/* ds:colors:start";
-const end = "/* ds:colors:end */";
-const a = css.indexOf(start);
-const b = css.indexOf(end);
-if (a < 0 || b < 0) throw new Error("ds:colors markers missing in src/app/globals.css");
-const headerEnd = css.indexOf("*/", a) + 2;
-const next = css.slice(0, headerEnd) + "\n" + lines.join("\n") + "\n  " + css.slice(b);
-fs.writeFileSync("src/app/globals.css", next);
-console.log(`Wrote ${lines.length} color tokens`);
+let css = fs.readFileSync("src/app/globals.css", "utf8");
+
+function replaceBlock(css, name, lines, indent) {
+  const start = `/* ds:${name}:start`;
+  const end = `/* ds:${name}:end */`;
+  const a = css.indexOf(start);
+  const b = css.indexOf(end);
+  if (a < 0 || b < 0) throw new Error(`ds:${name} markers missing in src/app/globals.css`);
+  const headerEnd = css.indexOf("*/", a) + 2;
+  return css.slice(0, headerEnd) + "\n" + lines.join("\n") + "\n" + indent + css.slice(b);
+}
+
+const radius = Object.fromEntries((tokens.radius?.tokens ?? []).map((t) => [t.name, t.value]));
+for (const k of ["radius-control", "radius-modal", "radius-card-sm", "radius-card-lg"]) {
+  if (!/^\d+(\.\d+)?(px|rem)$/.test(radius[k] ?? "")) throw new Error(`Radius token ${k} must be a px or rem length`);
+}
+css = replaceBlock(css, "colors", lines, "  ");
+css = replaceBlock(css, "radius", [`  --radius-md: ${radius["radius-control"]};`, `  --radius-lg: ${radius["radius-modal"]};`], "  ");
+css = replaceBlock(
+  css,
+  "card",
+  [
+    ".card {",
+    `  border-radius: ${radius["radius-card-sm"]} ${radius["radius-card-lg"]} ${radius["radius-card-sm"]} ${radius["radius-card-lg"]};`,
+    "  border: 1px solid var(--cocoa);",
+    "  background: var(--white);",
+    "}",
+  ],
+  ""
+);
+fs.writeFileSync("src/app/globals.css", css);
+console.log(`Wrote ${lines.length} color tokens and 4 radii`);

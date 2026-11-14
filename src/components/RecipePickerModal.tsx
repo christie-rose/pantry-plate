@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { RiCloseLine } from "@remixicon/react";
+import { Modal } from "@/ui";
 import { CUISINES, PROTEIN_TYPES, RECIPE_CATEGORIES, detectProteins } from "@/lib/recipes";
 import type { PlanRecipeOption } from "@/components/WeekPlanClient";
 
@@ -43,18 +43,7 @@ export function RecipePickerModal({
   }, [recipes, search, categoryFilter, proteinFilter, cuisineFilter]);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/40 p-4" onClick={onClose}>
-      <div
-        onClick={(e) => e.stopPropagation()}
-        className="flex max-h-[85vh] w-full max-w-md flex-col gap-3 rounded-lg bg-white p-4 shadow-lg"
-      >
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg text-brick">Choose a recipe</h2>
-          <button type="button" onClick={onClose} aria-label="Close" className="flex h-8 w-8 items-center justify-center rounded-md text-cocoa hover:bg-paper-alt">
-            <RiCloseLine size={20} aria-hidden />
-          </button>
-        </div>
-
+    <Modal title="Choose a recipe" onClose={onClose}>
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
@@ -135,7 +124,6 @@ export function RecipePickerModal({
             </ul>
           )}
         </div>
-      </div>
-    </div>
+    </Modal>
   );
 }

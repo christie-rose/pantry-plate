@@ -17,6 +17,10 @@
 }
 
 @theme inline {
+  /* ds:radius:start — generated from the design system radius tokens by scripts/sync-tokens.mjs */
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  /* ds:radius:end */
   --color-paper: var(--paper);
   --color-paper-alt: var(--paper-alt);
   --color-ink: var(--ink);
@@ -44,8 +48,10 @@ h4 {
   font-family: var(--font-fraunces), serif;
 }
 
+/* ds:card:start — generated from the design system radius tokens by scripts/sync-tokens.mjs */
 .card {
   border-radius: 4px 14px 4px 14px;
   border: 1px solid var(--cocoa);
   background: var(--white);
 }
+/* ds:card:end */
