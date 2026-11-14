@@ -34,3 +34,13 @@ export function recipeBlocksIn(doc: unknown): { recipeId: string; title: string;
 }
 
 export const asJson = (doc: MenuDoc): Prisma.InputJsonValue => doc as unknown as Prisma.InputJsonValue;
+
+/** Parses a YYYY-MM-DD string into a UTC date, or null when empty. Returns undefined when it isn't a valid date. */
+export function parseDay(value: unknown): Date | null | undefined {
+  if (value === null || value === "" || value === undefined) return null;
+  if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return undefined;
+  const d = new Date(`${value}T00:00:00.000Z`);
+  return isNaN(d.getTime()) ? undefined : d;
+}
+
+export const dayString = (d: Date | null): string => (d ? d.toISOString().slice(0, 10) : "");

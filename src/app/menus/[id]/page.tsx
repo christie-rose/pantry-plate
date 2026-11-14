@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { MenuEditor } from "@/components/menu/MenuEditor";
-import { emptyMenuDoc, isMenuDoc } from "@/lib/menus";
+import { dayString, emptyMenuDoc, isMenuDoc } from "@/lib/menus";
 
 export const dynamic = "force-dynamic";
 
@@ -29,7 +29,8 @@ export default async function MenuPage({ params }: { params: Promise<{ id: strin
       menu={{
         id: menu.id,
         title: menu.title,
-        date: menu.date ? menu.date.toISOString().slice(0, 10) : "",
+        startDate: dayString(menu.startDate),
+        endDate: dayString(menu.endDate),
         content: isMenuDoc(menu.content) ? menu.content : emptyMenuDoc(),
       }}
       recipes={recipes}

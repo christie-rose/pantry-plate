@@ -6,10 +6,16 @@ import { useRouter } from "next/navigation";
 import { RiDeleteBinLine, RiEdit2Line, RiFileCopyLine } from "@remixicon/react";
 import { ActionsMenu, EmptyState, MenuItem, PageTitle } from "@/ui";
 
-type MenuRow = { id: string; title: string; date: string | null; recipeCount: number };
+type MenuRow = { id: string; title: string; startDate: string; endDate: string; recipeCount: number };
 
-function formatDate(iso: string): string {
-  return new Date(`${iso}T00:00:00`).toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric", year: "numeric" });
+const day = (iso: string, withYear = false) =>
+  new Date(`${iso}T00:00:00`).toLocaleDateString(undefined, { month: "short", day: "numeric", ...(withYear ? { year: "numeric" } : {}) });
+
+/** "Nov 9", "Nov 9 to Nov 15", or "No dates". */
+function formatRange(start: string, end: string): string {
+  if (!start) return "No dates";
+  if (!end || end === start) return day(start, true);
+  return `${day(start)} to ${day(end, true)}`;
 }
 
 export function MenusClient({ initialMenus }: { initialMenus: MenuRow[] }) {
@@ -54,7 +60,7 @@ export function MenusClient({ initialMenus }: { initialMenus: MenuRow[] }) {
               <Link href={`/menus/${menu.id}`} className="flex flex-col gap-1 p-4 pr-14">
                 <h2 className="font-title text-2xl leading-tight text-ink">{menu.title}</h2>
                 <p className="text-xs text-cocoa">
-                  {menu.date ? formatDate(menu.date) : "No date"} · {menu.recipeCount}{" "}
+                  {formatRange(menu.startDate, menu.endDate)} · {menu.recipeCount}{" "}
                   {menu.recipeCount === 1 ? "recipe" : "recipes"}
                 </p>
               </Link>

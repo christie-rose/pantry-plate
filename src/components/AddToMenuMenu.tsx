@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { RiAddLine, RiArrowLeftSLine } from "@remixicon/react";
 import { MenuItem } from "@/ui";
 
-type MenuOption = { id: string; title: string; date: string | null };
+type MenuOption = { id: string; title: string; startDate: string | null };
 
 function shortDate(iso: string): string {
   return new Date(iso).toLocaleDateString(undefined, { month: "short", day: "numeric", timeZone: "UTC" });
@@ -86,7 +86,7 @@ export function AddToMenuMenu({
         {menus?.map((menu) => (
           <MenuItem key={menu.id} tone="ink" disabled={busy} onClick={() => addTo(menu.id, menu.title)} className="justify-between">
             <span className="truncate">{menu.title}</span>
-            {menu.date && <span className="shrink-0 text-cocoa">{shortDate(menu.date)}</span>}
+            {menu.startDate && <span className="shrink-0 text-cocoa">{shortDate(menu.startDate)}</span>}
           </MenuItem>
         ))}
       </div>

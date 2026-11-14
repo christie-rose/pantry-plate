@@ -70,7 +70,8 @@ model GroceryList {
 model Menu {
   id        String    @id @default(cuid())
   title     String
-  date      DateTime? // optional date the menu is for
+  startDate DateTime? // optional first day the menu covers
+  endDate   DateTime? // optional last day (same as start for a single day)
   content   Json // rich-text document (headings, text, recipe blocks)
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt

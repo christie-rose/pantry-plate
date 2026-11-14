@@ -3,7 +3,12 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { EditorContent, useEditor, useEditorState, type Editor } from "@tiptap/react";
+import {
+  EditorContent,
+  useEditor,
+  useEditorState,
+  type Editor,
+} from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { Placeholder } from "@tiptap/extensions";
 import {
@@ -18,7 +23,10 @@ import {
   RiRestaurantLine,
 } from "@remixicon/react";
 import { ActionsMenu, MenuItem } from "@/ui";
-import { RecipePickerModal, type PlanRecipeOption } from "@/components/RecipePickerModal";
+import {
+  RecipePickerModal,
+  type PlanRecipeOption,
+} from "@/components/RecipePickerModal";
 import { RecipeBlock } from "@/components/menu/RecipeBlock";
 import type { MenuDoc } from "@/lib/menus";
 
@@ -28,19 +36,31 @@ export function MenuEditor({
   menu,
   recipes,
 }: {
-  menu: { id: string; title: string; date: string; content: MenuDoc };
+  menu: {
+    id: string;
+    title: string;
+    startDate: string;
+    endDate: string;
+    content: MenuDoc;
+  };
   recipes: PlanRecipeOption[];
 }) {
   const router = useRouter();
   const [title, setTitle] = useState(menu.title);
-  const [date, setDate] = useState(menu.date);
+  const [startDate, setStartDate] = useState(menu.startDate);
+  const [endDate, setEndDate] = useState(menu.endDate);
   const [saveState, setSaveState] = useState<SaveState>("saved");
   const [showPicker, setShowPicker] = useState(false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [busy, setBusy] = useState(false);
 
   // The latest values, so a delayed save always sends what's on screen.
-  const latest = useRef({ title: menu.title, date: menu.date, content: menu.content as MenuDoc });
+  const latest = useRef({
+    title: menu.title,
+    startDate: menu.startDate,
+    endDate: menu.endDate,
+    content: menu.content as MenuDoc,
+  });
   const dirty = useRef(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -55,7 +75,12 @@ export function MenuEditor({
         const res = await fetch(`/api/menus/${menu.id}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ title: latest.current.title, date: latest.current.date || null, content: latest.current.content }),
+          body: JSON.stringify({
+            title: latest.current.title,
+            startDate: latest.current.startDate || null,
+            endDate: latest.current.endDate || null,
+            content: latest.current.content,
+          }),
           keepalive,
         });
         if (!res.ok) throw new Error();
@@ -78,8 +103,15 @@ export function MenuEditor({
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [
-      StarterKit.configure({ heading: { levels: [2, 3] }, link: false, underline: false }),
-      Placeholder.configure({ placeholder: "Write your menu here. Use the toolbar to add headings and recipes." }),
+      StarterKit.configure({
+        heading: { levels: [2, 3] },
+        link: false,
+        underline: false,
+      }),
+      Placeholder.configure({
+        placeholder:
+          "Write your menu here. Use the toolbar to add headings and recipes.",
+      }),
       RecipeBlock,
     ],
     content: menu.content,
@@ -100,12 +132,29 @@ export function MenuEditor({
     };
   }, [save]);
 
+  // Keeps the range sensible: a start after the end pulls the end forward to match.
+  function changeDates(start: string, end: string) {
+    const nextEnd = start && end && end < start ? start : end;
+    setStartDate(start);
+    setEndDate(nextEnd);
+    latest.current.startDate = start;
+    latest.current.endDate = nextEnd;
+    scheduleSave();
+  }
+
   function insertRecipe(recipe: PlanRecipeOption) {
     editor
       ?.chain()
       .focus()
       .insertContent([
-        { type: "recipe", attrs: { recipeId: recipe.id, title: recipe.title, servings: recipe.servings } },
+        {
+          type: "recipe",
+          attrs: {
+            recipeId: recipe.id,
+            title: recipe.title,
+            servings: recipe.servings,
+          },
+        },
         { type: "paragraph" },
       ])
       .run();
@@ -115,7 +164,9 @@ export function MenuEditor({
   async function duplicate() {
     setBusy(true);
     await save();
-    const res = await fetch(`/api/menus/${menu.id}/duplicate`, { method: "POST" }).catch(() => null);
+    const res = await fetch(`/api/menus/${menu.id}/duplicate`, {
+      method: "POST",
+    }).catch(() => null);
     if (!res?.ok) return setBusy(false);
     const copy = await res.json();
     router.push(`/menus/${copy.id}`);
@@ -124,7 +175,9 @@ export function MenuEditor({
   async function remove() {
     setBusy(true);
     dirty.current = false;
-    const res = await fetch(`/api/menus/${menu.id}`, { method: "DELETE" }).catch(() => null);
+    const res = await fetch(`/api/menus/${menu.id}`, {
+      method: "DELETE",
+    }).catch(() => null);
     if (!res?.ok) return setBusy(false);
     router.push("/menus");
     router.refresh();
@@ -138,13 +191,20 @@ export function MenuEditor({
         </Link>
         <div className="flex items-center gap-3">
           <span className="text-xs text-cocoa" role="status">
-            {saveState === "saving" ? "Saving…" : saveState === "error" ? "Couldn't save. Retrying on your next edit." : "Saved"}
+            {saveState === "saving"
+              ? "Saving…"
+              : saveState === "error"
+                ? "Couldn't save. Retrying on your next edit."
+                : "Saved"}
           </span>
           <ActionsMenu size="lg" label="Menu actions">
             {(close) =>
               confirmingDelete ? (
                 <div className="flex flex-col gap-2 p-1">
-                  <p className="text-sm text-ink">Delete “{title || "Untitled menu"}” for good? This can’t be undone.</p>
+                  <p className="text-sm text-ink">
+                    Delete “{title || "Untitled menu"}” for good? This can’t be
+                    undone.
+                  </p>
                   <div className="flex gap-2">
                     <button
                       type="button"
@@ -168,10 +228,19 @@ export function MenuEditor({
                 </div>
               ) : (
                 <>
-                  <MenuItem tone="ink" icon={<RiFileCopyLine size={16} aria-hidden />} onClick={duplicate} disabled={busy}>
+                  <MenuItem
+                    tone="ink"
+                    icon={<RiFileCopyLine size={16} aria-hidden />}
+                    onClick={duplicate}
+                    disabled={busy}
+                  >
                     {busy ? "Duplicating…" : "Duplicate"}
                   </MenuItem>
-                  <MenuItem tone="danger" icon={<RiDeleteBinLine size={16} aria-hidden />} onClick={() => setConfirmingDelete(true)}>
+                  <MenuItem
+                    tone="danger"
+                    icon={<RiDeleteBinLine size={16} aria-hidden />}
+                    onClick={() => setConfirmingDelete(true)}
+                  >
                     Delete menu
                   </MenuItem>
                 </>
@@ -193,19 +262,27 @@ export function MenuEditor({
           aria-label="Menu title"
           className="w-full border-0 bg-transparent p-0 font-title text-4xl leading-tight text-ink outline-none! ring-0 placeholder:text-cocoa/40"
         />
-        <label className="flex items-center gap-2 text-sm text-cocoa">
-          Date
-          <input
-            type="date"
-            value={date}
-            onChange={(e) => {
-              setDate(e.target.value);
-              latest.current.date = e.target.value;
-              scheduleSave();
-            }}
-            className="min-h-[36px] rounded-md border border-cocoa/30 bg-transparent px-2 text-sm text-ink"
-          />
-        </label>
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-cocoa">
+          <label className="flex items-center gap-2">
+            Start
+            <input
+              type="date"
+              value={startDate}
+              onChange={(e) => changeDates(e.target.value, endDate)}
+              className="min-h-[36px] rounded-md border border-cocoa/30 bg-transparent px-2 text-sm text-ink"
+            />
+          </label>
+          <label className="flex items-center gap-2">
+            End
+            <input
+              type="date"
+              value={endDate}
+              min={startDate || undefined}
+              onChange={(e) => changeDates(startDate, e.target.value)}
+              className="min-h-[36px] rounded-md border border-cocoa/30 bg-transparent px-2 text-sm text-ink"
+            />
+          </label>
+        </div>
       </div>
 
       <Toolbar editor={editor} onInsertRecipe={() => setShowPicker(true)} />
@@ -215,13 +292,23 @@ export function MenuEditor({
       </div>
 
       {showPicker && (
-        <RecipePickerModal recipes={recipes} onSelect={insertRecipe} onClose={() => setShowPicker(false)} />
+        <RecipePickerModal
+          recipes={recipes}
+          onSelect={insertRecipe}
+          onClose={() => setShowPicker(false)}
+        />
       )}
     </div>
   );
 }
 
-function Toolbar({ editor, onInsertRecipe }: { editor: Editor | null; onInsertRecipe: () => void }) {
+function Toolbar({
+  editor,
+  onInsertRecipe,
+}: {
+  editor: Editor | null;
+  onInsertRecipe: () => void;
+}) {
   const active = useEditorState({
     editor,
     selector: ({ editor }) => ({
@@ -237,29 +324,83 @@ function Toolbar({ editor, onInsertRecipe }: { editor: Editor | null; onInsertRe
 
   const btn = (on: boolean) =>
     `flex h-10 w-10 items-center justify-center rounded-md border ${
-      on ? "border-brick bg-paper-alt text-brick" : "border-cocoa/30 text-ink hover:bg-paper-alt"
+      on
+        ? "border-brick bg-paper-alt text-brick"
+        : "border-cocoa/30 text-ink hover:bg-paper-alt"
     }`;
   // mousedown is held back so the editor keeps its selection while a button is pressed.
   const hold = (e: React.MouseEvent) => e.preventDefault();
 
   return (
-    <div className="flex flex-wrap items-center gap-2" role="toolbar" aria-label="Formatting">
-      <button type="button" onMouseDown={hold} onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()} aria-label="Heading" aria-pressed={active?.h2} title="Heading" className={btn(!!active?.h2)}>
+    <div
+      className="flex flex-wrap items-center gap-2"
+      role="toolbar"
+      aria-label="Formatting"
+    >
+      <button
+        type="button"
+        onMouseDown={hold}
+        onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+        aria-label="Heading"
+        aria-pressed={active?.h2}
+        title="Heading"
+        className={btn(!!active?.h2)}
+      >
         <RiH2 size={18} aria-hidden />
       </button>
-      <button type="button" onMouseDown={hold} onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()} aria-label="Subheading" aria-pressed={active?.h3} title="Subheading" className={btn(!!active?.h3)}>
+      <button
+        type="button"
+        onMouseDown={hold}
+        onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
+        aria-label="Subheading"
+        aria-pressed={active?.h3}
+        title="Subheading"
+        className={btn(!!active?.h3)}
+      >
         <RiH3 size={18} aria-hidden />
       </button>
-      <button type="button" onMouseDown={hold} onClick={() => editor.chain().focus().toggleBold().run()} aria-label="Bold" aria-pressed={active?.bold} title="Bold" className={btn(!!active?.bold)}>
+      <button
+        type="button"
+        onMouseDown={hold}
+        onClick={() => editor.chain().focus().toggleBold().run()}
+        aria-label="Bold"
+        aria-pressed={active?.bold}
+        title="Bold"
+        className={btn(!!active?.bold)}
+      >
         <RiBold size={18} aria-hidden />
       </button>
-      <button type="button" onMouseDown={hold} onClick={() => editor.chain().focus().toggleItalic().run()} aria-label="Italic" aria-pressed={active?.italic} title="Italic" className={btn(!!active?.italic)}>
+      <button
+        type="button"
+        onMouseDown={hold}
+        onClick={() => editor.chain().focus().toggleItalic().run()}
+        aria-label="Italic"
+        aria-pressed={active?.italic}
+        title="Italic"
+        className={btn(!!active?.italic)}
+      >
         <RiItalic size={18} aria-hidden />
       </button>
-      <button type="button" onMouseDown={hold} onClick={() => editor.chain().focus().toggleBulletList().run()} aria-label="Bulleted list" aria-pressed={active?.bullet} title="Bulleted list" className={btn(!!active?.bullet)}>
+      <button
+        type="button"
+        onMouseDown={hold}
+        onClick={() => editor.chain().focus().toggleBulletList().run()}
+        aria-label="Bulleted list"
+        aria-pressed={active?.bullet}
+        title="Bulleted list"
+        className={btn(!!active?.bullet)}
+      >
         <RiListUnordered size={18} aria-hidden />
       </button>
-      <button type="button" onMouseDown={hold} onClick={() => editor.chain().focus().toggleOrderedList().run()} aria-label="Numbered list" aria-pressed={active?.ordered} title="Numbered list" className={btn(!!active?.ordered)}>
+      <button
+        type="button"
+        onMouseDown={hold}
+        onClick={() => editor.chain().focus().toggleOrderedList().run()}
+        aria-label="Numbered list"
+        aria-pressed={active?.ordered}
+        title="Numbered list"
+        className={btn(!!active?.ordered)}
+      >
         <RiListOrdered size={18} aria-hidden />
       </button>
       <button
