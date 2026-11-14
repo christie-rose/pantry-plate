@@ -142,7 +142,7 @@ export function RecipesClient({ initialRecipes }: { initialRecipes: Recipe[] }) 
                     src={`/api/recipes/${recipe.id}/image?v=${new Date(recipe.image.updatedAt).getTime()}`}
                   />
                 )}
-                <h2 className="font-title text-2xl leading-tight text-cocoa">{recipe.title}</h2>
+                <h2 className="font-title text-2xl leading-tight text-ink">{recipe.title}</h2>
                 <p className="text-xs text-cocoa">
                   Serves {recipe.servings} · {recipe.source}
                 </p>

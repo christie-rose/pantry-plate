@@ -8,7 +8,7 @@ export function PageTitle({ children, className = "" }: { children: ReactNode; c
   return <h1 className={`text-xl font-medium leading-tight text-cocoa ${className}`}>{children}</h1>;
 }
 
-/** A recipe's own name at the top of its page: the brush script, 36px, cocoa, like a title on a handwritten recipe page. */
+/** A recipe's own name at the top of its page: the brush script, 36px, ink, like a title on a handwritten recipe page. */
 export function RecipeTitle({ children, className = "" }: { children: ReactNode; className?: string }) {
-  return <h1 className={`font-title text-4xl leading-tight text-cocoa ${className}`}>{children}</h1>;
+  return <h1 className={`font-title text-4xl leading-tight text-ink ${className}`}>{children}</h1>;
 }
