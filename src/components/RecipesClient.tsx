@@ -68,7 +68,7 @@ export function RecipesClient({ initialRecipes }: { initialRecipes: Recipe[] }) 
         </Link>
       </div>
 
-      <div className="flex flex-wrap gap-x-0.5">
+      <div className="flex flex-wrap gap-x-0.5 gap-y-3">
         {(["", ...RECIPE_CATEGORIES] as const).map((c) => (
           <button
             key={c || "all"}
