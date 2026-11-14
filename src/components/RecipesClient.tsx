@@ -54,7 +54,7 @@ export function RecipesClient({ initialRecipes }: { initialRecipes: Recipe[] }) 
 
   const hasActiveFilters = Boolean(search || categoryFilter || proteinFilter || cuisineFilter);
 
-  const filterCount = [categoryFilter, proteinFilter, cuisineFilter].filter(Boolean).length;
+  const filterCount = [proteinFilter, cuisineFilter].filter(Boolean).length;
 
   function clearFilters() {
     setCategoryFilter("");
@@ -71,6 +71,23 @@ export function RecipesClient({ initialRecipes }: { initialRecipes: Recipe[] }) 
         </Link>
       </div>
 
+      <div className="-mx-1 flex gap-1 overflow-x-auto border-b border-cocoa/20 px-1">
+        {(["", ...RECIPE_CATEGORIES] as const).map((c) => (
+          <button
+            key={c || "all"}
+            type="button"
+            onClick={() => setCategoryFilter(c)}
+            className={`-mb-px shrink-0 whitespace-nowrap rounded-t-md border-b-2 px-3 py-2 text-sm ${
+              categoryFilter === c
+                ? "border-brick bg-paper-alt font-medium text-brick"
+                : "border-transparent text-cocoa hover:text-ink"
+            }`}
+          >
+            {c || "All"}
+          </button>
+        ))}
+      </div>
+
       <div className="flex items-center gap-2">
         <input
           value={search}
@@ -85,16 +102,12 @@ export function RecipesClient({ initialRecipes }: { initialRecipes: Recipe[] }) 
       {filtersOpen && (
         <FilterSheet
           onClose={() => setFiltersOpen(false)}
-          onClear={clearFilters}
+          onClear={() => {
+            setProteinFilter("");
+            setCuisineFilter("");
+          }}
           doneLabel={`Show ${recipes.length} ${recipes.length === 1 ? "recipe" : "recipes"}`}
         >
-          <FilterGroup label="Category">
-            {(["", ...RECIPE_CATEGORIES] as const).map((c) => (
-              <FilterChip key={c || "all"} selected={categoryFilter === c} onClick={() => setCategoryFilter(c)}>
-                {c || "All"}
-              </FilterChip>
-            ))}
-          </FilterGroup>
           <FilterGroup label="Protein">
             {["", ...PROTEIN_TYPES].map((p) => (
               <FilterChip key={p || "all"} selected={proteinFilter === p} onClick={() => setProteinFilter(p)}>
